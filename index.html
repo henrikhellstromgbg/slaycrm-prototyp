@@ -135,6 +135,11 @@
   .filt-pop { position: absolute; top: calc(100% + 6px); left: 0; z-index: 50; display: none;
     min-width: 264px; background: var(--white); border: 1px solid var(--line);
     border-radius: var(--r); padding: 6px; box-shadow: 0 8px 28px rgba(0,0,0,.12); }
+  /* Datum-knappen lika bred som sin dropdown, antal + pil högerställda */
+  #filt-date { width: 264px; }
+  #filt-date .filt-btn { width: 100%; }
+  #filt-date .filt-pop { width: 100%; min-width: 0; }
+  #filt-date .filt-btn .fc { margin-left: auto; }
   .filt.open .filt-pop { display: block; }
   .filt-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%;
     text-align: left; background: transparent; border: 0; border-radius: 5px; padding: 9px 10px;
@@ -1034,8 +1039,8 @@
     switch (id) {
       case 'idag': return fmtDate(TODAY_ISO);
       case 'imorgon': return fmtDate(TOM_ISO);
-      case 'denna-vecka': return `${fmtDate(REST_START)}–${fmtDate(WEEK_END)}`;
-      case 'nasta-vecka': return `${fmtDate(NEXT_START)}–${fmtDate(NEXT_END)}`;
+      case 'denna-vecka': return fmtRange(REST_START, WEEK_END);
+      case 'nasta-vecka': return fmtRange(NEXT_START, NEXT_END);
       case 'kommande': return `efter ${fmtDate(NEXT_END)}`;
       case 'forsenat': return `före ${fmtDate(TODAY_ISO)}`;
       default: return '';
