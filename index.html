@@ -1111,7 +1111,7 @@
     }
     const rangeTxt = rFrom
       ? `${fmtLong(rFrom)}${rTo && rTo !== rFrom ? ' – ' + fmtLong(rTo) : ''}`
-      : 'Välj start- och slutdatum';
+      : '';
     document.getElementById('pop-date').innerHTML = `
       <div class="rp-head">
         <button class="rp-back" onclick="backToBuckets()">‹ Tillbaka</button>
@@ -1126,7 +1126,7 @@
         <div class="cal-grid">${DOW.map(d => `<span class="cal-dow">${d}</span>`).join('')}${cells}</div>
       </div>
       <div class="rp-foot">
-        <span class="rp-range">${rangeTxt}</span>
+        ${rangeTxt ? `<span class="rp-range">${rangeTxt}</span>` : ''}
         <div class="rp-actions">
           <button class="rp-clear" onclick="clearRange()">Rensa</button>
           <button class="btn btn-primary btn-sm" ${rFrom ? '' : 'disabled'} onclick="applyRange()">Använd</button>
