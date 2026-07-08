@@ -120,14 +120,52 @@
                     padding: 8px 14px; font-size: 14px; font-weight: 600; color: var(--muted); }
   .segment button:last-child { border-right: 0; }
   .segment button.on { background: var(--ink); color: #fff; }
-  /* Datum- och ansvarig-filter: speglar skarpa aktivitetsvyns två dropdowns */
-  .filter-select { position: relative; display: inline-flex; }
-  .filter-select select { appearance: none; -webkit-appearance: none;
-    border: 1px solid var(--line-strong); border-radius: var(--r); background: var(--white);
-    color: var(--ink); padding: 8px 36px 8px 14px; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
-  .filter-select select:hover { border-color: var(--ink); }
-  .filter-select::after { content: '▾'; position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
-    pointer-events: none; color: var(--faint); font-size: 14px; line-height: 1; }
+  /* Filter: tre popovers (Datum, Ansvarig, Typ). Speglar skarpa Att göra + Aktiviteter. */
+  .filt { position: relative; }
+  .filt-btn { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line-strong);
+    border-radius: var(--r); background: var(--white); color: var(--ink);
+    padding: 8px 12px; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .filt-btn:hover { border-color: var(--ink); }
+  .filt.open .filt-btn { border-color: var(--ink); background: var(--panel); }
+  .filt-btn .fv { color: var(--accent-hover); font-weight: 700; }
+  .filt-btn .cv { color: var(--faint); font-size: 14px; line-height: 1; }
+  .filt-pop { position: absolute; top: calc(100% + 6px); left: 0; z-index: 50; display: none;
+    min-width: 264px; background: var(--white); border: 1px solid var(--line);
+    border-radius: var(--r); padding: 6px; box-shadow: 0 8px 28px rgba(0,0,0,.12); }
+  .filt.open .filt-pop { display: block; }
+  .filt-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%;
+    text-align: left; background: transparent; border: 0; border-radius: 5px; padding: 9px 10px;
+    font: inherit; font-size: 15px; color: var(--ink); cursor: pointer; }
+  .filt-row:hover { background: var(--panel); }
+  .filt-row.on { background: var(--panel-2); font-weight: 700; }
+  .filt-row .fr-l { display: flex; flex-direction: column; gap: 1px; }
+  .fr-hint { font-size: 14px; font-weight: 400; color: var(--faint); }
+  .filt-row .fr-n { color: var(--faint); font-size: 14px; font-weight: 600; }
+  .filt-sep { height: 1px; background: var(--line); margin: 6px 4px; }
+  .filt-custom { padding: 4px 10px 8px; }
+  .filt-custom .fc-label { font-size: 14px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
+  .rng { display: flex; align-items: center; gap: 8px; }
+  .rng input { border: 1px solid var(--line-strong); border-radius: 5px; padding: 6px 8px;
+    font: inherit; font-size: 14px; color: var(--ink); }
+  .filt-apply { margin-top: 8px; }
+  .filt-quick { display: flex; gap: 6px; padding: 4px 4px 8px; }
+  .filt-quick button { flex: 1; border: 1px solid var(--line-strong); border-radius: 5px; background: var(--white);
+    padding: 7px 8px; font: inherit; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .filt-quick button:hover { border-color: var(--ink); color: var(--ink); }
+  .filt-search { width: 100%; box-sizing: border-box; border: 1px solid var(--line-strong); border-radius: 5px;
+    padding: 8px 10px; font: inherit; font-size: 14px; color: var(--ink); margin-bottom: 4px; }
+  .filt-list { max-height: 240px; overflow-y: auto; }
+  .filt-check { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 5px;
+    font-size: 15px; color: var(--ink); cursor: pointer; }
+  .filt-check:hover { background: var(--panel); }
+  .filt-check input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+  .filt-check .ft-ic { display: inline-flex; color: var(--muted); }
+  .filt-check .fr-n { margin-left: auto; color: var(--faint); font-size: 14px; font-weight: 600; }
+  .filt-actions { display: flex; gap: 6px; border-top: 1px solid var(--line); margin-top: 4px; padding-top: 6px; }
+  .filt-actions button { flex: 1; background: transparent; border: 0; border-radius: 5px; padding: 8px;
+    font: inherit; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .filt-actions button:hover { background: var(--panel); color: var(--ink); }
+  .filt-empty { padding: 12px 10px; font-size: 14px; color: var(--faint); }
 
   /* ── Lista ──────────────────────────────────────────────────────── */
   .list { padding: 0 24px 32px; }
@@ -480,14 +518,17 @@
     </div>
 
     <div class="filters">
-      <div class="filter-select">
-        <select id="bucket" aria-label="Datumfilter"></select>
+      <div class="filt" id="filt-date">
+        <button class="filt-btn" onclick="toggleFilt('date')">Datum <span class="fv" id="fv-date">Alla</span> <span class="cv">▾</span></button>
+        <div class="filt-pop" id="pop-date"></div>
       </div>
-      <div class="filter-select">
-        <select id="owner" aria-label="Ansvarig">
-          <option value="mina">Mina</option>
-          <option value="alla">Hela teamet</option>
-        </select>
+      <div class="filt" id="filt-owner">
+        <button class="filt-btn" onclick="toggleFilt('owner')">Ansvarig <span class="fv" id="fv-owner">Mina</span> <span class="cv">▾</span></button>
+        <div class="filt-pop" id="pop-owner"></div>
+      </div>
+      <div class="filt" id="filt-type">
+        <button class="filt-btn" onclick="toggleFilt('type')">Typ <span class="fv" id="fv-type">Alla typer</span> <span class="cv">▾</span></button>
+        <div class="filt-pop" id="pop-type"></div>
       </div>
     </div>
 
@@ -768,7 +809,7 @@
 
 <script>
   // ── DATA (byt/lägg till rader) ───────────────────────────────────
-  const TODAY = new Date('2026-07-07');
+  const TODAY = new Date('2026-07-08');
   const DEALS = [];
   // pågående affärer per företag (att kunna koppla en avslutad aktivitet till)
   const EXISTING_DEALS_BY_CO = {
@@ -911,51 +952,174 @@
   }
 
   // ── VY A: lista ─────────────────────────────────────────────────
-  let bucket = 'alla', owner = 'mina', flashId = null;
+  let bucket = 'alla', flashId = null;
+  let customFrom = '', customTo = '';
   // Behörighet: bara superadmin får radera data permanent. Säljare arkiverar.
   let ROLE = 'seller'; // 'seller' | 'superadmin'
 
-  // ── Filter: samma två som skarpa aktivitetsvyn ──────────────────
-  // Datum-bucket (med antal) + ansvarig (Mina / Hela teamet). "Genomfört"
-  // är en egen bucket, precis som i skarpa (ersätter gamla "Visa klara").
+  // ── Filter: speglar skarpa "Att göra + Aktiviteter" (William + Lulas feedback) ──
+  // Tre popovers: Datum (bucket + eget intervall), Ansvarig (flerval per person),
+  // Typ (flerval per aktivitetstyp). Sök i topbaren filtrerar fritext.
+  const CURRENT_USER = 'William Bernting';
+  const ALL_OWNERS = [...new Set(ACTIVITIES.map(a => a.owner))];
+  let ownerSel = new Set([CURRENT_USER]);   // startar på "Mina"
+  let typeSel = new Set();                   // tom = alla typer
+  let ownerSearch = '', typeSearch = '';
+
   const DATE_BUCKETS = [
-    { id: 'forsenat', label: 'Försenat' },
     { id: 'alla', label: 'Alla' },
     { id: 'idag', label: 'Idag' },
     { id: 'imorgon', label: 'Imorgon' },
     { id: 'denna-vecka', label: 'Denna vecka' },
     { id: 'nasta-vecka', label: 'Nästa vecka' },
+    { id: 'kommande', label: 'Kommande' },
+    { id: 'forsenat', label: 'Försenat' },
     { id: 'utan-datum', label: 'Utan datum' },
-    { id: 'klart', label: 'Genomfört' },
+    { id: 'klart', label: 'Klart' },
+    { id: 'anpassat', label: 'Eget intervall' },
   ];
   const isoAdd = (iso, n) => { const d = new Date(iso); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
   const TODAY_ISO = TODAY.toISOString().slice(0, 10);
-  const WEEK_START = isoAdd(TODAY_ISO, -((new Date(TODAY_ISO).getDay() + 6) % 7)); // måndag denna vecka
+  const TOM_ISO = isoAdd(TODAY_ISO, 1);
+  const REST_START = isoAdd(TODAY_ISO, 2);                                          // "denna vecka" börjar efter imorgon
+  const WEEK_START = isoAdd(TODAY_ISO, -((new Date(TODAY_ISO).getDay() + 6) % 7));  // måndag denna vecka
   const WEEK_END = isoAdd(WEEK_START, 6);
   const NEXT_START = isoAdd(WEEK_START, 7);
   const NEXT_END = isoAdd(NEXT_START, 6);
   function inBucket(a, b) {
     const done = a.actStatus === 'klar';
     if (b === 'klart') return done;
-    if (done) return false;                 // klara syns bara under Genomfört
+    if (done) return false;                 // klara syns bara under Klart
     const d = a.date;
     switch (b) {
       case 'alla': return true;
       case 'forsenat': return !!d && d < TODAY_ISO;
       case 'idag': return d === TODAY_ISO;
-      case 'imorgon': return d === isoAdd(TODAY_ISO, 1);
-      case 'denna-vecka': return !!d && d >= WEEK_START && d <= WEEK_END;
+      case 'imorgon': return d === TOM_ISO;
+      case 'denna-vecka': return !!d && d >= REST_START && d <= WEEK_END;
       case 'nasta-vecka': return !!d && d >= NEXT_START && d <= NEXT_END;
+      case 'kommande': return !!d && d > NEXT_END;
       case 'utan-datum': return !d;
+      case 'anpassat': return !!d && (!customFrom || d >= customFrom) && (!customTo || d <= customTo);
       default: return true;
     }
   }
-  const ownerMatch = a => owner === 'alla' || a.mine;
-  const bucketCount = b => ACTIVITIES.filter(a => ownerMatch(a) && inBucket(a, b)).length;
-  function renderBucketOptions() {
-    document.getElementById('bucket').innerHTML = DATE_BUCKETS
-      .map(b => `<option value="${b.id}" ${b.id === bucket ? 'selected' : ''}>${b.label} (${bucketCount(b.id)})</option>`)
-      .join('');
+  function bucketHint(id) {
+    switch (id) {
+      case 'idag': return fmtLong(TODAY_ISO);
+      case 'imorgon': return fmtLong(TOM_ISO);
+      case 'denna-vecka': return `${fmtDate(REST_START)}–${fmtDate(WEEK_END)}`;
+      case 'nasta-vecka': return `${fmtDate(NEXT_START)}–${fmtDate(NEXT_END)}`;
+      case 'kommande': return `efter ${fmtDate(NEXT_END)}`;
+      case 'forsenat': return `före ${fmtDate(TODAY_ISO)}`;
+      default: return '';
+    }
+  }
+  const ownerMatch = a => ownerSel.has(a.owner);
+  const typeMatch = a => typeSel.size === 0 || typeSel.has(a.type);
+  const bucketCount = b => ACTIVITIES.filter(a => ownerMatch(a) && typeMatch(a) && inBucket(a, b)).length;
+
+  // ── Filter-popovers ─────────────────────────────────────────────
+  // Inline-handlers når bara globala funktioner (script-scope-let syns inte),
+  // så all tillståndsändring går via setter-funktioner här.
+  function closeFilts() { document.querySelectorAll('.filt.open').forEach(f => f.classList.remove('open')); }
+  function toggleFilt(which) {
+    const el = document.getElementById('filt-' + which);
+    const open = el.classList.contains('open');
+    closeFilts();
+    if (!open) { el.classList.add('open'); ({ date: renderDatePop, owner: renderOwnerPop, type: renderTypePop }[which])(); }
+  }
+
+  // Datum
+  function setBucket(id) { bucket = id; renderList(); closeFilts(); }
+  function setCustom(which, val) { if (which === 'from') customFrom = val; else customTo = val; }
+  function applyCustom() { bucket = 'anpassat'; renderList(); closeFilts(); }
+  function renderDatePop() {
+    const rows = DATE_BUCKETS.filter(b => b.id !== 'anpassat').map(b => {
+      const hint = bucketHint(b.id);
+      return `<button class="filt-row ${b.id === bucket ? 'on' : ''}" onclick="setBucket('${b.id}')">
+        <span class="fr-l">${b.label}${hint ? `<span class="fr-hint">${hint}</span>` : ''}</span>
+        <span class="fr-n">${bucketCount(b.id)}</span></button>`;
+    }).join('');
+    document.getElementById('pop-date').innerHTML = `
+      ${rows}
+      <div class="filt-sep"></div>
+      <div class="filt-custom ${bucket === 'anpassat' ? 'on' : ''}">
+        <div class="fc-label">Eget intervall</div>
+        <div class="rng">
+          <input type="date" value="${customFrom}" oninput="setCustom('from', this.value)" aria-label="Från datum">
+          <span>–</span>
+          <input type="date" value="${customTo}" oninput="setCustom('to', this.value)" aria-label="Till datum">
+        </div>
+        <button class="btn btn-sm filt-apply" onclick="applyCustom()">Använd intervall</button>
+      </div>`;
+  }
+
+  // Ansvarig
+  function ownerQuick(which) { ownerSel = which === 'mina' ? new Set([CURRENT_USER]) : new Set(ALL_OWNERS); renderList(); renderOwnerList(); }
+  function ownerAll() { ownerSel = new Set(ALL_OWNERS); renderList(); renderOwnerList(); }
+  function ownerClear() { ownerSel = new Set(); renderList(); renderOwnerList(); }
+  function toggleOwner(o, on) { if (on) ownerSel.add(o); else ownerSel.delete(o); renderList(); }
+  function setOwnerSearch(v) { ownerSearch = v; renderOwnerList(); }
+  function renderOwnerPop() {
+    document.getElementById('pop-owner').innerHTML = `
+      <div class="filt-quick">
+        <button onclick="ownerQuick('mina')">Mina</button>
+        <button onclick="ownerQuick('alla')">Hela teamet</button>
+      </div>
+      <input class="filt-search" placeholder="Sök person…" value="${ownerSearch}" oninput="setOwnerSearch(this.value)" aria-label="Sök ansvarig">
+      <div class="filt-list" id="owner-list"></div>
+      <div class="filt-actions">
+        <button onclick="ownerAll()">Markera alla</button>
+        <button onclick="ownerClear()">Rensa</button>
+      </div>`;
+    renderOwnerList();
+  }
+  function renderOwnerList() {
+    const q = ownerSearch.trim().toLowerCase();
+    const list = ALL_OWNERS.filter(o => o.toLowerCase().includes(q));
+    document.getElementById('owner-list').innerHTML = list.map(o => {
+      const me = o === CURRENT_USER ? ' <span class="fr-hint">jag</span>' : '';
+      return `<label class="filt-check"><input type="checkbox" ${ownerSel.has(o) ? 'checked' : ''} onchange="toggleOwner('${o}', this.checked)"><span>${o}${me}</span></label>`;
+    }).join('') || `<div class="filt-empty">Ingen matchar</div>`;
+  }
+
+  // Typ
+  function toggleType(k, on) { if (on) typeSel.add(k); else typeSel.delete(k); renderList(); }
+  function typeClear() { typeSel = new Set(); renderList(); renderTypeList(); }
+  function setTypeSearch(v) { typeSearch = v; renderTypeList(); }
+  function renderTypePop() {
+    document.getElementById('pop-type').innerHTML = `
+      <input class="filt-search" placeholder="Sök typ…" value="${typeSearch}" oninput="setTypeSearch(this.value)" aria-label="Sök typ">
+      <div class="filt-list" id="type-list"></div>
+      <div class="filt-actions">
+        <button onclick="typeClear()">Rensa (visa alla)</button>
+      </div>`;
+    renderTypeList();
+  }
+  function renderTypeList() {
+    const q = typeSearch.trim().toLowerCase();
+    const keys = Object.keys(TYPE_META).filter(k => TYPE_META[k].label.toLowerCase().includes(q));
+    document.getElementById('type-list').innerHTML = keys.map(k => {
+      const n = ACTIVITIES.filter(a => ownerMatch(a) && a.type === k && a.actStatus !== 'klar').length;
+      return `<label class="filt-check"><input type="checkbox" ${typeSel.has(k) ? 'checked' : ''} onchange="toggleType('${k}', this.checked)"><span class="ft-ic">${svg(TYPE_META[k].ic, 15)}</span><span>${TYPE_META[k].label}</span><span class="fr-n">${n}</span></label>`;
+    }).join('') || `<div class="filt-empty">Ingen matchar</div>`;
+  }
+
+  function syncFilterLabels() {
+    const b = DATE_BUCKETS.find(x => x.id === bucket);
+    document.getElementById('fv-date').textContent = bucket === 'anpassat'
+      ? ((customFrom || customTo) ? `${customFrom ? fmtDate(customFrom) : '…'}–${customTo ? fmtDate(customTo) : '…'}` : 'Eget intervall')
+      : (b ? b.label : 'Alla');
+    const oc = ownerSel.size;
+    document.getElementById('fv-owner').textContent =
+      oc === 0 ? 'Ingen' :
+      oc === ALL_OWNERS.length ? 'Hela teamet' :
+      (oc === 1 && ownerSel.has(CURRENT_USER)) ? 'Mina' :
+      oc === 1 ? [...ownerSel][0].split(' ')[0] : `${oc} personer`;
+    document.getElementById('fv-type').textContent =
+      typeSel.size === 0 ? 'Alla typer' :
+      typeSel.size === 1 ? TYPE_META[[...typeSel][0]].label : `${typeSel.size} typer`;
   }
   function rowHtml(a, done) {
     return `
@@ -976,17 +1140,19 @@
     const q = document.getElementById('search').value.trim().toLowerCase();
     const matched = ACTIVITIES.filter(a => {
       if (!ownerMatch(a)) return false;
+      if (!typeMatch(a)) return false;
       if (!inBucket(a, bucket)) return false;
       if (!q) return true;
       return [a.company, a.city, a.phone, a.contact, a.subject].join(' ').toLowerCase().includes(q);
     });
-    const byDate = (a,b) => new Date(a.date) - new Date(b.date);
-    matched.sort(byDate);
+    matched.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     document.getElementById('rows').innerHTML =
       matched.map(a => rowHtml(a, a.actStatus === 'klar')).join('');
 
-    renderBucketOptions(); // antalen följer ansvarig-filtret
+    syncFilterLabels();
+    // håll en öppen datum-popover uppdaterad (antalen följer ansvarig/typ)
+    if (document.getElementById('filt-date').classList.contains('open')) renderDatePop();
     document.getElementById('list-empty').style.display = matched.length ? 'none' : 'block';
     flashId = null; // engångsblink, nollställ efter render
   }
@@ -1250,8 +1416,7 @@
       `Uppföljning skapad ${relDate(dateISO).toLowerCase()}${dealMsg ? ' · ' + dealMsg : ''}`);
     // landa i "Mina · Alla" och blinka till den nya uppföljningen så man ser vad som hände
     flashId = id;
-    owner = 'mina'; bucket = 'alla';
-    document.getElementById('owner').value = 'mina';
+    ownerSel = new Set([CURRENT_USER]); bucket = 'alla';
     showList();
   }
   function skipFollowup() {
@@ -1401,8 +1566,7 @@
   function showList() { document.getElementById('fu-overlay').classList.remove('on'); setView('view-list'); renderList(); }
 
   document.getElementById('search').addEventListener('input', renderList);
-  document.getElementById('bucket').addEventListener('change', e => { bucket = e.target.value; renderList(); });
-  document.getElementById('owner').addEventListener('change', e => { owner = e.target.value; renderList(); });
+  document.addEventListener('click', e => { if (!e.target.closest('.filt')) closeFilts(); });
 
   let toastT;
   function toast(msg) {
