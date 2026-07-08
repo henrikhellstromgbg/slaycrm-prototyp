@@ -130,6 +130,8 @@
   .filt.open .filt-btn { border-color: var(--ink); background: var(--panel); }
   .filt-btn .fv { color: var(--accent-hover); font-weight: 700; }
   .filt-btn .cv { color: var(--faint); font-size: 14px; line-height: 1; }
+  .filt-btn .fc { min-width: 20px; text-align: center; padding: 1px 7px; border-radius: 999px;
+    background: var(--panel-2); color: var(--muted); font-size: 14px; font-weight: 600; line-height: 1.5; }
   .filt-pop { position: absolute; top: calc(100% + 6px); left: 0; z-index: 50; display: none;
     min-width: 264px; background: var(--white); border: 1px solid var(--line);
     border-radius: var(--r); padding: 6px; box-shadow: 0 8px 28px rgba(0,0,0,.12); }
@@ -533,7 +535,7 @@
 
     <div class="filters">
       <div class="filt" id="filt-date">
-        <button class="filt-btn" onclick="toggleFilt('date')">Datum <span class="fv" id="fv-date">Alla</span> <span class="cv">▾</span></button>
+        <button class="filt-btn" onclick="toggleFilt('date')">Datum <span class="fv" id="fv-date">Alla</span> <span class="fc" id="fc-date"></span> <span class="cv">▾</span></button>
         <div class="filt-pop" id="pop-date"></div>
       </div>
       <div class="filt" id="filt-owner">
@@ -922,6 +924,13 @@
   const DOW = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
   const MON_SHORT = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
   function fmtLong(iso) { const d = new Date(iso); return `${d.getDate()} ${MON_SHORT[d.getMonth()]} ${d.getFullYear()}`; }
+  // Intervalltext: årtal visas bara när start och slut ligger i olika år (t.ex. 28 dec 2026–3 jan 2027)
+  function fmtRange(from, to) {
+    if (!from) return to ? fmtDate(to) : '';
+    if (!to || to === from) return fmtDate(from);
+    const fmt = from.slice(0, 4) !== to.slice(0, 4) ? fmtLong : fmtDate;
+    return `${fmt(from)}–${fmt(to)}`;
+  }
 
   // återanvändbar inline-kalender (fake calendar). Renderar i host, håller egen
   // månadsstat i closure, rapporterar val via onChange({sel, time}).
@@ -1063,7 +1072,7 @@
         <span class="fr-n">${bucketCount(b.id)}</span></button>`;
     }).join('');
     const hasCustom = !!(customFrom || customTo);
-    const custHint = `${customFrom ? fmtDate(customFrom) : '…'}–${customTo ? fmtDate(customTo) : '…'}`;
+    const custHint = fmtRange(customFrom, customTo);
     const custRow = hasCustom
       ? `<button class="filt-row ${bucket === 'anpassat' ? 'on' : ''}" onclick="openRange()">
           <span class="fr-label">Eget intervall</span>
@@ -1113,9 +1122,7 @@
       if (ci === rFrom || ci === rTo) { cls.push('sel'); cls.push(ci === rFrom ? 'range-start' : 'range-end'); }
       cells += `<button class="${cls.join(' ')}" onclick="pickRange('${ci}')">${d}</button>`;
     }
-    const rangeTxt = rFrom
-      ? `${fmtLong(rFrom)}${rTo && rTo !== rFrom ? ' – ' + fmtLong(rTo) : ''}`
-      : '';
+    const rangeTxt = fmtRange(rFrom, rTo);
     document.getElementById('pop-date').innerHTML = `
       <div class="rp-head">
         <button class="rp-back" onclick="backToBuckets()">‹ Tillbaka</button>
@@ -1191,8 +1198,9 @@
   function syncFilterLabels() {
     const b = DATE_BUCKETS.find(x => x.id === bucket);
     document.getElementById('fv-date').textContent = bucket === 'anpassat'
-      ? ((customFrom || customTo) ? `${customFrom ? fmtDate(customFrom) : '…'}–${customTo ? fmtDate(customTo) : '…'}` : 'Eget intervall')
+      ? ((customFrom || customTo) ? fmtRange(customFrom, customTo) : 'Eget intervall')
       : (b ? b.label : 'Alla');
+    document.getElementById('fc-date').textContent = bucketCount(bucket);
     const oc = ownerSel.size;
     document.getElementById('fv-owner').textContent =
       oc === 0 ? 'Ingen' :
