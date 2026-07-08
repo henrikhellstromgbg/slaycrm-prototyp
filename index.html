@@ -1066,12 +1066,12 @@
       ? `${customFrom ? fmtDate(customFrom) : '…'}–${customTo ? fmtDate(customTo) : '…'}`
       : 'Välj datum';
     document.getElementById('pop-date').innerHTML = `
-      ${rows}
-      <div class="filt-sep"></div>
       <button class="filt-row ${bucket === 'anpassat' ? 'on' : ''}" onclick="openRange()">
         <span class="fr-label">Eget intervall</span>
         <span class="fr-hint">${custHint}</span>
-        <span class="fr-chev">›</span></button>`;
+        <span class="fr-chev">›</span></button>
+      <div class="filt-sep"></div>
+      ${rows}`;
   }
 
   // Datum — vy 2: kalender för att välja intervall (utan att stapla i listan)
