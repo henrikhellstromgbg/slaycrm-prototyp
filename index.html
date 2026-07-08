@@ -290,6 +290,8 @@
   .deal-remove:hover { color: var(--ink); }
   .deal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .deal-box .field { margin-bottom: 0; }
+  /* reservera samma höjd för båda lägena så boxen inte hoppar vid växling */
+  #deal-new, #deal-existing { min-height: 164px; }
   #deal-mode button:disabled { opacity: .4; cursor: not-allowed; }
 
   /* composer */
