@@ -139,9 +139,11 @@
     font: inherit; font-size: 15px; color: var(--ink); cursor: pointer; }
   .filt-row:hover { background: var(--panel); }
   .filt-row.on { background: var(--panel-2); font-weight: 700; }
-  .filt-row .fr-l { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+  .filt-row .fr-label { flex-shrink: 0; }
   .fr-hint { font-size: 14px; font-weight: 400; color: var(--faint); }
-  .filt-row .fr-n { color: var(--faint); font-size: 14px; font-weight: 600; }
+  .filt-row .fr-hint { margin-left: auto; text-align: right; } /* datumen högerjusteras, före antalet */
+  .filt-row .fr-n { flex-shrink: 0; min-width: 20px; text-align: right; color: var(--faint); font-size: 14px; font-weight: 600; }
+  .filt-row .fr-chev { flex-shrink: 0; }
   .filt-sep { height: 1px; background: var(--line); margin: 6px 4px; }
   .filt-quick { display: flex; gap: 6px; padding: 4px 4px 8px; }
   .filt-quick button { flex: 1; border: 1px solid var(--line-strong); border-radius: 5px; background: var(--white);
@@ -1056,7 +1058,8 @@
     const rows = DATE_BUCKETS.filter(b => b.id !== 'anpassat').map(b => {
       const hint = bucketHint(b.id);
       return `<button class="filt-row ${b.id === bucket ? 'on' : ''}" onclick="setBucket('${b.id}')">
-        <span class="fr-l">${b.label}${hint ? `<span class="fr-hint">${hint}</span>` : ''}</span>
+        <span class="fr-label">${b.label}</span>
+        <span class="fr-hint">${hint}</span>
         <span class="fr-n">${bucketCount(b.id)}</span></button>`;
     }).join('');
     const custHint = (customFrom || customTo)
@@ -1066,7 +1069,8 @@
       ${rows}
       <div class="filt-sep"></div>
       <button class="filt-row ${bucket === 'anpassat' ? 'on' : ''}" onclick="openRange()">
-        <span class="fr-l">Eget intervall<span class="fr-hint">${custHint}</span></span>
+        <span class="fr-label">Eget intervall</span>
+        <span class="fr-hint">${custHint}</span>
         <span class="fr-chev">›</span></button>`;
   }
 
