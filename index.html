@@ -1032,8 +1032,8 @@
   }
   function bucketHint(id) {
     switch (id) {
-      case 'idag': return fmtLong(TODAY_ISO);
-      case 'imorgon': return fmtLong(TOM_ISO);
+      case 'idag': return fmtDate(TODAY_ISO);
+      case 'imorgon': return fmtDate(TOM_ISO);
       case 'denna-vecka': return `${fmtDate(REST_START)}–${fmtDate(WEEK_END)}`;
       case 'nasta-vecka': return `${fmtDate(NEXT_START)}–${fmtDate(NEXT_END)}`;
       case 'kommande': return `efter ${fmtDate(NEXT_END)}`;
