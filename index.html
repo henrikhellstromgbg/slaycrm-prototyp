@@ -120,6 +120,14 @@
                     padding: 8px 14px; font-size: 14px; font-weight: 600; color: var(--muted); }
   .segment button:last-child { border-right: 0; }
   .segment button.on { background: var(--ink); color: #fff; }
+  /* Datum- och ansvarig-filter: speglar skarpa aktivitetsvyns två dropdowns */
+  .filter-select { position: relative; display: inline-flex; }
+  .filter-select select { appearance: none; -webkit-appearance: none;
+    border: 1px solid var(--line-strong); border-radius: var(--r); background: var(--white);
+    color: var(--ink); padding: 8px 36px 8px 14px; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .filter-select select:hover { border-color: var(--ink); }
+  .filter-select::after { content: '▾'; position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+    pointer-events: none; color: var(--faint); font-size: 14px; line-height: 1; }
 
   /* ── Lista ──────────────────────────────────────────────────────── */
   .list { padding: 0 24px 32px; }
@@ -472,13 +480,15 @@
     </div>
 
     <div class="filters">
-      <div class="segment" id="scope">
-        <button class="on" data-scope="mina">Mina</button>
-        <button data-scope="alla">Alla</button>
-        <button data-scope="idag">Idag</button>
-        <button data-scope="kommande">Kommande</button>
+      <div class="filter-select">
+        <select id="bucket" aria-label="Datumfilter"></select>
       </div>
-      <button class="btn btn-sm" id="toggle-done" onclick="toggleDone()" style="margin-left:auto; display:none">Visa klara</button>
+      <div class="filter-select">
+        <select id="owner" aria-label="Ansvarig">
+          <option value="mina">Mina</option>
+          <option value="alla">Hela teamet</option>
+        </select>
+      </div>
     </div>
 
     <div class="list">
@@ -486,7 +496,7 @@
         <div></div><div>Datum</div><div>Aktivitet</div><div>Företag</div><div>Ort</div><div>Ansvarig</div><div>Status</div>
       </div>
       <div id="rows"></div>
-      <div class="list-empty" id="list-empty" style="display:none">Inga aktiviteter matchar sökningen.</div>
+      <div class="list-empty" id="list-empty" style="display:none">Inga aktiviteter matchar det här urvalet.</div>
     </div>
   </section>
 
@@ -901,9 +911,52 @@
   }
 
   // ── VY A: lista ─────────────────────────────────────────────────
-  let scope = 'mina', showDone = true, flashId = null;
+  let bucket = 'alla', owner = 'mina', flashId = null;
   // Behörighet: bara superadmin får radera data permanent. Säljare arkiverar.
   let ROLE = 'seller'; // 'seller' | 'superadmin'
+
+  // ── Filter: samma två som skarpa aktivitetsvyn ──────────────────
+  // Datum-bucket (med antal) + ansvarig (Mina / Hela teamet). "Genomfört"
+  // är en egen bucket, precis som i skarpa (ersätter gamla "Visa klara").
+  const DATE_BUCKETS = [
+    { id: 'forsenat', label: 'Försenat' },
+    { id: 'alla', label: 'Alla' },
+    { id: 'idag', label: 'Idag' },
+    { id: 'imorgon', label: 'Imorgon' },
+    { id: 'denna-vecka', label: 'Denna vecka' },
+    { id: 'nasta-vecka', label: 'Nästa vecka' },
+    { id: 'utan-datum', label: 'Utan datum' },
+    { id: 'klart', label: 'Genomfört' },
+  ];
+  const isoAdd = (iso, n) => { const d = new Date(iso); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+  const TODAY_ISO = TODAY.toISOString().slice(0, 10);
+  const WEEK_START = isoAdd(TODAY_ISO, -((new Date(TODAY_ISO).getDay() + 6) % 7)); // måndag denna vecka
+  const WEEK_END = isoAdd(WEEK_START, 6);
+  const NEXT_START = isoAdd(WEEK_START, 7);
+  const NEXT_END = isoAdd(NEXT_START, 6);
+  function inBucket(a, b) {
+    const done = a.actStatus === 'klar';
+    if (b === 'klart') return done;
+    if (done) return false;                 // klara syns bara under Genomfört
+    const d = a.date;
+    switch (b) {
+      case 'alla': return true;
+      case 'forsenat': return !!d && d < TODAY_ISO;
+      case 'idag': return d === TODAY_ISO;
+      case 'imorgon': return d === isoAdd(TODAY_ISO, 1);
+      case 'denna-vecka': return !!d && d >= WEEK_START && d <= WEEK_END;
+      case 'nasta-vecka': return !!d && d >= NEXT_START && d <= NEXT_END;
+      case 'utan-datum': return !d;
+      default: return true;
+    }
+  }
+  const ownerMatch = a => owner === 'alla' || a.mine;
+  const bucketCount = b => ACTIVITIES.filter(a => ownerMatch(a) && inBucket(a, b)).length;
+  function renderBucketOptions() {
+    document.getElementById('bucket').innerHTML = DATE_BUCKETS
+      .map(b => `<option value="${b.id}" ${b.id === bucket ? 'selected' : ''}>${b.label} (${bucketCount(b.id)})</option>`)
+      .join('');
+  }
   function rowHtml(a, done) {
     return `
       <button class="row ${done ? 'done' : ''} ${a.id === flashId ? 'flash' : ''}" onclick="openWorkspace(${a.id})">
@@ -919,36 +972,22 @@
         <span class="cell-status"><span class="badge ${a.actStatus}">${STATUS_META[a.actStatus]}</span>${done && a.noFollowup ? '<span class="no-fu">ingen uppföljning</span>' : ''}</span>
       </button>`;
   }
-  function toggleDone() { showDone = !showDone; renderList(); }
   function renderList() {
     const q = document.getElementById('search').value.trim().toLowerCase();
     const matched = ACTIVITIES.filter(a => {
-      if (scope === 'mina' && !a.mine) return false;
-      if (scope === 'idag' && a.date !== '2026-07-07') return false;
-      if (scope === 'kommande' && new Date(a.date) < TODAY) return false;
+      if (!ownerMatch(a)) return false;
+      if (!inBucket(a, bucket)) return false;
       if (!q) return true;
       return [a.company, a.city, a.phone, a.contact, a.subject].join(' ').toLowerCase().includes(q);
     });
     const byDate = (a,b) => new Date(a.date) - new Date(b.date);
-    const open = matched.filter(a => a.actStatus !== 'klar').sort(byDate);
-    const done = matched.filter(a => a.actStatus === 'klar').sort(byDate);
+    matched.sort(byDate);
 
-    let html = open.map(a => rowHtml(a, false)).join('');
-    if (showDone && done.length) {
-      html += `<div class="done-label">Klara</div>` + done.map(a => rowHtml(a, true)).join('');
-    }
-    document.getElementById('rows').innerHTML = html;
+    document.getElementById('rows').innerHTML =
+      matched.map(a => rowHtml(a, a.actStatus === 'klar')).join('');
 
-    const tb = document.getElementById('toggle-done');
-    if (done.length) {
-      tb.style.display = '';
-      tb.textContent = `${showDone ? 'Dölj' : 'Visa'} klara (${done.length})`;
-    } else {
-      tb.style.display = 'none';
-    }
-
-    const visible = open.length + (showDone ? done.length : 0);
-    document.getElementById('list-empty').style.display = visible ? 'none' : 'block';
+    renderBucketOptions(); // antalen följer ansvarig-filtret
+    document.getElementById('list-empty').style.display = matched.length ? 'none' : 'block';
     flashId = null; // engångsblink, nollställ efter render
   }
 
@@ -1209,10 +1248,10 @@
     const dealMsg = maybeCreateDeal();
     toastDone(`Klarmarkerad: ${current.subject}`,
       `Uppföljning skapad ${relDate(dateISO).toLowerCase()}${dealMsg ? ' · ' + dealMsg : ''}`);
-    // landa i "Mina" och blinka till den nya uppföljningen så man ser vad som hände
+    // landa i "Mina · Alla" och blinka till den nya uppföljningen så man ser vad som hände
     flashId = id;
-    scope = 'mina';
-    document.querySelectorAll('#scope button').forEach(b => b.classList.toggle('on', b.dataset.scope === 'mina'));
+    owner = 'mina'; bucket = 'alla';
+    document.getElementById('owner').value = 'mina';
     showList();
   }
   function skipFollowup() {
@@ -1362,12 +1401,8 @@
   function showList() { document.getElementById('fu-overlay').classList.remove('on'); setView('view-list'); renderList(); }
 
   document.getElementById('search').addEventListener('input', renderList);
-  document.getElementById('scope').addEventListener('click', e => {
-    const b = e.target.closest('button'); if (!b) return;
-    scope = b.dataset.scope;
-    document.querySelectorAll('#scope button').forEach(x => x.classList.toggle('on', x === b));
-    renderList();
-  });
+  document.getElementById('bucket').addEventListener('change', e => { bucket = e.target.value; renderList(); });
+  document.getElementById('owner').addEventListener('change', e => { owner = e.target.value; renderList(); });
 
   let toastT;
   function toast(msg) {
