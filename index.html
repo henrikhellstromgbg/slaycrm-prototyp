@@ -1107,7 +1107,12 @@
     else { rTo = iso; }
     renderRangePop();
   }
-  function clearRange() { rFrom = ''; rTo = ''; renderRangePop(); }
+  function clearRange() {
+    rFrom = ''; rTo = ''; customFrom = ''; customTo = '';   // nollställ både pågående val och tillämpat intervall
+    if (bucket === 'anpassat') bucket = 'alla';             // släpp datumfiltret om det var ett eget intervall
+    dateView = 'buckets';
+    renderList();                                           // uppdaterar lista, trigger och den öppna popovern (bucket-vyn)
+  }
   function applyRange() {
     if (!rFrom) return;
     customFrom = rFrom; customTo = rTo || rFrom;                    // enkelt datum = en dag
