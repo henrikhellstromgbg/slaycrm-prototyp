@@ -1,3 +1,6 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SlayCRM — Aktivitetsflöde (wireframe)</title>
 <!--
   SlayCRM — prototyp av det aktivitetscentrerade flödet (WIREFRAME)
@@ -191,7 +194,7 @@
   /* ── Lista ──────────────────────────────────────────────────────── */
   .list { padding: 0 24px 32px; }
   .list-head, .row { display: grid;
-    grid-template-columns: 40px 116px minmax(240px,2.2fr) minmax(150px,1.3fr) 120px 130px 150px;
+    grid-template-columns: 40px 116px minmax(240px,2.2fr) minmax(150px,1.3fr) 120px 130px 150px 96px;
     align-items: center; gap: 14px; }
   .list-head { padding: 8px 14px; font-size: 14px; color: var(--faint); font-weight: 600; }
   .row { padding: 14px; border: 1px solid var(--line); border-radius: var(--r);
@@ -200,11 +203,13 @@
 
   .type-ic { position: relative; width: 34px; height: 34px; border-radius: var(--r); border: 1px solid var(--line-strong);
              display: grid; place-items: center; color: var(--ink); background: var(--white); }
-  /* Händelseräknare: hur mycket historik som ligger bakom raden. Neutral tills den blir tung. */
-  .ev-bubble { position: absolute; top: -9px; right: -9px; min-width: 22px; height: 22px; padding: 0 6px;
-               border-radius: 999px; background: var(--white); border: 1px solid var(--line-strong);
-               color: var(--muted); font-size: 14px; font-weight: 700; line-height: 20px; text-align: center; }
-  .ev-bubble.hot { background: #fbe9df; border-color: var(--accent); color: var(--accent-hover); }
+  /* Händelser: egen kolumn som visar hur mycket historik som ligger bakom raden. Neutral tills den blir tung. */
+  .cell-events { display: flex; align-items: center; }
+  .ev-count { min-width: 24px; height: 22px; padding: 0 8px; border-radius: 999px;
+              background: var(--white); border: 1px solid var(--line-strong);
+              color: var(--muted); font-size: 14px; font-weight: 700; line-height: 20px; text-align: center; }
+  .ev-count.hot { background: #fbe9df; border-color: var(--accent); color: var(--accent-hover); }
+  .ev-none { color: var(--line-strong); font-size: 14px; padding-left: 8px; }
 
   .cell-subject .s1 { font-weight: 600; font-size: 16px; line-height: 1.3;
      display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
@@ -486,7 +491,7 @@
     .row .type-ic { order: 1; }
     .row .cell-subject { order: 2; }
     .row .cell-date { order: 3; text-align: right; }
-    .row .cell-company, .row .cell-city, .row .cell-owner, .row .cell-status { display: none; }
+    .row .cell-company, .row .cell-city, .row .cell-owner, .row .cell-status, .row .cell-events { display: none; }
     .search { width: 160px; }
     .nav { display: none; }
     .ic-grid, .detail-grid { grid-template-columns: 1fr; }
@@ -555,7 +560,7 @@
 
     <div class="list">
       <div class="list-head">
-        <div></div><div>Datum</div><div>Aktivitet</div><div>Företag</div><div>Ort</div><div>Ansvarig</div><div>Status</div>
+        <div></div><div>Datum</div><div>Aktivitet</div><div>Företag</div><div>Ort</div><div>Ansvarig</div><div>Status</div><div>Händelser</div>
       </div>
       <div id="rows"></div>
       <div class="list-empty" id="list-empty" style="display:none">Inga aktiviteter matchar det här urvalet.</div>
@@ -1224,7 +1229,7 @@
   function rowHtml(a, done) {
     return `
       <button class="row ${done ? 'done' : ''} ${a.id === flashId ? 'flash' : ''}" onclick="openWorkspace(${a.id})">
-        <span class="type-ic">${svg(TYPE_META[a.type].ic, 17)}${a.events ? `<span class="ev-bubble ${a.events >= 10 ? 'hot' : ''}" title="${a.events} händelser i historiken">${a.events}</span>` : ''}</span>
+        <span class="type-ic">${svg(TYPE_META[a.type].ic, 17)}</span>
         <span class="cell-date ${!done && new Date(a.date) < TODAY ? 'overdue' : ''}">${fmtDate(a.date)}${hasTime(a) ? ' ' + timeOf(a) : ''}<span class="rel">${relDate(a.date)}</span></span>
         <span class="cell-subject">
           <span class="s1">${a.subject}</span>
@@ -1234,6 +1239,7 @@
         <span class="cell-city">${svg(pinIc,14)} ${a.city}</span>
         <span class="cell-owner"><span class="avatar">${a.ownerInit}</span>${a.owner.split(' ')[0]}</span>
         <span class="cell-status"><span class="badge ${a.actStatus}">${STATUS_META[a.actStatus]}</span>${done && a.noFollowup ? '<span class="no-fu">ingen uppföljning</span>' : ''}</span>
+        <span class="cell-events">${a.events ? `<span class="ev-count ${a.events >= 10 ? 'hot' : ''}" title="Händelser i historiken">${a.events}</span>` : '<span class="ev-none">–</span>'}</span>
       </button>`;
   }
   function renderList() {
