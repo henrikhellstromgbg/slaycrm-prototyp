@@ -29,6 +29,7 @@
     --accent:      #ec5a13;  /* orange — huvud-CTA */
     --accent-hover:#d24d0c;
     --r: 6px;                /* enhetlig radie */
+    --filt-w: 264px;         /* basbredd för filter-dropdowns och Datum-knappen */
     --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   }
 
@@ -133,11 +134,10 @@
   .filt-btn .fc { min-width: 20px; text-align: center; padding: 1px 7px; border-radius: 999px;
     background: var(--panel-2); color: var(--muted); font-size: 14px; font-weight: 600; line-height: 1.5; }
   .filt-pop { position: absolute; top: calc(100% + 6px); left: 0; z-index: 50; display: none;
-    min-width: 264px; background: var(--white); border: 1px solid var(--line);
+    min-width: var(--filt-w); background: var(--white); border: 1px solid var(--line);
     border-radius: var(--r); padding: 6px; box-shadow: 0 8px 28px rgba(0,0,0,.12); }
-  /* Datum-knappen lika bred som sin dropdown, antal + pil högerställda */
-  #filt-date { width: 264px; }
-  #filt-date .filt-btn { width: 100%; }
+  /* Datum-knappen minst lika bred som sin dropdown, växer med innehållet; popovern följer knappens bredd */
+  #filt-date .filt-btn { min-width: var(--filt-w); }
   #filt-date .filt-pop { width: 100%; min-width: 0; }
   #filt-date .filt-btn .fc { margin-left: auto; }
   .filt.open .filt-pop { display: block; }
