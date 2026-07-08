@@ -121,7 +121,7 @@
   /* ── Segment / filter ───────────────────────────────────────────── */
   .filters { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 14px 24px 12px; }
   /* Lokalt aktivitetssök, hör till listan (skilt från globalsöket i headern) */
-  .act-search { flex: 1; min-width: 200px; border: 1px solid var(--line-strong); border-radius: var(--r);
+  .act-search { width: 240px; border: 1px solid var(--line-strong); border-radius: var(--r);
     padding: 8px 12px; font: inherit; font-size: 14px; font-weight: 400; color: var(--ink);
     background: var(--white); outline: 0; }
   .act-search::placeholder { color: var(--faint); }
@@ -529,7 +529,7 @@
     <div class="topbar-right">
       <div class="search">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input id="search" placeholder="Sök företag, ort, telefon, kontakt…" autocomplete="off">
+        <input id="search" placeholder="" autocomplete="off" aria-label="Sök">
       </div>
       <button class="role-switch" id="role-switch" onclick="toggleRole()" title="Växla roll (endast för demo)">Säljare</button>
       <div class="avatar">WB</div>
