@@ -659,8 +659,7 @@
                   <div class="field"><label>Värde (kr)</label><input id="deal-value" inputmode="numeric" placeholder="t.ex. 120 000"></div>
                   <div class="field"><label>Steg</label>
                     <div class="chip-row" id="deal-stage">
-                      <button class="pick on" data-stage="Prospekt">Prospekt</button>
-                      <button class="pick" data-stage="Kvalificering">Kvalificering</button>
+                      <button class="pick on" data-stage="Förslag">Förslag</button>
                       <button class="pick" data-stage="Förhandling">Förhandling</button>
                     </div>
                   </div>
@@ -671,10 +670,10 @@
                 <div class="field" style="margin-bottom:14px"><label>Välj affär</label><select id="deal-pick"></select></div>
                 <div class="field"><label>Flytta till steg</label>
                   <div class="chip-row" id="deal-move">
-                    <button class="pick" data-stage="Prospekt">Prospekt</button>
-                    <button class="pick" data-stage="Kvalificering">Kvalificering</button>
+                    <button class="pick" data-stage="Förslag">Förslag</button>
                     <button class="pick on" data-stage="Förhandling">Förhandling</button>
-                    <button class="pick" data-stage="Avslut">Avslut</button>
+                    <button class="pick" data-stage="Vunnen">Vunnen</button>
+                    <button class="pick" data-stage="Förlorad">Förlorad</button>
                   </div>
                 </div>
               </div>
@@ -848,8 +847,8 @@
   // pågående affärer per företag (att kunna koppla en avslutad aktivitet till)
   const EXISTING_DEALS_BY_CO = {
     'Nordvik Logistik AB': [{ name:'Transportavtal 2026', stage:'Förhandling', value:'240 000' }],
-    'Op & Partners AB': [{ name:'Ramavtal konsulttjänster', stage:'Kvalificering', value:'150 000' }],
-    'Sundqvist Redovisning AB': [{ name:'Bokslutsuppdrag 2026', stage:'Prospekt', value:'60 000' }],
+    'Op & Partners AB': [{ name:'Ramavtal konsulttjänster', stage:'Förslag', value:'150 000' }],
+    'Sundqvist Redovisning AB': [{ name:'Bokslutsuppdrag 2026', stage:'Förslag', value:'60 000' }],
   };
   const ACTIVITIES = [
     { id:1, type:'phone', subject:'Följ upp offert på transportavtal', company:'Nordvik Logistik AB',
@@ -1449,7 +1448,7 @@
     document.getElementById('deal-box').classList.remove('on');
     document.getElementById('deal-name').value = current ? current.company : '';
     document.getElementById('deal-value').value = '';
-    selectPick('deal-stage', 'Prospekt', 'stage');
+    selectPick('deal-stage', 'Förslag', 'stage');
     populateDealPick(current ? current.company : '');
     setDealMode('new');
   }
