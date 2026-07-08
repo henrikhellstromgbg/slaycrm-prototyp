@@ -1062,14 +1062,18 @@
         <span class="fr-hint">${hint}</span>
         <span class="fr-n">${bucketCount(b.id)}</span></button>`;
     }).join('');
-    const custHint = (customFrom || customTo)
-      ? `${customFrom ? fmtDate(customFrom) : '…'}–${customTo ? fmtDate(customTo) : '…'}`
-      : 'Välj datum';
+    const hasCustom = !!(customFrom || customTo);
+    const custHint = `${customFrom ? fmtDate(customFrom) : '…'}–${customTo ? fmtDate(customTo) : '…'}`;
+    const custRow = hasCustom
+      ? `<button class="filt-row ${bucket === 'anpassat' ? 'on' : ''}" onclick="openRange()">
+          <span class="fr-label">Eget intervall</span>
+          <span class="fr-hint">${custHint}</span>
+          <span class="fr-n">${bucketCount('anpassat')}</span></button>`
+      : `<button class="filt-row" onclick="openRange()">
+          <span class="fr-label">Välj datumintervall</span>
+          <span class="fr-chev">›</span></button>`;
     document.getElementById('pop-date').innerHTML = `
-      <button class="filt-row ${bucket === 'anpassat' ? 'on' : ''}" onclick="openRange()">
-        <span class="fr-label">Eget intervall</span>
-        <span class="fr-hint">${custHint}</span>
-        <span class="fr-chev">›</span></button>
+      ${custRow}
       <div class="filt-sep"></div>
       ${rows}`;
   }
@@ -1115,7 +1119,6 @@
     document.getElementById('pop-date').innerHTML = `
       <div class="rp-head">
         <button class="rp-back" onclick="backToBuckets()">‹ Tillbaka</button>
-        <span class="rp-title">Eget intervall</span>
       </div>
       <div class="rp-cal">
         <div class="cal-head">
