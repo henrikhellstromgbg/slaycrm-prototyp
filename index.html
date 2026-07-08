@@ -98,6 +98,7 @@
   .btn-ghost:hover { background: var(--panel); color: var(--ink); }
   .btn-newco { margin-top: 10px; width: 100%; justify-content: center; }
   .btn-sm { padding: 7px 11px; font-size: 14px; }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
   .btn svg { flex-shrink: 0; }
 
   /* ── Vyer ───────────────────────────────────────────────────────── */
@@ -142,12 +143,6 @@
   .fr-hint { font-size: 14px; font-weight: 400; color: var(--faint); }
   .filt-row .fr-n { color: var(--faint); font-size: 14px; font-weight: 600; }
   .filt-sep { height: 1px; background: var(--line); margin: 6px 4px; }
-  .filt-custom { padding: 4px 10px 8px; }
-  .filt-custom .fc-label { font-size: 14px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
-  .rng { display: flex; align-items: center; gap: 8px; }
-  .rng input { border: 1px solid var(--line-strong); border-radius: 5px; padding: 6px 8px;
-    font: inherit; font-size: 14px; color: var(--ink); }
-  .filt-apply { margin-top: 8px; }
   .filt-quick { display: flex; gap: 6px; padding: 4px 4px 8px; }
   .filt-quick button { flex: 1; border: 1px solid var(--line-strong); border-radius: 5px; background: var(--white);
     padding: 7px 8px; font: inherit; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; }
@@ -166,6 +161,23 @@
     font: inherit; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; }
   .filt-actions button:hover { background: var(--panel); color: var(--ink); }
   .filt-empty { padding: 12px 10px; font-size: 14px; color: var(--faint); }
+  /* Eget intervall: rad som öppnar en egen kalendervy (håller popovern kort) */
+  .filt-row .fr-chev { color: var(--faint); font-size: 16px; line-height: 1; }
+  .rp-head { display: flex; align-items: center; gap: 8px; padding: 2px 4px 8px; }
+  .rp-back { background: transparent; border: 0; padding: 4px 6px; border-radius: 5px; cursor: pointer;
+    font: inherit; font-size: 14px; font-weight: 600; color: var(--muted); }
+  .rp-back:hover { background: var(--panel); color: var(--ink); }
+  .rp-title { font-size: 15px; font-weight: 700; color: var(--ink); }
+  .rp-cal { padding: 0 4px; }
+  .cal-day.in-range { background: var(--panel-2); border-radius: 0; }
+  .cal-day.sel.range-start { border-top-left-radius: var(--r); border-bottom-left-radius: var(--r); }
+  .cal-day.sel.range-end { border-top-right-radius: var(--r); border-bottom-right-radius: var(--r); }
+  .rp-foot { border-top: 1px solid var(--line); margin-top: 8px; padding: 10px 6px 4px; }
+  .rp-range { display: block; font-size: 14px; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
+  .rp-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .rp-clear { background: transparent; border: 0; padding: 6px 8px; border-radius: 5px; cursor: pointer;
+    font: inherit; font-size: 14px; font-weight: 600; color: var(--faint); }
+  .rp-clear:hover { background: var(--panel); color: var(--ink); }
 
   /* ── Lista ──────────────────────────────────────────────────────── */
   .list { padding: 0 24px 32px; }
@@ -965,6 +977,9 @@
   let ownerSel = new Set([CURRENT_USER]);   // startar på "Mina"
   let typeSel = new Set();                   // tom = alla typer
   let ownerSearch = '', typeSearch = '';
+  // Datum-popovern har två vyer: bucket-lista och egen kalendervy (range).
+  let dateView = 'buckets';                  // 'buckets' | 'range'
+  let rFrom = '', rTo = '', rvY = 0, rvM = 0; // utkast-range + visad månad i kalendern
 
   const DATE_BUCKETS = [
     { id: 'alla', label: 'Alla' },
@@ -1027,31 +1042,91 @@
     const el = document.getElementById('filt-' + which);
     const open = el.classList.contains('open');
     closeFilts();
-    if (!open) { el.classList.add('open'); ({ date: renderDatePop, owner: renderOwnerPop, type: renderTypePop }[which])(); }
+    if (!open) {
+      if (which === 'date') dateView = 'buckets';   // öppna alltid i listvyn
+      el.classList.add('open');
+      ({ date: renderDatePop, owner: renderOwnerPop, type: renderTypePop }[which])();
+    }
   }
 
-  // Datum
+  // Datum — vy 1: bucket-lista (+ rad som öppnar egen kalendervy)
   function setBucket(id) { bucket = id; renderList(); closeFilts(); }
-  function setCustom(which, val) { if (which === 'from') customFrom = val; else customTo = val; }
-  function applyCustom() { bucket = 'anpassat'; renderList(); closeFilts(); }
   function renderDatePop() {
+    if (dateView === 'range') return renderRangePop();
     const rows = DATE_BUCKETS.filter(b => b.id !== 'anpassat').map(b => {
       const hint = bucketHint(b.id);
       return `<button class="filt-row ${b.id === bucket ? 'on' : ''}" onclick="setBucket('${b.id}')">
         <span class="fr-l">${b.label}${hint ? `<span class="fr-hint">${hint}</span>` : ''}</span>
         <span class="fr-n">${bucketCount(b.id)}</span></button>`;
     }).join('');
+    const custHint = (customFrom || customTo)
+      ? `${customFrom ? fmtDate(customFrom) : '…'}–${customTo ? fmtDate(customTo) : '…'}`
+      : 'Välj start- och slutdatum';
     document.getElementById('pop-date').innerHTML = `
       ${rows}
       <div class="filt-sep"></div>
-      <div class="filt-custom ${bucket === 'anpassat' ? 'on' : ''}">
-        <div class="fc-label">Eget intervall</div>
-        <div class="rng">
-          <input type="date" value="${customFrom}" oninput="setCustom('from', this.value)" aria-label="Från datum">
-          <span>–</span>
-          <input type="date" value="${customTo}" oninput="setCustom('to', this.value)" aria-label="Till datum">
+      <button class="filt-row ${bucket === 'anpassat' ? 'on' : ''}" onclick="openRange()">
+        <span class="fr-l">Eget intervall<span class="fr-hint">${custHint}</span></span>
+        <span class="fr-chev">›</span></button>`;
+  }
+
+  // Datum — vy 2: kalender för att välja intervall (utan att stapla i listan)
+  function openRange() {
+    rFrom = customFrom; rTo = customTo;
+    const base = customFrom ? new Date(customFrom) : new Date(TODAY);
+    rvY = base.getFullYear(); rvM = base.getMonth();
+    dateView = 'range'; renderDatePop();
+  }
+  function backToBuckets() { dateView = 'buckets'; renderDatePop(); }
+  function rangeNav(n) { rvM += n; if (rvM < 0) { rvM = 11; rvY--; } if (rvM > 11) { rvM = 0; rvY++; } renderRangePop(); }
+  function pickRange(iso) {
+    if (!rFrom || (rFrom && rTo)) { rFrom = iso; rTo = ''; }        // ny start, nollställ slut
+    else if (iso < rFrom) { rTo = rFrom; rFrom = iso; }             // bakåtval → byt håll
+    else { rTo = iso; }
+    renderRangePop();
+  }
+  function clearRange() { rFrom = ''; rTo = ''; renderRangePop(); }
+  function applyRange() {
+    if (!rFrom) return;
+    customFrom = rFrom; customTo = rTo || rFrom;                    // enkelt datum = en dag
+    bucket = 'anpassat'; dateView = 'buckets';
+    renderList(); closeFilts();
+  }
+  function renderRangePop() {
+    const startDow = (new Date(rvY, rvM, 1).getDay() + 6) % 7;      // Mån = 0
+    const daysIn = new Date(rvY, rvM + 1, 0).getDate();
+    const iso = d => `${rvY}-${String(rvM + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    let cells = '';
+    for (let i = 0; i < startDow; i++) cells += `<button class="cal-day" disabled></button>`;
+    for (let d = 1; d <= daysIn; d++) {
+      const ci = iso(d), cls = ['cal-day'];
+      if (ci === TODAY_ISO) cls.push('today');
+      if (rFrom && rTo && ci > rFrom && ci < rTo) cls.push('in-range');
+      if (ci === rFrom || ci === rTo) { cls.push('sel'); cls.push(ci === rFrom ? 'range-start' : 'range-end'); }
+      cells += `<button class="${cls.join(' ')}" onclick="pickRange('${ci}')">${d}</button>`;
+    }
+    const rangeTxt = rFrom
+      ? `${fmtLong(rFrom)}${rTo && rTo !== rFrom ? ' – ' + fmtLong(rTo) : ''}`
+      : 'Välj start- och slutdatum';
+    document.getElementById('pop-date').innerHTML = `
+      <div class="rp-head">
+        <button class="rp-back" onclick="backToBuckets()">‹ Tillbaka</button>
+        <span class="rp-title">Eget intervall</span>
+      </div>
+      <div class="rp-cal">
+        <div class="cal-head">
+          <button class="cal-nav" type="button" onclick="rangeNav(-1)" aria-label="Föregående månad">‹</button>
+          <span class="mlbl">${MONTHS_LONG[rvM]} ${rvY}</span>
+          <button class="cal-nav" type="button" onclick="rangeNav(1)" aria-label="Nästa månad">›</button>
         </div>
-        <button class="btn btn-sm filt-apply" onclick="applyCustom()">Använd intervall</button>
+        <div class="cal-grid">${DOW.map(d => `<span class="cal-dow">${d}</span>`).join('')}${cells}</div>
+      </div>
+      <div class="rp-foot">
+        <span class="rp-range">${rangeTxt}</span>
+        <div class="rp-actions">
+          <button class="rp-clear" onclick="clearRange()">Rensa</button>
+          <button class="btn btn-primary btn-sm" ${rFrom ? '' : 'disabled'} onclick="applyRange()">Använd</button>
+        </div>
       </div>`;
   }
 
@@ -1566,7 +1641,8 @@
   function showList() { document.getElementById('fu-overlay').classList.remove('on'); setView('view-list'); renderList(); }
 
   document.getElementById('search').addEventListener('input', renderList);
-  document.addEventListener('click', e => { if (!e.target.closest('.filt')) closeFilts(); });
+  // mousedown (inte click): läser target innan en popover-omrendering kopplar bort noden
+  document.addEventListener('mousedown', e => { if (!e.target.closest('.filt')) closeFilts(); });
 
   let toastT;
   function toast(msg) {
