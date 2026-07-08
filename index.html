@@ -197,6 +197,7 @@
     grid-template-columns: 40px 116px minmax(240px,2.2fr) minmax(150px,1.3fr) 120px 130px 150px 96px;
     align-items: center; gap: 14px; }
   .list-head { padding: 8px 14px; font-size: 14px; color: var(--faint); font-weight: 600; }
+  .list-head div:last-child { text-align: right; }   /* Händelser-rubriken linjerar med den högerställda pillen */
   .row { padding: 14px; border: 1px solid var(--line); border-radius: var(--r);
          margin-bottom: 8px; background: var(--white); cursor: pointer; text-align: left; width: 100%; font: inherit; }
   .row:hover { border-color: var(--ink); }
@@ -204,7 +205,7 @@
   .type-ic { position: relative; width: 34px; height: 34px; border-radius: var(--r); border: 1px solid var(--line-strong);
              display: grid; place-items: center; color: var(--ink); background: var(--white); }
   /* Händelser: egen kolumn som visar hur mycket historik som ligger bakom raden. Neutral tills den blir tung. */
-  .cell-events { display: flex; align-items: center; }
+  .cell-events { display: flex; align-items: center; justify-content: flex-end; }
   .ev-count { min-width: 24px; height: 22px; padding: 0 8px; border-radius: 999px;
               background: var(--white); border: 1px solid var(--line-strong);
               color: var(--muted); font-size: 14px; font-weight: 700; line-height: 20px; text-align: center; }
