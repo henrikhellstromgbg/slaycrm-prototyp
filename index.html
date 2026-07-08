@@ -119,7 +119,13 @@
   .note b { color: var(--ink); }
 
   /* ── Segment / filter ───────────────────────────────────────────── */
-  .filters { display: flex; align-items: center; gap: 12px; padding: 14px 24px 12px; }
+  .filters { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 14px 24px 12px; }
+  /* Lokalt aktivitetssök, hör till listan (skilt från globalsöket i headern) */
+  .act-search { flex: 1; min-width: 200px; border: 1px solid var(--line-strong); border-radius: var(--r);
+    padding: 8px 12px; font: inherit; font-size: 14px; font-weight: 400; color: var(--ink);
+    background: var(--white); outline: 0; }
+  .act-search::placeholder { color: var(--faint); }
+  .act-search:focus { border-color: var(--ink); }
   .segment { display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--r); overflow: hidden; }
   .segment button { border: 0; border-right: 1px solid var(--line); background: var(--white);
                     padding: 8px 14px; font-size: 14px; font-weight: 600; color: var(--muted); }
@@ -557,6 +563,7 @@
         <button class="filt-btn" onclick="toggleFilt('type')">Typ <span class="fv" id="fv-type">Alla typer</span> <span class="cv">▾</span></button>
         <div class="filt-pop" id="pop-type"></div>
       </div>
+      <input class="act-search" id="act-search" placeholder="Sök aktiviteter" autocomplete="off" aria-label="Sök aktiviteter">
     </div>
 
     <div class="list">
@@ -1244,7 +1251,7 @@
       </button>`;
   }
   function renderList() {
-    const q = document.getElementById('search').value.trim().toLowerCase();
+    const q = document.getElementById('act-search').value.trim().toLowerCase();
     const matched = ACTIVITIES.filter(a => {
       if (!ownerMatch(a)) return false;
       if (!typeMatch(a)) return false;
@@ -1672,7 +1679,7 @@
   }
   function showList() { document.getElementById('fu-overlay').classList.remove('on'); setView('view-list'); renderList(); }
 
-  document.getElementById('search').addEventListener('input', renderList);
+  document.getElementById('act-search').addEventListener('input', renderList);
   // mousedown (inte click): läser target innan en popover-omrendering kopplar bort noden
   document.addEventListener('mousedown', e => { if (!e.target.closest('.filt')) closeFilts(); });
 
