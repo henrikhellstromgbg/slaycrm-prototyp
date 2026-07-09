@@ -2,7 +2,7 @@
 
 Kort, praktiskt kontrakt för hur systemet ska användas. `GAPS.md` är backloggen (vad som saknas), den här filen är regeln (vad som gäller nu). Källorna: `tokens.css` (implementation), `tokens.json` (struktur med provenance), `index.html` (levande referens), `screens.css`/`screens.js` (skal, patterns och beteende), `screens*.html` (sju applicerade vyer).
 
-Version 0.5.0, 2026-07-09.
+Version 0.5.1, 2026-07-09.
 
 ## Personlighet
 
