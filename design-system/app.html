@@ -57,10 +57,14 @@
   .feed-list .col-owner { align-items:flex-end; text-align:right; }
   .feed-list .cell .primary { white-space:normal; overflow:visible; text-overflow:clip; line-height:21px; }
 
-  /* enkel etikett/värde-tabell för Översikt + Detaljer */
-  .kv-grid { display:grid; grid-template-columns:180px minmax(0,1fr); gap:12px 24px; }
-  .kv-grid dt { color:var(--color-text-muted); font-size:14px; }
-  .kv-grid dd { margin:0; color:var(--color-text); font-weight:500; }
+  /* Översikt + Detaljer: värdet är huvudinfo (16px), etiketten under (14px) –
+     samma mönster som meta-row och listceller genom hela appen. */
+  .kv-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:20px 40px; }
+  .kv-item { display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .kv-item .primary { font-weight:500; font-size:16px; line-height:21px; color:var(--color-text); }
+  .kv-item .primary a { color:var(--color-brand); text-decoration:none; }
+  .kv-item .primary a:hover { text-decoration:underline; }
+  .kv-item .secondary { font-size:14px; line-height:18px; color:var(--color-text-muted); }
 
   /* liten lista för offert-panelen (utan grid-krock mot list-vyerna) */
   .mini-list { display:flex; flex-direction:column; gap:8px; }
@@ -133,6 +137,15 @@
   .filter-menu.range-menu { width:auto; padding:12px; }
   .range-foot { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px; }
   .range-foot .range-lbl { font-size:14px; color:var(--color-text-muted); }
+
+  /* tom-läge när ett datumintervall gömmer alla rader */
+  .list-empty { padding:32px 16px; text-align:center; font-size:14px; color:var(--color-text-muted); }
+
+  /* Stängda drawers ankras mot right:0, men den vertikala scrollbaren gör att
+     innehållskanten ligger ~15px in från viewportkanten. Då sticker den stängda
+     drawern in den biten och dess vänsterskugga läcker ut som ett skuggstreck
+     längs högerkanten. Skjut helt utanför + släck skuggan när den är stängd. */
+  .drawer:not(.is-open) { transform:translateX(calc(100% + 40px)); box-shadow:none; }
 </style>
 </head>
 <body>
@@ -234,38 +247,131 @@
           </div>
 
           <div class="list">
-            <div class="row">
+            <a class="row" href="#/aktivitet/AKT-4021">
               <div class="cell col-date"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3.5h2.5l1 3-1.5 1a8 8 0 0 0 3.5 3.5l1-1.5 3 1V15a.8.8 0 0 1-.9.8A11 11 0 0 1 2.2 4.4.8.8 0 0 1 3 3.5z"/></svg><div class="cell"><div class="primary">7 juli, 09:00</div><div class="secondary">2 dgr sedan</div></div></div>
               <div class="cell col-title"><div class="primary">Transportavtal</div><div class="secondary">Väntar på styrelsebeslut, hör av dig efter v.28.</div></div>
               <div class="cell col-company"><div class="primary">Nordvik Logistik AB</div><div class="secondary">Göteborg</div></div>
               <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
               <div class="cell col-count"><div class="primary">2</div><div class="secondary">Händelser</div></div>
               <div class="col-status"><span class="badge badge--danger">Försenad</span></div>
-            </div>
-            <div class="row">
+            </a>
+            <a class="row" href="#/aktivitet/AKT-4022">
               <div class="cell col-date"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3" width="11" height="11" rx="1.5"/><path d="M2.5 6.5h11M5 2v2M11 2v2"/></svg><div class="cell"><div class="primary">9 juli, 09:00</div><div class="secondary">Idag</div></div></div>
               <div class="cell col-title"><div class="primary">Uppföljningsmöte inför Q3-avtal</div><div class="secondary">Ola vill ha med båda delägarna. Föreslå tisdag fm.</div></div>
               <div class="cell col-company"><div class="primary">Op &amp; Partners AB</div><div class="secondary">Hässleholm</div></div>
               <div class="cell col-owner"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
               <div class="cell col-count"><div class="primary">4</div><div class="secondary">Händelser</div></div>
               <div class="col-status"><span class="badge badge--info">Idag</span></div>
-            </div>
-            <div class="row">
+            </a>
+            <a class="row" href="#/aktivitet/AKT-4023">
               <div class="cell col-date"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3.5h2.5l1 3-1.5 1a8 8 0 0 0 3.5 3.5l1-1.5 3 1V15a.8.8 0 0 1-.9.8A11 11 0 0 1 2.2 4.4.8.8 0 0 1 3 3.5z"/></svg><div class="cell"><div class="primary">10 juli, 14:00</div><div class="secondary">Imorgon</div></div></div>
-              <div class="cell col-title"><div class="primary">Möte</div><div class="secondary">Ville ha 5% rabatt vid 3-årsavtal. Kolla med chef.</div></div>
+              <div class="cell col-title"><div class="primary">Prisdiskussion 3-årsavtal</div><div class="secondary">Ville ha 5% rabatt vid 3-årsavtal. Kolla med chef.</div></div>
               <div class="cell col-company"><div class="primary">Bergström Automation AB</div><div class="secondary">Västerås</div></div>
               <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
               <div class="cell col-count"><div class="primary">1</div><div class="secondary">Händelser</div></div>
               <div class="col-status"><span class="badge badge--neutral">Imorgon</span></div>
-            </div>
-            <div class="row">
+            </a>
+            <a class="row" href="#/aktivitet/AKT-4024">
               <div class="cell col-date"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3" width="11" height="11" rx="1.5"/><path d="M2.5 6.5h11M5 2v2M11 2v2"/></svg><div class="cell"><div class="primary">11 juli, 16:00</div><div class="secondary">Denna vecka</div></div></div>
-              <div class="cell col-title"><div class="primary">Följ upp möte</div><div class="secondary">Undrar om vi klarar leverans inom 48h till Norrland.</div></div>
+              <div class="cell col-title"><div class="primary">Följ upp leveransfråga</div><div class="secondary">Undrar om vi klarar leverans inom 48h till Norrland.</div></div>
               <div class="cell col-company"><div class="primary">Nordvik Logistik AB</div><div class="secondary">Göteborg</div></div>
               <div class="cell col-owner"><div class="primary">A. Malmberg</div><div class="secondary">Ansvarig</div></div>
               <div class="cell col-count"><div class="primary">10</div><div class="secondary">Händelser</div></div>
               <div class="col-status"><span class="badge badge--neutral">Denna vecka</span></div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ VY: AKTIVITET (detalj) ═══════════════ -->
+    <section class="view" id="view-aktivitet-detalj">
+      <div class="page-head gutter">
+        <h1 class="screen-title" id="ak-title">Aktivitet</h1>
+        <div class="page-actions">
+          <a class="detail-back" href="#/aktiviteter"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4l-4 4 4 4"/></svg>Aktiviteter</a>
+          <button class="btn btn-secondary" type="button">Åtgärder<svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+          <button class="btn btn-primary icon-l" type="button" data-open="modal-followup"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.5 3.5L13 5"/></svg>Markera klar</button>
+        </div>
+      </div>
+      <div class="ground">
+        <div class="gutter" style="padding-top:16px">
+          <div class="detail">
+
+            <div class="detail-main">
+              <div class="meta-row">
+                <div class="meta-item"><div class="primary" id="ak-type">—</div><div class="secondary">Typ</div></div>
+                <div class="meta-item"><div class="primary" id="ak-date">—</div><div class="secondary">Datum</div></div>
+                <div class="meta-item"><div class="primary" id="ak-owner">—</div><div class="secondary">Ansvarig</div></div>
+                <div class="meta-item"><div class="primary"><span class="badge" id="ak-status">—</span></div><div class="secondary">Status</div></div>
+              </div>
+
+              <div class="composer">
+                <textarea class="composer-input" placeholder="Lägg till kommentar, logga ett samtal, skriv en anteckning…"></textarea>
+                <div class="composer-foot">
+                  <button class="btn btn-primary" type="button" disabled>Lägg till</button>
+                </div>
+              </div>
+
+              <div class="tabs" role="tablist">
+                <a class="tab is-active" role="tab" data-tab="ak-oversikt">Översikt</a>
+                <a class="tab" role="tab" data-tab="ak-handelser">Händelser <span class="count" id="ak-handelser-count">0</span></a>
+                <a class="tab" role="tab" data-tab="ak-detaljer">Detaljer</a>
+              </div>
+
+              <!-- Översikt -->
+              <div class="tab-pane is-active" data-pane="ak-oversikt">
+                <div class="kv-grid">
+                  <div class="kv-item"><div class="primary" id="ak-ov-company">—</div><div class="secondary">Företag</div></div>
+                  <div class="kv-item"><div class="primary" id="ak-ov-type">—</div><div class="secondary">Typ</div></div>
+                  <div class="kv-item"><div class="primary" id="ak-ov-date">—</div><div class="secondary">Datum</div></div>
+                  <div class="kv-item"><div class="primary" id="ak-ov-owner">—</div><div class="secondary">Ansvarig</div></div>
+                  <div class="kv-item"><div class="primary" id="ak-ov-status">—</div><div class="secondary">Status</div></div>
+                  <div class="kv-item"><div class="primary" id="ak-ov-contact">—</div><div class="secondary">Kontakt</div></div>
+                </div>
+              </div>
+
+              <!-- Händelser -->
+              <div class="tab-pane" data-pane="ak-handelser">
+                <div class="list feed-list" id="ak-handelser"></div>
+              </div>
+
+              <!-- Detaljer -->
+              <div class="tab-pane" data-pane="ak-detaljer">
+                <div class="kv-grid">
+                  <div class="kv-item"><div class="primary" id="ak-de-id">—</div><div class="secondary">Aktivitets-ID</div></div>
+                  <div class="kv-item"><div class="primary" id="ak-de-type">—</div><div class="secondary">Typ</div></div>
+                  <div class="kv-item"><div class="primary" id="ak-de-owner">—</div><div class="secondary">Ansvarig</div></div>
+                  <div class="kv-item"><div class="primary" id="ak-de-status">—</div><div class="secondary">Status</div></div>
+                  <div class="kv-item"><div class="primary" id="ak-de-company">—</div><div class="secondary">Företag</div></div>
+                  <div class="kv-item"><div class="primary" id="ak-de-source">—</div><div class="secondary">Källa</div></div>
+                </div>
+              </div>
             </div>
+
+            <aside class="detail-side">
+              <div class="side-block">
+                <h3>Företag</h3>
+                <div class="side-entity">
+                  <div class="primary" id="ak-side-company">—</div>
+                  <div class="secondary" id="ak-side-addr1"></div>
+                  <div class="secondary" id="ak-side-addr2"></div>
+                </div>
+              </div>
+              <hr class="side-divider">
+              <div class="side-block">
+                <h3>Kontakt</h3>
+                <div class="side-entity" id="ak-side-contact"></div>
+              </div>
+              <hr class="side-divider">
+              <div class="side-block">
+                <h3>Kopplad affär</h3>
+                <div class="side-entity">
+                  <div class="primary" id="ak-side-deal">—</div>
+                </div>
+              </div>
+            </aside>
+
           </div>
         </div>
       </div>
@@ -403,14 +509,14 @@
 
               <!-- Översikt -->
               <div class="tab-pane is-active" data-pane="oversikt">
-                <dl class="kv-grid">
-                  <dt>Företag</dt><dd id="af-ov-company">—</dd>
-                  <dt>Ort</dt><dd id="af-ov-city">—</dd>
-                  <dt>Steg</dt><dd id="af-ov-stage">—</dd>
-                  <dt>Värde</dt><dd id="af-ov-value">—</dd>
-                  <dt>Ansvarig</dt><dd id="af-ov-owner">—</dd>
-                  <dt>Senaste händelse</dt><dd>5 juli · E-post med prisunderlag för Q3</dd>
-                </dl>
+                <div class="kv-grid">
+                  <div class="kv-item"><div class="primary" id="af-ov-company">—</div><div class="secondary">Företag</div></div>
+                  <div class="kv-item"><div class="primary" id="af-ov-city">—</div><div class="secondary">Ort</div></div>
+                  <div class="kv-item"><div class="primary" id="af-ov-stage">—</div><div class="secondary">Steg</div></div>
+                  <div class="kv-item"><div class="primary" id="af-ov-value">—</div><div class="secondary">Värde</div></div>
+                  <div class="kv-item"><div class="primary" id="af-ov-owner">—</div><div class="secondary">Ansvarig</div></div>
+                  <div class="kv-item"><div class="primary">5 juli · E-post med prisunderlag för Q3</div><div class="secondary">Senaste händelse</div></div>
+                </div>
               </div>
 
               <!-- Aktiviteter -->
@@ -465,14 +571,14 @@
 
               <!-- Detaljer -->
               <div class="tab-pane" data-pane="detaljer">
-                <dl class="kv-grid">
-                  <dt>Affärs-ID</dt><dd id="af-de-id">—</dd>
-                  <dt>Steg</dt><dd id="af-de-stage">—</dd>
-                  <dt>Värde</dt><dd id="af-de-value">—</dd>
-                  <dt>Ansvarig</dt><dd id="af-de-owner">—</dd>
-                  <dt>Förväntat avslut</dt><dd id="af-de-close">—</dd>
-                  <dt>Källa</dt><dd>Inkommande förfrågan</dd>
-                </dl>
+                <div class="kv-grid">
+                  <div class="kv-item"><div class="primary" id="af-de-id">—</div><div class="secondary">Affärs-ID</div></div>
+                  <div class="kv-item"><div class="primary" id="af-de-stage">—</div><div class="secondary">Steg</div></div>
+                  <div class="kv-item"><div class="primary" id="af-de-value">—</div><div class="secondary">Värde</div></div>
+                  <div class="kv-item"><div class="primary" id="af-de-owner">—</div><div class="secondary">Ansvarig</div></div>
+                  <div class="kv-item"><div class="primary" id="af-de-close">—</div><div class="secondary">Förväntat avslut</div></div>
+                  <div class="kv-item"><div class="primary">Inkommande förfrågan</div><div class="secondary">Källa</div></div>
+                </div>
               </div>
             </div>
 
@@ -535,14 +641,14 @@
 
               <!-- Översikt -->
               <div class="tab-pane is-active" data-pane="fo-oversikt">
-                <dl class="kv-grid">
-                  <dt>Ort</dt><dd id="fo-ov-city">—</dd>
-                  <dt>Relation</dt><dd id="fo-ov-relation">—</dd>
-                  <dt>Kategori</dt><dd id="fo-ov-kategori">—</dd>
-                  <dt>Telefon</dt><dd id="fo-ov-tel">—</dd>
-                  <dt>Ansvarig</dt><dd id="fo-ov-owner">—</dd>
-                  <dt>Senaste kontakt</dt><dd id="fo-ov-senaste">—</dd>
-                </dl>
+                <div class="kv-grid">
+                  <div class="kv-item"><div class="primary" id="fo-ov-city">—</div><div class="secondary">Ort</div></div>
+                  <div class="kv-item"><div class="primary" id="fo-ov-relation">—</div><div class="secondary">Relation</div></div>
+                  <div class="kv-item"><div class="primary" id="fo-ov-kategori">—</div><div class="secondary">Kategori</div></div>
+                  <div class="kv-item"><div class="primary" id="fo-ov-tel">—</div><div class="secondary">Telefon</div></div>
+                  <div class="kv-item"><div class="primary" id="fo-ov-owner">—</div><div class="secondary">Ansvarig</div></div>
+                  <div class="kv-item"><div class="primary" id="fo-ov-senaste">—</div><div class="secondary">Senaste kontakt</div></div>
+                </div>
               </div>
 
               <!-- Kontakter -->
@@ -557,14 +663,14 @@
 
               <!-- Detaljer -->
               <div class="tab-pane" data-pane="fo-detaljer">
-                <dl class="kv-grid">
-                  <dt>Relation</dt><dd id="fo-de-relation">—</dd>
-                  <dt>Kategori</dt><dd id="fo-de-kategori">—</dd>
-                  <dt>Telefon</dt><dd id="fo-de-tel">—</dd>
-                  <dt>Ort</dt><dd id="fo-de-city">—</dd>
-                  <dt>Ansvarig</dt><dd id="fo-de-owner">—</dd>
-                  <dt>Källa</dt><dd>Manuellt tillagd</dd>
-                </dl>
+                <div class="kv-grid">
+                  <div class="kv-item"><div class="primary" id="fo-de-relation">—</div><div class="secondary">Relation</div></div>
+                  <div class="kv-item"><div class="primary" id="fo-de-kategori">—</div><div class="secondary">Kategori</div></div>
+                  <div class="kv-item"><div class="primary" id="fo-de-tel">—</div><div class="secondary">Telefon</div></div>
+                  <div class="kv-item"><div class="primary" id="fo-de-city">—</div><div class="secondary">Ort</div></div>
+                  <div class="kv-item"><div class="primary" id="fo-de-owner">—</div><div class="secondary">Ansvarig</div></div>
+                  <div class="kv-item"><div class="primary">Manuellt tillagd</div><div class="secondary">Källa</div></div>
+                </div>
               </div>
             </div>
 
@@ -625,14 +731,14 @@
 
               <!-- Översikt -->
               <div class="tab-pane is-active" data-pane="ko-oversikt">
-                <dl class="kv-grid">
-                  <dt>Företag</dt><dd id="ko-ov-company">—</dd>
-                  <dt>Roll</dt><dd id="ko-ov-role">—</dd>
-                  <dt>E-post</dt><dd id="ko-ov-email">—</dd>
-                  <dt>Telefon</dt><dd id="ko-ov-tel">—</dd>
-                  <dt>Ansvarig</dt><dd id="ko-ov-owner">—</dd>
-                  <dt>Status</dt><dd id="ko-ov-status">—</dd>
-                </dl>
+                <div class="kv-grid">
+                  <div class="kv-item"><div class="primary" id="ko-ov-company">—</div><div class="secondary">Företag</div></div>
+                  <div class="kv-item"><div class="primary" id="ko-ov-role">—</div><div class="secondary">Roll</div></div>
+                  <div class="kv-item"><div class="primary" id="ko-ov-email">—</div><div class="secondary">E-post</div></div>
+                  <div class="kv-item"><div class="primary" id="ko-ov-tel">—</div><div class="secondary">Telefon</div></div>
+                  <div class="kv-item"><div class="primary" id="ko-ov-owner">—</div><div class="secondary">Ansvarig</div></div>
+                  <div class="kv-item"><div class="primary" id="ko-ov-status">—</div><div class="secondary">Status</div></div>
+                </div>
               </div>
 
               <!-- Affärer -->
@@ -642,13 +748,13 @@
 
               <!-- Detaljer -->
               <div class="tab-pane" data-pane="ko-detaljer">
-                <dl class="kv-grid">
-                  <dt>Företag</dt><dd id="ko-de-company">—</dd>
-                  <dt>Roll</dt><dd id="ko-de-role">—</dd>
-                  <dt>Ansvarig</dt><dd id="ko-de-owner">—</dd>
-                  <dt>Status</dt><dd id="ko-de-status">—</dd>
-                  <dt>Källa</dt><dd>Manuellt tillagd</dd>
-                </dl>
+                <div class="kv-grid">
+                  <div class="kv-item"><div class="primary" id="ko-de-company">—</div><div class="secondary">Företag</div></div>
+                  <div class="kv-item"><div class="primary" id="ko-de-role">—</div><div class="secondary">Roll</div></div>
+                  <div class="kv-item"><div class="primary" id="ko-de-owner">—</div><div class="secondary">Ansvarig</div></div>
+                  <div class="kv-item"><div class="primary" id="ko-de-status">—</div><div class="secondary">Status</div></div>
+                  <div class="kv-item"><div class="primary">Manuellt tillagd</div><div class="secondary">Källa</div></div>
+                </div>
               </div>
             </div>
 
@@ -709,27 +815,27 @@
 
               <!-- Översikt -->
               <div class="tab-pane is-active" data-pane="of-oversikt">
-                <dl class="kv-grid">
-                  <dt>Företag</dt><dd id="of-ov-company">—</dd>
-                  <dt>Belopp</dt><dd id="of-ov-value">—</dd>
-                  <dt>Status</dt><dd id="of-ov-status">—</dd>
-                  <dt>Ansvarig</dt><dd id="of-ov-owner">—</dd>
-                  <dt>Datum</dt><dd id="of-ov-date">—</dd>
-                  <dt>Giltig till</dt><dd id="of-ov-valid">—</dd>
-                  <dt>Kopplad affär</dt><dd id="of-ov-deal">—</dd>
-                </dl>
+                <div class="kv-grid">
+                  <div class="kv-item"><div class="primary" id="of-ov-company">—</div><div class="secondary">Företag</div></div>
+                  <div class="kv-item"><div class="primary" id="of-ov-value">—</div><div class="secondary">Belopp</div></div>
+                  <div class="kv-item"><div class="primary" id="of-ov-status">—</div><div class="secondary">Status</div></div>
+                  <div class="kv-item"><div class="primary" id="of-ov-owner">—</div><div class="secondary">Ansvarig</div></div>
+                  <div class="kv-item"><div class="primary" id="of-ov-date">—</div><div class="secondary">Datum</div></div>
+                  <div class="kv-item"><div class="primary" id="of-ov-valid">—</div><div class="secondary">Giltig till</div></div>
+                  <div class="kv-item"><div class="primary" id="of-ov-deal">—</div><div class="secondary">Kopplad affär</div></div>
+                </div>
               </div>
 
               <!-- Detaljer -->
               <div class="tab-pane" data-pane="of-detaljer">
-                <dl class="kv-grid">
-                  <dt>Offertnr</dt><dd id="of-de-id">—</dd>
-                  <dt>Belopp</dt><dd id="of-de-value">—</dd>
-                  <dt>Status</dt><dd id="of-de-status">—</dd>
-                  <dt>Ansvarig</dt><dd id="of-de-owner">—</dd>
-                  <dt>Giltig till</dt><dd id="of-de-valid">—</dd>
-                  <dt>Källa</dt><dd>Skapad i SlayCRM</dd>
-                </dl>
+                <div class="kv-grid">
+                  <div class="kv-item"><div class="primary" id="of-de-id">—</div><div class="secondary">Offertnr</div></div>
+                  <div class="kv-item"><div class="primary" id="of-de-value">—</div><div class="secondary">Belopp</div></div>
+                  <div class="kv-item"><div class="primary" id="of-de-status">—</div><div class="secondary">Status</div></div>
+                  <div class="kv-item"><div class="primary" id="of-de-owner">—</div><div class="secondary">Ansvarig</div></div>
+                  <div class="kv-item"><div class="primary" id="of-de-valid">—</div><div class="secondary">Giltig till</div></div>
+                  <div class="kv-item"><div class="primary">Skapad i SlayCRM</div><div class="secondary">Källa</div></div>
+                </div>
               </div>
             </div>
 
@@ -849,7 +955,7 @@
       <div class="page-head gutter">
         <h1 class="screen-title">Företag</h1>
         <div class="page-actions">
-          <button class="btn btn-primary icon-l" type="button"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Nytt företag</button>
+          <button class="btn btn-primary icon-l" type="button" data-open="drawer-foretag"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Nytt företag</button>
         </div>
       </div>
       <div class="ground">
@@ -1336,6 +1442,53 @@
       <span class="spacer"></span>
       <button class="btn btn-secondary" type="button" data-close>Avbryt</button>
       <button class="btn btn-primary" type="button" data-close>Skapa kontakt</button>
+    </div>
+  </aside>
+
+  <aside class="drawer" id="drawer-foretag" role="dialog" aria-modal="true" aria-labelledby="drawer-foretag-title">
+    <div class="drawer-head">
+      <div>
+        <h2 id="drawer-foretag-title">Nytt företag</h2>
+        <div class="sub">Läggs till i företagsregistret</div>
+      </div>
+      <button class="drawer-close" type="button" data-close aria-label="Stäng"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    </div>
+    <div class="drawer-body">
+      <form class="form" onsubmit="return false">
+        <div class="field"><label class="field-label" for="f-namn">Företagsnamn<span class="req">*</span></label><input class="input" id="f-namn" type="text" placeholder="t.ex. Nordvik Logistik AB"></div>
+        <div class="field-row">
+          <div class="field"><label class="field-label" for="f-ort">Ort</label><input class="input" id="f-ort" type="text" placeholder="t.ex. Göteborg"></div>
+          <div class="field"><label class="field-label" for="f-tel">Telefon</label><input class="input" id="f-tel" type="tel" placeholder="08 000 00 00"></div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label" for="f-relation">Relation</label>
+            <div class="select-wrap">
+              <select class="select" id="f-relation"><option>Prospekt</option><option>Kund</option><option>Partner</option><option>Inaktiv</option></select>
+              <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+            </div>
+          </div>
+          <div class="field"><label class="field-label" for="f-kategori">Kategori</label><input class="input" id="f-kategori" type="text" placeholder="t.ex. Logistik"></div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="f-ansvarig">Ansvarig</label>
+          <div class="select-wrap">
+            <select class="select" id="f-ansvarig"><option>W. Bernting</option><option>P. Steinberger</option><option>A. Malmberg</option></select>
+            <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="f-notis">Anteckning</label>
+          <textarea class="textarea" id="f-notis" placeholder="Hur ni fick kontakt, vad de behöver?"></textarea>
+          <span class="field-hint">Syns i händelseflödet på företaget.</span>
+        </div>
+      </form>
+    </div>
+    <div class="drawer-foot">
+      <button class="btn btn-ghost" type="button" data-open="modal-confirm">Ta bort utkast</button>
+      <span class="spacer"></span>
+      <button class="btn btn-secondary" type="button" data-close>Avbryt</button>
+      <button class="btn btn-primary" type="button" data-close>Skapa företag</button>
     </div>
   </aside>
 

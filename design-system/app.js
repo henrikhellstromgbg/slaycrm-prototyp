@@ -92,6 +92,33 @@
     'OFF-3015': { name: 'Pilotprojekt sensorer',   company: 'Bergström Automation AB', value: '95 000 kr',    status: 'Avböjd',     tone: 'danger',  owner: 'A. Malmberg',    date: 'Avböjd 24 juni 2026',    valid: '—',            deal: 'AFF-2015' }
   };
 
+  var ACTIVITIES = {
+    'AKT-4021': {
+      title: 'Transportavtal', type: 'Samtal', date: '7 juli, 09:00', rel: '2 dgr sedan',
+      company: 'Nordvik Logistik AB', owner: 'W. Bernting', count: 2,
+      status: 'Försenad', tone: 'danger', note: 'Väntar på styrelsebeslut, hör av dig efter v.28.',
+      deal: 'AFF-2038', contact: 'ola-nordvik', source: 'Uppföljning affär'
+    },
+    'AKT-4022': {
+      title: 'Uppföljningsmöte inför Q3-avtal', type: 'Möte', date: '9 juli, 09:00', rel: 'Idag',
+      company: 'Op & Partners AB', owner: 'P. Steinberger', count: 4,
+      status: 'Idag', tone: 'info', note: 'Ola vill ha med båda delägarna. Föreslå tisdag fm.',
+      deal: 'AFF-2044', contact: 'johan-op', source: 'Inbokat möte'
+    },
+    'AKT-4023': {
+      title: 'Prisdiskussion 3-årsavtal', type: 'Samtal', date: '10 juli, 14:00', rel: 'Imorgon',
+      company: 'Bergström Automation AB', owner: 'W. Bernting', count: 1,
+      status: 'Imorgon', tone: 'neutral', note: 'Ville ha 5% rabatt vid 3-årsavtal. Kolla med chef.',
+      deal: 'AFF-2041', contact: 'petra-bergstrom', source: 'Inkommande samtal'
+    },
+    'AKT-4024': {
+      title: 'Följ upp leveransfråga', type: 'Möte', date: '11 juli, 16:00', rel: 'Denna vecka',
+      company: 'Nordvik Logistik AB', owner: 'A. Malmberg', count: 10,
+      status: 'Denna vecka', tone: 'neutral', note: 'Undrar om vi klarar leverans inom 48h till Norrland.',
+      deal: 'AFF-2038', contact: 'ola-nordvik', source: 'Uppföljning affär'
+    }
+  };
+
   /* ── router ────────────────────────────────────────────────────── */
 
   var ROUTES = {
@@ -104,7 +131,8 @@
     'affar-detalj':   { sec: 'view-affar-detalj',    nav: 'affarer',     group: 'affar' },
     'foretag-detalj': { sec: 'view-foretag-detalj',  nav: 'foretag',     group: 'foretag' },
     'kontakt-detalj': { sec: 'view-kontakt-detalj',  nav: 'kontakter',   group: 'foretag' },
-    'offert-detalj':  { sec: 'view-offert-detalj',   nav: 'offerter',    group: 'affar' }
+    'offert-detalj':  { sec: 'view-offert-detalj',   nav: 'offerter',    group: 'affar' },
+    'aktivitet-detalj': { sec: 'view-aktivitet-detalj', nav: 'aktiviteter', group: null }
   };
 
   function parseHash() {
@@ -115,6 +143,7 @@
     if (parts[0] === 'foretag' && parts[1] && COMPANY_BY_ID[parts[1]]) return { view: 'foretag-detalj', id: parts[1] };
     if (parts[0] === 'kontakt' && parts[1] && CONTACTS[parts[1]]) return { view: 'kontakt-detalj', id: parts[1] };
     if (parts[0] === 'offert' && parts[1] && OFFERS[parts[1]]) return { view: 'offert-detalj', id: parts[1] };
+    if (parts[0] === 'aktivitet' && parts[1] && ACTIVITIES[parts[1]]) return { view: 'aktivitet-detalj', id: parts[1] };
     if (ROUTES[parts[0]]) return { view: parts[0] };
     return { view: 'aktiviteter' };
   }
@@ -141,6 +170,7 @@
     if (r.view === 'foretag-detalj') fillCompanyDetail(r.id);
     if (r.view === 'kontakt-detalj') fillContactDetail(r.id);
     if (r.view === 'offert-detalj') fillOfferDetail(r.id);
+    if (r.view === 'aktivitet-detalj') fillActivityDetail(r.id);
 
     /* stäng ev. öppen mobil-nav och nav-grupper vid vybyte (ingen sidladdning i SPA) */
     var nav = document.querySelector('.nav');
@@ -242,11 +272,9 @@
       co.contacts.forEach(function (c) {
         var row = document.createElement('div');
         row.className = 'mini-row';
+        /* namn + roll räcker här – kontaktkanalerna (e-post/tel) bor i högerrailen */
         row.innerHTML =
-          '<div><div class="mini-title">' + c.name + '</div><div class="mini-sub">' + c.role + '</div></div>' +
-          '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">' +
-          '<a class="link" href="mailto:' + c.email + '">' + c.email + '</a>' +
-          '<a class="link" href="tel:' + c.tel.replace(/\s/g, '') + '">' + c.tel + '</a></div>';
+          '<div><div class="mini-title">' + c.name + '</div><div class="mini-sub">' + c.role + '</div></div>';
         kWrap.appendChild(row);
       });
     }
@@ -422,6 +450,81 @@
     setTab(document.querySelector('#view-offert-detalj .detail-main'), 'of-oversikt');
   }
 
+  /* ── Aktivitet-detalj: fyll från ACTIVITIES ────────────────────── */
+
+  function contactLink(slug) {
+    var c = CONTACTS[slug];
+    return c ? '<a href="#/kontakt/' + slug + '">' + c.name + '</a>' : '—';
+  }
+
+  function fillActivityDetail(aid) {
+    var a = ACTIVITIES[aid];
+    if (!a) return;
+    var co = COMPANIES[a.company];
+    var ct = CONTACTS[a.contact];
+
+    txt('ak-title', a.title);
+    txt('ak-type', a.type);
+    txt('ak-date', a.date);
+    txt('ak-owner', a.owner);
+
+    var st = document.getElementById('ak-status');
+    if (st) { st.className = 'badge badge--' + a.tone; st.textContent = a.status; }
+
+    /* Översikt */
+    var ovCompany = document.getElementById('ak-ov-company');
+    if (ovCompany) ovCompany.innerHTML = companyLink(a.company);
+    txt('ak-ov-type', a.type);
+    txt('ak-ov-date', a.date);
+    txt('ak-ov-owner', a.owner);
+    txt('ak-ov-status', a.status);
+    var ovContact = document.getElementById('ak-ov-contact');
+    if (ovContact) ovContact.innerHTML = contactLink(a.contact);
+
+    /* Händelser-fliken — not + skapad-post */
+    var hWrap = document.getElementById('ak-handelser');
+    if (hWrap) {
+      hWrap.innerHTML =
+        '<div class="row"><div class="cell"><div class="primary">' + a.date + '</div><div class="secondary">' + a.type + '</div></div>' +
+        '<div class="cell"><div class="primary">' + a.note + '</div></div>' +
+        '<div class="cell col-owner"><div class="primary">' + a.owner + '</div><div class="secondary">Ansvarig</div></div></div>' +
+        '<div class="row"><div class="cell"><div class="primary">' + a.date + '</div><div class="secondary">System</div></div>' +
+        '<div class="cell"><div class="primary">Aktivitet skapad och kopplad till ' + a.company + '.</div></div>' +
+        '<div class="cell col-owner"><div class="primary">' + a.owner + '</div><div class="secondary">Ansvarig</div></div></div>';
+    }
+    setCount('ak-handelser-count', a.count);
+
+    /* Detaljer */
+    txt('ak-de-id', aid);
+    txt('ak-de-type', a.type);
+    txt('ak-de-owner', a.owner);
+    txt('ak-de-status', a.status);
+    var deCompany = document.getElementById('ak-de-company');
+    if (deCompany) deCompany.innerHTML = companyLink(a.company);
+    txt('ak-de-source', a.source);
+
+    /* sidorail: företag + kontakt + kopplad affär */
+    var sideCo = document.getElementById('ak-side-company');
+    if (sideCo) sideCo.innerHTML = companyLink(a.company);
+    txt('ak-side-addr1', co ? co.addr1 : '');
+    txt('ak-side-addr2', co ? co.addr2 : '');
+
+    var sideCt = document.getElementById('ak-side-contact');
+    if (sideCt) {
+      sideCt.innerHTML = ct
+        ? '<div class="primary">' + contactLink(a.contact) + '</div>' +
+          '<div class="secondary">' + ct.role + '</div>' +
+          '<div class="secondary"><a href="mailto:' + ct.email + '">' + ct.email + '</a></div>' +
+          '<div class="secondary"><a href="tel:' + ct.tel.replace(/\s/g, '') + '">' + ct.tel + '</a></div>'
+        : '<div class="secondary">Ingen kontakt kopplad</div>';
+    }
+
+    var sideDeal = document.getElementById('ak-side-deal');
+    if (sideDeal) sideDeal.innerHTML = dealLink(a.deal);
+
+    setTab(document.querySelector('#view-aktivitet-detalj .detail-main'), 'ak-oversikt');
+  }
+
   function setCount(id, n) { var el = document.getElementById(id); if (el) el.textContent = n; }
 
   /* ── undertabbar (delas av alla detaljvyer, scopas till .detail-main) ── */
@@ -447,6 +550,50 @@
 
   function sameDay(a, b) { return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
   function dayShort(d) { return d.getDate() + ' ' + MONTHS_SHORT[d.getMonth()]; }
+
+  /* prototypens referensår (seed-datan saknar år i radtexten) */
+  var SEED_YEAR = 2026;
+
+  /* "7 juli, 09:00" → Date(2026, 6, 7); null om raden saknar datum */
+  function parseRowDate(txt) {
+    var m = /(\d{1,2})\s+([a-zåäö]+)/i.exec(txt || '');
+    if (!m) return null;
+    var mi = MONTHS_LONG.indexOf(m[2].toLowerCase());
+    if (mi < 0) return null;
+    return new Date(SEED_YEAR, mi, +m[1]);
+  }
+
+  /* dölj listrader i vyn vars datum ligger utanför [s, e]; returnerar antal synliga */
+  function applyDateRange(group, s, e) {
+    var view = group.closest('.view');
+    if (!view) return 0;
+    var list = view.querySelector('.list');
+    if (!list) return 0;
+    var shown = 0, dated = 0;
+    list.querySelectorAll(':scope > .row').forEach(function (row) {
+      var cell = row.querySelector('.col-date .primary, .col-opened .primary');
+      if (!cell) return; /* rad utan datum – rör den inte */
+      dated++;
+      var d = parseRowDate(cell.textContent);
+      var inRange = !s ? true : (!e ? sameDay(d, s) : (d && d >= s && d <= e));
+      row.style.display = inRange ? '' : 'none';
+      if (inRange) shown++;
+    });
+    /* tom-läge: visa ett meddelande om intervallet gömmer allt */
+    var empty = list.querySelector('.list-empty');
+    if (dated && shown === 0) {
+      if (!empty) {
+        empty = document.createElement('div');
+        empty.className = 'list-empty';
+        list.appendChild(empty);
+      }
+      empty.textContent = 'Inga aktiviteter i valt datumintervall.';
+      empty.style.display = '';
+    } else if (empty) {
+      empty.style.display = 'none';
+    }
+    return shown;
+  }
 
   function createCalendar(opts) {
     opts = opts || {};
@@ -548,10 +695,12 @@
       foot.addEventListener('click', function (e) { e.stopPropagation(); });
       foot.querySelector('[data-range-clear]').addEventListener('click', function () {
         cal.clear(); lbl.textContent = 'Välj intervall'; if (val) val.textContent = 'Alla datum';
+        applyDateRange(group, null, null);
       });
       foot.querySelector('[data-range-apply]').addEventListener('click', function () {
-        var s = cal.getStart();
-        if (val) val.textContent = s ? rangeLabel(s, cal.getEnd()) : 'Alla datum';
+        var s = cal.getStart(), e = cal.getEnd();
+        if (val) val.textContent = s ? rangeLabel(s, e) : 'Alla datum';
+        applyDateRange(group, s, e);
         closeGroup();
       });
     });
