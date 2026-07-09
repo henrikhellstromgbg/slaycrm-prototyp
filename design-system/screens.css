@@ -368,6 +368,10 @@ a { color:inherit; }
   .nav-menu { position:static; min-width:0; margin:0; padding:0; border:0; box-shadow:none;
     background:transparent; flex-direction:column; gap:2px;
     opacity:1; visibility:inherit; transform:none; }
+  /* en grupp som lämnats öppen från desktop (t.ex. vid omritning under 800) får inte
+     tvinga undermenyn synlig igen via den mer specifika desktop-regeln (0,3,0 > 0,1,0).
+     Samma specificitet här + senare i filen vinner, så undermenyn följer .nav igen. */
+  .nav-group.is-open .nav-menu { opacity:1; visibility:inherit; transform:none; }
   .menu-item { padding:12px; font-size:16px; border-radius:var(--radius-control); }
   .menu-item.is-active { background:var(--color-surface-sunken); }
 
