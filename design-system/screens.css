@@ -332,3 +332,69 @@ a { color:inherit; }
 }
 @media (max-width:1180px) { :root { --layout-gutter:24px; } }
 @media (max-width:900px) { .detail { grid-template-columns:minmax(0,1fr); } }
+
+/* ───────── mobil (≤800): hamburgermeny + vertikala listrader ───────── */
+.nav-toggle { display:none; }  /* hamburgaren finns bara i mobil */
+
+@media (max-width:800px) {
+  :root { --layout-gutter:16px; }
+
+  /* refbar (referens-chrome): behåll temaväxlaren, släpp beskrivningen */
+  .refbar { flex-wrap:wrap; gap:8px 12px; padding:10px 16px; }
+  .refbar .lbl span { display:none; }
+
+  /* topbar: brand + hamburgare; inline-söket bor i filterraden istället */
+  .topbar-inner { gap:12px; }
+  .topbar .search { display:none; }
+  .topbar-right { gap:8px; }
+  .nav-toggle { display:inline-flex; }
+
+  /* nav → nedfällbar panel under topbaren (absolut mot .topbar) */
+  .nav { position:absolute; top:100%; left:0; right:0; height:auto;
+    flex-direction:column; align-items:stretch;
+    background:var(--color-surface); border-bottom:1px solid var(--color-border);
+    box-shadow:var(--shadow-card); padding:8px; z-index:30;
+    opacity:0; visibility:hidden; transform:translateY(-6px);
+    transition:opacity .16s ease, transform .16s ease, visibility .16s ease; }
+  .nav.is-open { opacity:1; visibility:visible; transform:none; }
+  .nav-parent { display:none; }  /* gruppetiketterna faller bort, länkarna listas platt */
+  .nav-group { flex-direction:column; align-items:stretch; }
+  .nav-item { height:auto; padding:12px; font-size:16px; border-bottom:0; border-radius:var(--radius-control); }
+  .nav-item:hover { background:var(--color-surface-sunken); }
+  .nav-item.is-active { color:var(--color-brand); background:var(--color-surface-sunken); }
+  /* nästlade menyval visas platt, inte som popover */
+  .nav-menu { position:static; min-width:0; margin:0; padding:0; border:0; box-shadow:none;
+    background:transparent; flex-direction:column; gap:2px;
+    opacity:1; visibility:visible; transform:none; }
+  .menu-item { padding:12px; font-size:16px; border-radius:var(--radius-control); }
+  .menu-item.is-active { background:var(--color-surface-sunken); }
+
+  /* page-head: titel över, knappar under */
+  .page-head { flex-direction:column; align-items:stretch; gap:16px; }
+  .page-actions { flex-wrap:wrap; }
+
+  /* filterrad: wrappa, sök i full bredd underst */
+  .filterbar { flex-wrap:wrap; }
+  .filterbar .search { margin-left:0; width:100%; }
+
+  /* listrader → vertikal kortlayout (flex slår den inline-satta grid-mallen) */
+  .list .row { display:flex; flex-direction:column; align-items:stretch; gap:10px; }
+  .list .row .cell, .list .row .col-amount, .list .row .col-owner { align-items:flex-start; text-align:left; }
+  .list .row .cell .primary, .list .row .cell .secondary { white-space:normal; }
+
+  /* säljtavlan: staplade kolumner istället för sidled-scroll */
+  .board { flex-direction:column; }
+  .board-col { min-width:0; width:100%; }
+
+  /* detaljvy: fliklisten får scrolla i sidled om den inte får plats */
+  .tabs { overflow-x:auto; }
+
+  /* drawer/modal-formulär: fältpar staplas */
+  .field-row { grid-template-columns:1fr; }
+
+  /* drawer-fot: primär+sekundär delar övre raden, destruktiv åtgärd i full bredd under */
+  .drawer-foot { flex-wrap:wrap; }
+  .drawer-foot .spacer { display:none; }
+  .drawer-foot .btn-secondary, .drawer-foot .btn-primary { flex:1 1 0; justify-content:center; }
+  .drawer-foot .btn-ghost { order:3; flex:1 1 100%; justify-content:center; }
+}

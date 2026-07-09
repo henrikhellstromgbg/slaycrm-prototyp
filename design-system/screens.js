@@ -143,3 +143,23 @@
     if (row && e.target === row) { e.preventDefault(); window.location.href = row.getAttribute('data-href'); }
   });
 })();
+
+/* Mobil-nav: hamburgaren fäller ut .nav som en panel under topbaren (≤800).
+   Klick utanför och Esc stänger. Nav-länkar navigerar bort, så de behöver inte stänga. */
+(function () {
+  var toggle = document.querySelector('.nav-toggle');
+  var nav = document.querySelector('.nav');
+  if (!toggle || !nav) return;
+  function close() { nav.classList.remove('is-open'); toggle.setAttribute('aria-expanded', 'false'); }
+  toggle.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var open = nav.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+  document.addEventListener('click', function (e) {
+    if (!nav.classList.contains('is-open')) return;
+    if (e.target.closest('.nav') || e.target.closest('.nav-toggle')) return;
+    close();
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+})();
