@@ -5,6 +5,19 @@
    Simplified neutrals: 3 backgrounds, 1 line, 3 text greys; dark ground reuses ink #111.
    Two layers: --p-* primitives (raw), --* semantic (roles). Use semantic in components. */
 
+/* ───────── Geist — self-hostad (variabel woff2, weight 100–900) ─────────
+   Ligger i fonts/. Utan detta föll systemet tillbaka på -apple-system (San Francisco). */
+@font-face {
+  font-family: 'Geist';
+  src: url('fonts/Geist-Variable.woff2') format('woff2');
+  font-weight: 100 900; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('fonts/GeistMono-Variable.woff2') format('woff2');
+  font-weight: 100 900; font-style: normal; font-display: swap;
+}
+
 :root {
   /* ───────── primitives: neutral (simplified) ─────────
      3 backgrounds · 1 line · 3 text greys · 2 dark grounds */
@@ -29,8 +42,8 @@
   --p-overlay-hover: rgba(0,0,0,0.04);              /* row / ghost hover */
 
   /* ───────── primitives: type ───────── */
-  --p-font:      'Geist Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --p-font-mono: ui-monospace, 'Geist Mono', monospace;
+  --p-font:      'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --p-font-mono: 'Geist Mono', ui-monospace, monospace;
   --p-fw-regular: 400; --p-fw-medium: 500; --p-fw-semibold: 600; --p-fw-bold: 700;
   --p-fs-sm: 14px; --p-fs-md: 16px; --p-fs-lg: 20px; --p-fs-xl: 24px;  /* floor 14 */
   --p-lh-sm: 18px; --p-lh-md: 21px; --p-lh-lg: 24px; --p-lh-xl: 30px;

@@ -8,8 +8,8 @@
 <link rel="stylesheet" href="screens.css">
 <style>
   /* view-specific: Affärer list column template (title · företag · värde · ansvarig · steg) */
-  .list, .list-head { min-width:1030px; }
-  .row, .list-head { grid-template-columns:minmax(220px,1fr) 220px 150px 150px 190px; }
+  .list { min-width:1030px; }
+  .row { grid-template-columns:minmax(220px,1fr) 220px 150px 150px 190px; }
 </style>
 </head>
 <body>
@@ -107,15 +107,11 @@
           </label>
         </div>
 
-        <div class="list-head">
-          <div>Affär</div><div>Företag</div><div class="r">Värde</div><div>Ansvarig</div><div>Steg</div>
-        </div>
-
         <div class="list">
           <a class="row" href="screens-detalj.html">
             <div class="cell col-title"><div class="primary">Q3-leverans automation</div><div class="secondary">AFF-2041 · öppnad 12 juni</div></div>
             <div class="cell col-company"><div class="primary">Bergström Automation AB</div><div class="secondary">Västerås</div></div>
-            <div class="cell col-amount"><span class="amount">1 250 000 kr</span></div>
+            <div class="cell col-amount"><span class="amount">1 250 000 kr</span><div class="secondary">Värde</div></div>
             <div class="cell col-owner"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
             <div class="col-status"><span class="badge badge--warning">Offert</span></div>
           </a>
@@ -123,7 +119,7 @@
           <a class="row" href="screens-detalj.html">
             <div class="cell col-title"><div class="primary">Ramavtal transport 2026</div><div class="secondary">AFF-2038 · öppnad 3 juni</div></div>
             <div class="cell col-company"><div class="primary">Nordvik Logistik AB</div><div class="secondary">Göteborg</div></div>
-            <div class="cell col-amount"><span class="amount">480 000 kr</span></div>
+            <div class="cell col-amount"><span class="amount">480 000 kr</span><div class="secondary">Värde</div></div>
             <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
             <div class="col-status"><span class="badge badge--info">Kvalificerad</span></div>
           </a>
@@ -131,7 +127,7 @@
           <a class="row" href="screens-detalj.html">
             <div class="cell col-title"><div class="primary">Servicekontrakt 3 år</div><div class="secondary">AFF-2044 · öppnad 28 juni</div></div>
             <div class="cell col-company"><div class="primary">Op &amp; Partners AB</div><div class="secondary">Hässleholm</div></div>
-            <div class="cell col-amount"><span class="amount">320 000 kr</span></div>
+            <div class="cell col-amount"><span class="amount">320 000 kr</span><div class="secondary">Värde</div></div>
             <div class="cell col-owner"><div class="primary">A. Malmberg</div><div class="secondary">Ansvarig</div></div>
             <div class="col-status"><span class="badge badge--neutral">Lead</span></div>
           </a>
@@ -139,7 +135,7 @@
           <a class="row" href="screens-detalj.html">
             <div class="cell col-title"><div class="primary">Utökning lagersystem</div><div class="secondary">AFF-2029 · öppnad 20 maj</div></div>
             <div class="cell col-company"><div class="primary">Nordvik Logistik AB</div><div class="secondary">Göteborg</div></div>
-            <div class="cell col-amount"><span class="amount">210 000 kr</span></div>
+            <div class="cell col-amount"><span class="amount">210 000 kr</span><div class="secondary">Värde</div></div>
             <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
             <div class="col-status"><span class="badge badge--success">Vunnen</span></div>
           </a>
@@ -147,7 +143,7 @@
           <a class="row" href="screens-detalj.html">
             <div class="cell col-title"><div class="primary">Pilotprojekt sensorer</div><div class="secondary">AFF-2015 · öppnad 2 maj</div></div>
             <div class="cell col-company"><div class="primary">Bergström Automation AB</div><div class="secondary">Västerås</div></div>
-            <div class="cell col-amount"><span class="amount">95 000 kr</span></div>
+            <div class="cell col-amount"><span class="amount">95 000 kr</span><div class="secondary">Värde</div></div>
             <div class="cell col-owner"><div class="primary">A. Malmberg</div><div class="secondary">Ansvarig</div></div>
             <div class="col-status"><span class="badge badge--danger">Förlorad</span></div>
           </a>

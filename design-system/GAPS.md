@@ -36,7 +36,7 @@ Skrivet 2026-07-08 efter att ha byggt sex applicerade vyer (Aktiviteter, Affäre
 
 Dessa finns i `screens.css` och funkar, men de är inte formaliserade i `tokens.json`/`index.html` och bör lyftas in i systemet.
 
-**Måtten tokeniserade 2026-07-09 (v0.4.0).** Alla magiska tal i `screens.css` är utbrutna till semantiska tokens (`--drawer-width` 480, `--modal-width` 420, `--overlay-scrim`, `--shadow-focus`, `--tab-height` 44, `--kv-label-width` 120, `--menu-min-width` 200, `--board-col-width` 300, `--board-gap` 16, `--avatar-sm-size` 32). Speglade i `tokens.json` (ny `semantic.component`-grupp) och dokumenterade i `index.html` (ny "Komponentmått"-sektion + fält-specimen för select/textarea/avatar). `screens.css` dogfoodar dem nu, vyerna är oförändrade. **Kvar för P2 = beslutsfrågorna nedan** (avatarskala/färg #5, list-head-policy #8, hover-stil #9, numeric-helper #14, ghost-knappens plats #15), inte måtten.
+**Måtten tokeniserade 2026-07-09 (v0.4.0).** Alla magiska tal i `screens.css` är utbrutna till semantiska tokens (`--drawer-width` 480, `--modal-width` 420, `--overlay-scrim`, `--shadow-focus`, `--tab-height` 44, `--kv-label-width` 120, `--menu-min-width` 200, `--board-col-width` 300, `--board-gap` 16, `--avatar-sm-size` 32). Speglade i `tokens.json` (ny `semantic.component`-grupp) och dokumenterade i `index.html` (ny "Komponentmått"-sektion + fält-specimen för select/textarea/avatar). `screens.css` dogfoodar dem nu, vyerna är oförändrade. **Kvar för P2 = beslutsfrågorna nedan** (avatarskala/färg #5, hover-stil #9, numeric-helper #14, ghost-knappens plats #15), inte måtten. (List-head-policy #8 löst 2026-07-09: etikett-på-raden.)
 
 5. **Avatar / initialer.** `avatar-sm` 32px och toppbarens 40px. Bara en neutral variant. Beslut: en storleksskala (sm/md) och ska avataren färgkodas per entitet eller vara neutral?
 
@@ -44,17 +44,17 @@ Dessa finns i `screens.css` och funkar, men de är inte formaliserade i `tokens.
 
 7. **Kanban / tavla.** Kolumnbredd 300, gap 16, affärskort (radius-card, padding), steg-prick färgad per ton. Inget tokeniserat (board-col-width, board-gap).
 
-8. **Listrubrik-rad (`list-head`).** Kolumnetiketter ovanför rader. Aktiviteter saknar den, Affärer/Företag/Kontakter har den. Beslut: ska alla listor ha rubrikrad eller bara de med numeriska/många kolumner?
+8. ~~**Listrubrik-rad (`list-head`).**~~ **LÖST 2026-07-09** mot Figma. Ingen rubrikrad någonstans, istället **etikett direkt på raden**: varje cell visar sitt värde (`.primary`) med en liten mutad fältetikett (`.secondary`) under. `list-head`-CSS och alla rubrikrader borttagna ur Affärer/Offerter/Företag/Kontakter (Aktiviteter saknade den redan). Telefon/e-post i listrader färgas orange via `.cell .primary.link`. Affärer/Offerter self-describade redan så bara belopp-cellen fick "Värde"-etikett.
 
 9. **Rad som länk + hover.** Rader är nu klickbara `<a>` med hover = starkare kant + pekare. Var inte definierat förut. Beslut: bekräfta hover (kant vs bakgrund vs skugga).
 
 10. **Nyckel-värde (kv).** Detaljvyns Detaljer/Adresser: etikett 120 / värde. Ny pattern.
 
-11. **Händelseflöde (feed).** Ikon-cirkel 32 + titel + tid + text, hairline mellan rader. Ny pattern.
+11. **Händelseflöde (feed).** Två varianter nu: (a) `.feed` med ikon-cirkel 32 + titel + tid + text, hairline mellan rader (äldre). (b) **rad-kort på detaljvyn 2026-07-09**: `.list.feed-list` med rader som separata kort i 3-kolumnsgrid (datum · text · ansvarig-höger), ej klickbara (cursor:default). Matchar Figma-detaljvyn. Beslut kvar: vilken variant vinner systemet.
 
-12. **Brödsmulor (breadcrumb).** Mutade länkar + chevron. Ny.
+12. ~~**Brödsmulor (breadcrumb).**~~ **BORTTAGNA 2026-07-09.** Henrik: ta bort brödsmulor på undersidorna. `.breadcrumb`-CSS och markup borttagna. Tillbaka-navigering sker nu via en orange "‹ Tillbaka"-länk i detaljvyns page-actions.
 
-13. **Kort (`card` / `side-card`).** Generisk yta radius-card 12, padding 20. Sidopanelens entitetskort. Bekräfta mot Figma-detaljvyns kort.
+13. ~~**Kort (`card` / `side-card`).**~~ **side-card BORTTAGET 2026-07-09.** Detaljvyns sidokolumn är nu **rena block utan kortram** (`.side-block` + `.side-divider` + `.side-entity`) enligt Figma. `.side-card`-CSS borttaget. Generiska `.card` finns kvar men används ej i vy just nu.
 
 14. **Numeriskt värde.** `amount` 16/600 med tabular-nums (Affärer, kanban). Överväg en type-helper "numeric" i systemet.
 
@@ -66,7 +66,9 @@ Dessa finns i `screens.css` och funkar, men de är inte formaliserade i `tokens.
 
 16. **Dropdowns / menyer.** **Mest klart 2026-07-09:** (a) nav-dropdown byggd (`.nav-menu/.menu-item`, klick-toggle, outside-klick + Esc) för Affärer▾/Företag▾. (b) **Filter-pillren är nu levande** i alla fem listvyer (Aktiviteter/Affärer/Offerter/Företag/Kontakter). Varje pill wrappad i `.filter-group` med en `.filter-menu`-popover som återanvänder `menu-item`-stilen; val skrivs in i pillens `.f-val` och menyn stänger (controller i `screens.js`, en öppen i taget, outside-klick + Esc). Menyinnehållet är riktig vokabulär (STAGE_LABELS, QUOTE_STATUS, ACCOUNT_STATUS, CONTACT_STATUS, tidshinkar, ACTIVITY_TYPE_LABELS). Popover-skuggan är nu en token (`--shadow-popover`) som nav och filter delar. `menu-item` fick button-reset så den funkar för både `<a>` (nav) och `<button>` (filter). Verifierat i Chrome ljust+mörkt. **Kvar:** radens kebab-meny saknas fortfarande (samma popover kan återanvändas). En generisk `.menu`-komponent kan lyftas ut när kebab byggs.
 
-17. ~~**Formulär, drawers, modaler.**~~ **BYGGT 2026-07-09** (fältkit + drawer + bekräftelse-modal). Fältkit i `screens.css` (input/select/textarea/type-picker, brand-fokusring via color-mix, disabled-läge), overlay/drawer/modal i `screens.css`, styrning i `screens.js` (data-open/data-close, Esc + overlay-klick, type-picker single-select). Skapa-drawers byggda och verifierade i ljust+mörkt på **tre entiteter**: Ny aktivitet (`screens.html`), Ny affär (`screens-affarer.html`), Ny kontakt (`screens-kontakter.html`). Samma fältkit generaliserade utan per-vy-CSS. **Kvar:** "Logga händelse" + "Redigera" på detaljvyn (edit-mönster, inte create) och "Logga aktivitet"-sekundärknappen. ~~tokenisering av fält/drawer/modal~~ **KLART 2026-07-09** (se P2: drawer/modal/overlay/fokus-glow är tokens nu). Öppna beslut jag tog: höger-drawer 480px, centrerad bekräftelse-modal 420px, footer destruktiv-vänster / avbryt+bekräfta-höger, type-picker som valbara ikon-chips.
+17. ~~**Formulär, drawers, modaler.**~~ **BYGGT 2026-07-09** (fältkit + drawer + bekräftelse-modal). Fältkit i `screens.css` (input/select/textarea/type-picker, brand-fokusring via color-mix, disabled-läge), overlay/drawer/modal i `screens.css`, styrning i `screens.js` (data-open/data-close, Esc + overlay-klick, type-picker single-select). Skapa-drawers byggda och verifierade i ljust+mörkt på **tre entiteter**: Ny aktivitet (`screens.html`), Ny affär (`screens-affarer.html`), Ny kontakt (`screens-kontakter.html`). Samma fältkit generaliserade utan per-vy-CSS. ~~tokenisering av fält/drawer/modal~~ **KLART 2026-07-09** (se P2: drawer/modal/overlay/fokus-glow är tokens nu). Öppna beslut jag tog: höger-drawer 480px, centrerad bekräftelse-modal 420px, footer destruktiv-vänster / avbryt+bekräfta-höger, type-picker som valbara ikon-chips.
+
+**Detaljvyn ombyggd 2026-07-09** till Figma-utseendet: meta-rad (datum/ansvarig/syfte som värde+etikett) → **composer** → flikar (ej i kort) → händelseflöde som rad-kort → ren sidokolumn. Composer = orange vänsterkant, textarea, "Lägg till"-knapp som är disabled tills det finns text (JS i `screens.js`). Actions: orange "‹ Tillbaka", "Åtgärder ▾" (sekundär), "Markera klar" (primär med check-ikon). Ersätter det gamla edit-mönstret ("Logga händelse"/"Redigera") och brödsmulorna.
 
 18. **Paginering / ladda fler.** Listorna har ingen sidbrytning eller "ladda fler".
 

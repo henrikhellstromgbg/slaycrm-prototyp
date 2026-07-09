@@ -7,9 +7,9 @@
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="screens.css">
 <style>
-  /* view-specific: Kontakter list column template (person · företag · kontakt · ansvarig · senast) */
-  .list, .list-head { min-width:1100px; }
-  .row, .list-head { grid-template-columns:minmax(220px,1fr) 220px 210px 150px 140px; }
+  /* view-specific: Kontakter list column template (kontakt · företag · telefon · e-post · ansvarig · status) */
+  .list { min-width:1250px; }
+  .row { grid-template-columns:minmax(200px,1.2fr) 200px 150px minmax(240px,1fr) 150px 110px; }
 </style>
 </head>
 <body>
@@ -106,49 +106,50 @@
           </label>
         </div>
 
-        <div class="list-head">
-          <div>Kontakt</div><div>Företag</div><div>Telefon</div><div>Ansvarig</div><div>Senast</div>
-        </div>
-
         <div class="list">
           <a class="row" href="screens-detalj.html">
-            <div class="person col-name"><div class="cell"><div class="primary">Ola Nordvik</div><div class="secondary">VD</div></div></div>
-            <div class="cell col-company"><div class="primary">Nordvik Logistik AB</div><div class="secondary">Göteborg</div></div>
-            <div class="cell col-phone"><div class="primary">070 111 22 33</div><div class="secondary">ola@nordvik.se</div></div>
-            <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
-            <div class="cell col-last"><div class="primary">7 juli</div><div class="secondary">Idag</div></div>
+            <div class="cell"><div class="primary">Ola Nordvik</div><div class="secondary">Kontakt</div></div>
+            <div class="cell"><div class="primary">Nordvik Logistik AB</div><div class="secondary">Företag</div></div>
+            <div class="cell"><div class="primary link">070 111 22 33</div><div class="secondary">Telefon</div></div>
+            <div class="cell"><div class="primary link">ola@nordvik.se</div><div class="secondary">E-post</div></div>
+            <div class="cell"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+            <div class="col-status"><span class="badge badge--success">Aktiv</span></div>
           </a>
 
           <a class="row" href="screens-detalj.html">
-            <div class="person col-name"><div class="cell"><div class="primary">Petra Bergström</div><div class="secondary">Inköpschef</div></div></div>
-            <div class="cell col-company"><div class="primary">Bergström Automation AB</div><div class="secondary">Västerås</div></div>
-            <div class="cell col-phone"><div class="primary">070 222 33 44</div><div class="secondary">petra@bergstrom.se</div></div>
-            <div class="cell col-owner"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
-            <div class="cell col-last"><div class="primary">5 juli</div><div class="secondary">2 dgr sedan</div></div>
+            <div class="cell"><div class="primary">Petra Bergström</div><div class="secondary">Kontakt</div></div>
+            <div class="cell"><div class="primary">Bergström Automation AB</div><div class="secondary">Företag</div></div>
+            <div class="cell"><div class="primary link">070 222 33 44</div><div class="secondary">Telefon</div></div>
+            <div class="cell"><div class="primary link">petra@bergstrom.se</div><div class="secondary">E-post</div></div>
+            <div class="cell"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
+            <div class="col-status"><span class="badge badge--success">Aktiv</span></div>
           </a>
 
           <a class="row" href="screens-detalj.html">
-            <div class="person col-name"><div class="cell"><div class="primary">Johan Op</div><div class="secondary">Projektledare</div></div></div>
-            <div class="cell col-company"><div class="primary">Op &amp; Partners AB</div><div class="secondary">Hässleholm</div></div>
-            <div class="cell col-phone"><div class="primary">070 333 44 55</div><div class="secondary">johan@oppartners.se</div></div>
-            <div class="cell col-owner"><div class="primary">A. Malmberg</div><div class="secondary">Ansvarig</div></div>
-            <div class="cell col-last"><div class="primary">2 juli</div><div class="secondary">5 dgr sedan</div></div>
+            <div class="cell"><div class="primary">Johan Op</div><div class="secondary">Kontakt</div></div>
+            <div class="cell"><div class="primary">Op &amp; Partners AB</div><div class="secondary">Företag</div></div>
+            <div class="cell"><div class="primary link">070 333 44 55</div><div class="secondary">Telefon</div></div>
+            <div class="cell"><div class="primary link">johan@oppartners.se</div><div class="secondary">E-post</div></div>
+            <div class="cell"><div class="primary">A. Malmberg</div><div class="secondary">Ansvarig</div></div>
+            <div class="col-status"><span class="badge badge--success">Aktiv</span></div>
           </a>
 
           <a class="row" href="screens-detalj.html">
-            <div class="person col-name"><div class="cell"><div class="primary">Mia Kvist</div><div class="secondary">Ekonomichef</div></div></div>
-            <div class="cell col-company"><div class="primary">Kvist Industri AB</div><div class="secondary">Jönköping</div></div>
-            <div class="cell col-phone"><div class="primary">070 444 55 66</div><div class="secondary">mia@kvistindustri.se</div></div>
-            <div class="cell col-owner"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
-            <div class="cell col-last"><div class="primary">28 juni</div><div class="secondary">9 dgr sedan</div></div>
+            <div class="cell"><div class="primary">Mia Kvist</div><div class="secondary">Kontakt</div></div>
+            <div class="cell"><div class="primary">Kvist Industri AB</div><div class="secondary">Företag</div></div>
+            <div class="cell"><div class="primary link">070 444 55 66</div><div class="secondary">Telefon</div></div>
+            <div class="cell"><div class="primary link">mia@kvistindustri.se</div><div class="secondary">E-post</div></div>
+            <div class="cell"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
+            <div class="col-status"><span class="badge badge--success">Aktiv</span></div>
           </a>
 
           <a class="row" href="screens-detalj.html">
-            <div class="person col-name"><div class="cell"><div class="primary">Lars Sydfrakt</div><div class="secondary">Logistiker</div></div></div>
-            <div class="cell col-company"><div class="primary">Sydfrakt &amp; Co AB</div><div class="secondary">Malmö</div></div>
-            <div class="cell col-phone"><div class="primary">070 555 66 77</div><div class="secondary">lars@sydfrakt.se</div></div>
-            <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
-            <div class="cell col-last"><div class="primary">20 juni</div><div class="secondary">17 dgr sedan</div></div>
+            <div class="cell"><div class="primary">Lars Sydfrakt</div><div class="secondary">Kontakt</div></div>
+            <div class="cell"><div class="primary">Sydfrakt &amp; Co AB</div><div class="secondary">Företag</div></div>
+            <div class="cell"><div class="primary link">070 555 66 77</div><div class="secondary">Telefon</div></div>
+            <div class="cell"><div class="primary link">lars@sydfrakt.se</div><div class="secondary">E-post</div></div>
+            <div class="cell"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+            <div class="col-status"><span class="badge badge--neutral">Inaktiv</span></div>
           </a>
         </div>
       </div>

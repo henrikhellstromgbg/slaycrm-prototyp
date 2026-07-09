@@ -102,6 +102,18 @@
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
 })();
 
+/* Composer: the submit button stays disabled until there's non-empty text. */
+(function () {
+  document.querySelectorAll('.composer').forEach(function (c) {
+    var input = c.querySelector('.composer-input');
+    var btn = c.querySelector('.composer-foot .btn');
+    if (!input || !btn) return;
+    function sync() { btn.disabled = input.value.trim() === ''; }
+    input.addEventListener('input', sync);
+    sync();
+  });
+})();
+
 /* Type-picker: single-select icon chips within a .type-pick group. */
 (function () {
   document.addEventListener('click', function (e) {

@@ -7,12 +7,39 @@
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="screens.css">
 <style>
-  /* view-specific: detail head (title + status badge inline) */
-  .title-row { display:flex; align-items:center; gap:16px; min-width:0; }
-  .title-row .screen-title { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .detail-wrap { padding-top:16px; }
-  .side-link { color:var(--color-brand); text-decoration:none; font-weight:500; font-size:14px; }
-  .side-link:hover { text-decoration:underline; }
+  /* view-specific: aktivitet-detaljvy (meta-rad · composer · flöde som rad-kort · enkel sidokolumn) */
+
+  /* Tillbaka-länk (ersätter brödsmulorna) */
+  .detail-back { display:inline-flex; align-items:center; gap:4px; color:var(--color-brand);
+    text-decoration:none; font-weight:500; font-size:14px; }
+  .detail-back:hover { text-decoration:underline; }
+  .detail-back svg { width:16px; height:16px; }
+
+  /* meta-rad: värde stort, etikett under (samma logik som listraderna) */
+  .meta-row { display:flex; flex-wrap:wrap; gap:40px; padding:4px 0; }
+  .meta-item { display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .meta-item .primary { display:flex; align-items:center; gap:8px;
+    font-weight:500; font-size:16px; line-height:21px; color:var(--color-text); }
+  .meta-item .primary svg { width:16px; height:16px; color:var(--color-text-muted); flex:none; }
+  .meta-item .secondary { font-size:14px; line-height:18px; color:var(--color-text-muted); }
+
+  /* händelseflöde som rad-kort (datum · text · ansvarig) — ej klickbart */
+  .feed-list .row { grid-template-columns:150px minmax(0,1fr) 150px; align-items:start; cursor:default; }
+  .feed-list .row:hover { border-color:var(--color-border); }
+  .feed-list .col-owner { align-items:flex-end; text-align:right; }
+  .feed-list .cell .primary { white-space:normal; overflow:visible; text-overflow:clip; line-height:21px; }
+
+  /* sidokolumn: rena block utan kortram */
+  .side-block { display:flex; flex-direction:column; gap:12px; }
+  .side-block h3 { margin:0; font-weight:600; font-size:14px; text-transform:uppercase;
+    letter-spacing:.04em; color:var(--color-text-faint); }
+  .side-divider { height:1px; background:var(--color-border); border:0; margin:0; }
+  .side-entity { display:flex; flex-direction:column; gap:3px; min-width:0; }
+  .side-entity + .side-entity { margin-top:4px; }
+  .side-entity .primary { font-weight:500; font-size:16px; line-height:22px; color:var(--color-text); }
+  .side-entity .secondary { font-size:14px; line-height:20px; color:var(--color-text-muted); }
+  .side-entity a { color:var(--color-brand); text-decoration:none; }
+  .side-entity a:hover { text-decoration:underline; }
 </style>
 </head>
 <body>
@@ -62,92 +89,103 @@
       </div>
     </header>
 
-    <nav class="breadcrumb gutter" aria-label="Brödsmulor">
-      <a href="screens.html">Aktiviteter</a>
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
-      <span>Transportavtal</span>
-    </nav>
-
     <div class="page-head gutter">
-      <div class="title-row">
-        <h1 class="screen-title">Transportavtal</h1>
-        <span class="badge badge--danger">Försenad</span>
-      </div>
+      <h1 class="screen-title">Svara på frågor om leveranstider</h1>
       <div class="page-actions">
-        <button class="btn btn-secondary" type="button">Redigera</button>
-        <button class="btn btn-primary icon-l" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Logga händelse</button>
+        <a class="detail-back" href="screens.html"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4l-4 4 4 4"/></svg>Tillbaka</a>
+        <button class="btn btn-secondary" type="button">Åtgärder<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+        <button class="btn btn-primary icon-l" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.5 3.5L13 5"/></svg>Markera klar</button>
       </div>
     </div>
 
     <div class="ground">
-      <div class="gutter detail-wrap">
+      <div class="gutter detail-wrap" style="padding-top:16px">
         <div class="detail">
 
           <!-- main column -->
           <div class="detail-main">
-            <div class="card" style="padding:0">
-              <div class="tabs" style="padding:0 var(--card-padding)">
-                <a class="tab is-active">Händelser <span class="count">4</span></a>
-                <a class="tab">Företagshändelser</a>
-                <a class="tab">Dokument <span class="count">2</span></a>
-                <a class="tab">Detaljer</a>
-                <a class="tab">Adresser</a>
+
+            <div class="meta-row">
+              <div class="meta-item">
+                <div class="primary"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3.5h2.5l1 3-1.5 1a8 8 0 0 0 3.5 3.5l1-1.5 3 1V15a.8.8 0 0 1-.9.8A11 11 0 0 1 2.2 4.4.8.8 0 0 1 3 3.5z"/></svg>7 juli, 09:00</div>
+                <div class="secondary">Idag</div>
               </div>
-              <div class="feed" style="padding:8px var(--card-padding) var(--card-padding)">
-                <div class="event">
-                  <span class="event-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3.5h2.5l1 3-1.5 1a8 8 0 0 0 3.5 3.5l1-1.5 3 1V15a.8.8 0 0 1-.9.8A11 11 0 0 1 2.2 4.4.8.8 0 0 1 3 3.5z"/></svg></span>
-                  <div class="event-body">
-                    <div class="e-top"><span class="e-title">Samtal med Ola Nordvik</span><span class="e-time">7 juli, 09:00</span></div>
-                    <div class="e-text">Väntar på styrelsebeslut, hör av dig efter v.28. Positiv ton, vill förankra internt.</div>
-                  </div>
-                </div>
-                <div class="event">
-                  <span class="event-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3.5" width="12" height="9" rx="1.5"/><path d="M2.5 4.5l5.5 4 5.5-4"/></svg></span>
-                  <div class="event-body">
-                    <div class="e-top"><span class="e-title">Skickade offert</span><span class="e-time">3 juli, 14:20</span></div>
-                    <div class="e-text">Offert AFF-2038 skickad till ola@nordvik.se.</div>
-                  </div>
-                </div>
-                <div class="event">
-                  <span class="event-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3" width="11" height="11" rx="1.5"/><path d="M2.5 6.5h11M5 2v2M11 2v2"/></svg></span>
-                  <div class="event-body">
-                    <div class="e-top"><span class="e-title">Möte bokat</span><span class="e-time">1 juli, 10:00</span></div>
-                    <div class="e-text">Uppföljningsmöte inför Q3-avtal, tisdag förmiddag.</div>
-                  </div>
-                </div>
-                <div class="event">
-                  <span class="event-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2.5h6l3 3V13a.5.5 0 0 1-.5.5h-8A.5.5 0 0 1 4 13z"/><path d="M9.5 2.5v3h3"/></svg></span>
-                  <div class="event-body">
-                    <div class="e-top"><span class="e-title">Anteckning</span><span class="e-time">28 juni</span></div>
-                    <div class="e-text">Ola positiv men vill förankra internt först. Skickar underlag inför styrelsemötet.</div>
-                  </div>
-                </div>
+              <div class="meta-item">
+                <div class="primary">W. Bernting</div>
+                <div class="secondary">Ansvarig</div>
+              </div>
+              <div class="meta-item">
+                <div class="primary">Följ upp</div>
+                <div class="secondary">Syfte</div>
               </div>
             </div>
+
+            <div class="composer">
+              <textarea class="composer-input" placeholder="Lägg till kommentar, logga ett samtal, skriv en anteckning…"></textarea>
+              <div class="composer-foot">
+                <button class="btn btn-primary" type="button" disabled>Lägg till</button>
+              </div>
+            </div>
+
+            <div class="tabs">
+              <a class="tab is-active">Händelser <span class="count">4</span></a>
+              <a class="tab">Företagshändelser</a>
+              <a class="tab">Dokument <span class="count">2</span></a>
+              <a class="tab">Detaljer</a>
+              <a class="tab">Adresser</a>
+            </div>
+
+            <div class="list feed-list">
+              <div class="row">
+                <div class="cell"><div class="primary">11 juli, 16:00</div><div class="secondary">Möte</div></div>
+                <div class="cell"><div class="primary">Följ upp möte inför Q3-avtal.</div></div>
+                <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+              </div>
+              <div class="row">
+                <div class="cell"><div class="primary">8 juli</div><div class="secondary">Fråga</div></div>
+                <div class="cell"><div class="primary">Undrar om vi klarar leverans inom 48h till Norrland.</div></div>
+                <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+              </div>
+              <div class="row">
+                <div class="cell"><div class="primary">5 juli, 14:00</div><div class="secondary">E-post</div></div>
+                <div class="cell"><div class="primary">Skickade prisunderlag för Q3.</div></div>
+                <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+              </div>
+              <div class="row">
+                <div class="cell"><div class="primary">2 juli, 09:15</div><div class="secondary">Samtal</div></div>
+                <div class="cell"><div class="primary">Samtal med Elin, positiv ton. Vill förankra internt.</div></div>
+                <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+              </div>
+            </div>
+
           </div>
 
           <!-- sidebar -->
           <aside class="detail-side">
-            <div class="side-card">
-              <div class="side-card-head"><h3>Företag</h3><a class="side-link" href="screens-foretag.html">Visa</a></div>
-              <div class="person"><div class="cell"><div class="primary">Nordvik Logistik AB</div><div class="secondary">556012-3344 · Göteborg</div></div></div>
+            <div class="side-block">
+              <h3>Företag</h3>
+              <div class="side-entity">
+                <div class="primary">Nordvik Logistik AB</div>
+                <div class="secondary">Exportgatan 12</div>
+                <div class="secondary">422 46 Göteborg</div>
+              </div>
             </div>
 
-            <div class="side-card">
-              <div class="side-card-head"><h3>Kontaktpersoner</h3><a class="side-link" href="screens-kontakter.html">Alla</a></div>
-              <div class="person"><div class="cell"><div class="primary">Ola Nordvik</div><div class="secondary">VD · 070 111 22 33</div></div></div>
-              <div class="person"><div class="cell"><div class="primary">Anna Vik</div><div class="secondary">Inköp · 070 111 88 99</div></div></div>
-            </div>
+            <hr class="side-divider">
 
-            <div class="side-card">
-              <div class="side-card-head"><h3>Detaljer</h3></div>
-              <dl class="kv">
-                <div class="kv-row"><dt>Status</dt><dd><span class="badge badge--danger">Försenad</span></dd></div>
-                <div class="kv-row"><dt>Ansvarig</dt><dd>W. Bernting</dd></div>
-                <div class="kv-row"><dt>Typ</dt><dd>Samtal</dd></div>
-                <div class="kv-row"><dt>Skapad</dt><dd>28 juni 2026</dd></div>
-                <div class="kv-row"><dt>Nästa steg</dt><dd>Återkoppling v.28</dd></div>
-              </dl>
+            <div class="side-block">
+              <h3>Kontaktpersoner</h3>
+              <div class="side-entity">
+                <div class="primary">Elin Åkerlund</div>
+                <div class="secondary">Inköpschef</div>
+                <div class="secondary"><a href="#">elin@nordviklogistik.se</a></div>
+              </div>
+              <div class="side-entity">
+                <div class="primary">Anders Petterson</div>
+                <div class="secondary">CEO</div>
+                <div class="secondary"><a href="#">anders@nordviklogistik.se</a></div>
+                <div class="secondary"><a href="#">031-266 77 88</a></div>
+              </div>
             </div>
           </aside>
 

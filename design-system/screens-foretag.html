@@ -7,9 +7,9 @@
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="screens.css">
 <style>
-  /* view-specific: Företag list column template (företag · ort · affärer · ansvarig · relation) */
-  .list, .list-head { min-width:1030px; }
-  .row, .list-head { grid-template-columns:minmax(240px,1fr) 180px 140px 150px 170px; }
+  /* view-specific: Företag list column template (företag · ort · telefon · kategori · ansvarig · senaste kontakt · relation) */
+  .list { min-width:1240px; }
+  .row { grid-template-columns:minmax(200px,1.4fr) 120px 150px 110px 150px 150px 120px; }
 </style>
 </head>
 <body>
@@ -107,48 +107,54 @@
           </label>
         </div>
 
-        <div class="list-head">
-          <div>Företag</div><div>Ort</div><div>Affärer</div><div>Ansvarig</div><div>Relation</div>
-        </div>
-
         <div class="list">
           <a class="row" href="screens-detalj.html">
-            <div class="person col-company"><div class="cell"><div class="primary">Nordvik Logistik AB</div><div class="secondary">556012-3344</div></div></div>
-            <div class="cell col-city"><div class="primary">Göteborg</div></div>
-            <div class="cell col-deals"><span class="count-chip"><span class="count">2</span> Affärer</span></div>
-            <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+            <div class="cell"><div class="primary">Nordvik Logistik AB</div><div class="secondary">Företag</div></div>
+            <div class="cell"><div class="primary">Göteborg</div><div class="secondary">Ort</div></div>
+            <div class="cell"><div class="primary link">08-611 22 00</div><div class="secondary">Telefon</div></div>
+            <div class="cell"><div class="primary">Logistik</div><div class="secondary">Kategori</div></div>
+            <div class="cell"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+            <div class="cell"><div class="primary">16 juni 2026</div><div class="secondary">Senaste kontakt</div></div>
             <div class="col-status"><span class="badge badge--success">Kund</span></div>
           </a>
 
           <a class="row" href="screens-detalj.html">
-            <div class="person col-company"><div class="cell"><div class="primary">Bergström Automation AB</div><div class="secondary">556201-7788</div></div></div>
-            <div class="cell col-city"><div class="primary">Västerås</div></div>
-            <div class="cell col-deals"><span class="count-chip"><span class="count">2</span> Affärer</span></div>
-            <div class="cell col-owner"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
+            <div class="cell"><div class="primary">Bergström Automation AB</div><div class="secondary">Företag</div></div>
+            <div class="cell"><div class="primary">Västerås</div><div class="secondary">Ort</div></div>
+            <div class="cell"><div class="primary link">021-14 88 00</div><div class="secondary">Telefon</div></div>
+            <div class="cell"><div class="primary">Automation</div><div class="secondary">Kategori</div></div>
+            <div class="cell"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
+            <div class="cell"><div class="primary">12 juni 2026</div><div class="secondary">Senaste kontakt</div></div>
             <div class="col-status"><span class="badge badge--info">Prospekt</span></div>
           </a>
 
           <a class="row" href="screens-detalj.html">
-            <div class="person col-company"><div class="cell"><div class="primary">Op &amp; Partners AB</div><div class="secondary">556788-1122</div></div></div>
-            <div class="cell col-city"><div class="primary">Hässleholm</div></div>
-            <div class="cell col-deals"><span class="count-chip"><span class="count">1</span> Affär</span></div>
-            <div class="cell col-owner"><div class="primary">A. Malmberg</div><div class="secondary">Ansvarig</div></div>
+            <div class="cell"><div class="primary">Op &amp; Partners AB</div><div class="secondary">Företag</div></div>
+            <div class="cell"><div class="primary">Hässleholm</div><div class="secondary">Ort</div></div>
+            <div class="cell"><div class="primary link">0451-210 00</div><div class="secondary">Telefon</div></div>
+            <div class="cell"><div class="primary">Konsult</div><div class="secondary">Kategori</div></div>
+            <div class="cell"><div class="primary">A. Malmberg</div><div class="secondary">Ansvarig</div></div>
+            <div class="cell"><div class="primary">4 juli 2026</div><div class="secondary">Senaste kontakt</div></div>
             <div class="col-status"><span class="badge badge--warning">Partner</span></div>
           </a>
 
           <a class="row" href="screens-detalj.html">
-            <div class="person col-company"><div class="cell"><div class="primary">Sydfrakt &amp; Co AB</div><div class="secondary">556990-4455</div></div></div>
-            <div class="cell col-city"><div class="primary">Malmö</div></div>
-            <div class="cell col-deals"><span class="count-chip"><span class="count">0</span> Affärer</span></div>
-            <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+            <div class="cell"><div class="primary">Sydfrakt &amp; Co AB</div><div class="secondary">Företag</div></div>
+            <div class="cell"><div class="primary">Malmö</div><div class="secondary">Ort</div></div>
+            <div class="cell"><div class="primary link">040-660 12 00</div><div class="secondary">Telefon</div></div>
+            <div class="cell"><div class="primary">—</div><div class="secondary">Kategori</div></div>
+            <div class="cell"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+            <div class="cell"><div class="primary">2 maj 2026</div><div class="secondary">Senaste kontakt</div></div>
             <div class="col-status"><span class="badge badge--danger">Inaktiv</span></div>
           </a>
 
           <a class="row" href="screens-detalj.html">
-            <div class="person col-company"><div class="cell"><div class="primary">Kvist Industri AB</div><div class="secondary">556334-9911</div></div></div>
-            <div class="cell col-city"><div class="primary">Jönköping</div></div>
-            <div class="cell col-deals"><span class="count-chip"><span class="count">3</span> Affärer</span></div>
-            <div class="cell col-owner"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
+            <div class="cell"><div class="primary">Kvist Industri AB</div><div class="secondary">Företag</div></div>
+            <div class="cell"><div class="primary">Jönköping</div><div class="secondary">Ort</div></div>
+            <div class="cell"><div class="primary link">036-71 40 00</div><div class="secondary">Telefon</div></div>
+            <div class="cell"><div class="primary">Tillverkning</div><div class="secondary">Kategori</div></div>
+            <div class="cell"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
+            <div class="cell"><div class="primary">27 juni 2026</div><div class="secondary">Senaste kontakt</div></div>
             <div class="col-status"><span class="badge badge--success">Kund</span></div>
           </a>
         </div>
