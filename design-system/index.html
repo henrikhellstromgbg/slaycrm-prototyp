@@ -6,29 +6,8 @@
 <title>SlayCRM design tokens</title>
 <link rel="stylesheet" href="tokens.css">
 <style>
-  /* page-only: dark-theme chrome + reference layout. Semantic values live in tokens.css;
-     here we only redefine chrome tokens for dark and add reference furniture. */
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --color-bg:#161616; --color-ground:#1b1b1a; --color-surface:#1e1e1d;
-      --color-surface-sunken:#242422; --color-border:#35342f; --color-border-faint:#2c2b27;
-      --color-border-strong:#52514a; --color-text:#f5f5f3; --color-text-muted:#b3b1a8;
-      --color-text-faint:#8e8c84;
-    }
-  }
-  :root[data-theme="dark"] {
-    --color-bg:#161616; --color-ground:#1b1b1a; --color-surface:#1e1e1d;
-    --color-surface-sunken:#242422; --color-border:#35342f; --color-border-faint:#2c2b27;
-    --color-border-strong:#52514a; --color-text:#f5f5f3; --color-text-muted:#b3b1a8;
-    --color-text-faint:#8e8c84;
-  }
-  :root[data-theme="light"] {
-    --color-bg:#ffffff; --color-ground:#f5f5f3; --color-surface:#ffffff;
-    --color-surface-sunken:#f9f9fb; --color-border:#e5e5e5;
-    --color-border-strong:#999999; --color-text:#111111; --color-text-muted:#666666;
-    --color-text-faint:#999999;
-  }
-
+  /* page-only reference furniture. Tema (ljust/mörkt) och ikon-kontraktet bor i tokens.css;
+     den här sidan ärver dem därifrån precis som de applicerade vyerna. */
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body { margin:0; font-family:var(--p-font); font-size:14px; line-height:18px;
@@ -168,11 +147,59 @@
   .st-sub { font-size:14px; color:var(--color-text-faint); font-weight:400; margin-top:2px; }
   .st-badges { display:flex; flex-wrap:wrap; gap:8px; }
 
+  /* ── component states (state matrix) ── */
+  .states { display:flex; flex-direction:column; gap:22px; }
+  .state-set { display:flex; flex-wrap:wrap; gap:20px 24px; align-items:flex-end; }
+  .state-cell { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .state-cell > .n { font-size:14px; color:var(--color-text-muted); }
+  .state-cap { font-size:14px; color:var(--color-text-faint); font-family:var(--p-font-mono);
+    letter-spacing:.04em; margin:0 0 2px; width:100%; }
+  .btn:active { transform:scale(.96); }
+  .btn.is-focus { outline:2px solid var(--color-focus-ring); outline-offset:2px; }
+  .input.is-focus { outline:none; border-color:var(--color-brand); box-shadow:var(--shadow-focus); }
+  .input.is-error { border-color:var(--tone-danger); }
+  .input.is-error.is-focus { box-shadow:0 0 0 3px color-mix(in srgb, var(--tone-danger) 20%, transparent); }
+  .input:disabled { background:var(--color-surface-sunken); color:var(--color-text-faint); cursor:not-allowed; }
+  .field-err { font-size:14px; color:var(--tone-danger); }
+
+  /* mini filter pill + menu (mirror of screens.css contract, local copy for the reference) */
+  .pill { display:inline-flex; align-items:center; gap:8px; height:var(--field-height); padding:0 var(--filter-pad-x);
+    border:1px solid var(--color-border); border-radius:var(--radius-control); background:var(--color-surface); font:inherit; }
+  .pill.is-open { border-color:var(--color-brand); }
+  .pill .f-label { color:var(--color-text-muted); }
+  .pill .f-val { font-weight:600; color:var(--color-brand); }
+  .pill svg { width:16px; height:16px; color:var(--color-text-muted); }
+  .menu { min-width:200px; background:var(--color-surface); border:1px solid var(--color-border);
+    border-radius:var(--radius-card); box-shadow:var(--shadow-popover); padding:6px; display:flex; flex-direction:column; gap:2px; }
+  .menu .item { display:flex; align-items:center; padding:8px 10px; border-radius:var(--radius-control);
+    font-size:14px; font-weight:500; color:var(--color-text); }
+  .menu .item:hover { background:var(--color-surface-sunken); }
+  .menu .item.is-active { color:var(--color-brand); }
+
+  /* empty state (mirror of .empty in screens.css) */
+  .empty { display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center;
+    padding:44px 24px; background:var(--color-ground); border:1px solid var(--color-border);
+    border-radius:var(--radius-card); color:var(--color-text-muted); }
+  .empty .empty-ic { width:40px; height:40px; border-radius:var(--radius-pill); display:inline-flex;
+    align-items:center; justify-content:center; background:var(--color-surface-sunken); color:var(--color-text-faint); margin-bottom:4px; }
+  .empty .empty-ic svg { width:20px; height:20px; }
+  .empty .empty-title { font-weight:600; font-size:16px; color:var(--color-text); }
+  .empty p { margin:0; max-width:34ch; }
+
+  /* icon specimen */
+  .icons { display:flex; flex-wrap:wrap; gap:14px; }
+  .icon-chip { display:flex; flex-direction:column; align-items:center; gap:8px; width:96px; padding:16px 8px;
+    border:1px solid var(--color-border); border-radius:var(--radius-control); background:var(--color-surface); color:var(--color-text); }
+  .icon-chip .cap { font-size:14px; color:var(--color-text-muted); font-family:var(--p-font-mono); }
+
   footer { margin-top:40px; padding-top:24px; border-top:1px solid var(--color-border); color:var(--color-text-faint); }
   footer code { font-family:var(--p-font-mono); }
 
   @media (prefers-reduced-motion: no-preference) {
-    .btn, .toggle button, .input { transition:background .12s ease, box-shadow .12s ease, border-color .12s ease; }
+    .btn, .toggle button, .input { transition:background .12s ease, box-shadow .12s ease, border-color .12s ease, transform .08s ease; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn:active { transform:none; }
   }
   @media (max-width:560px) { .st-row { grid-template-columns:1fr; gap:8px; } }
 </style>
@@ -183,7 +210,7 @@
   <header class="top">
     <div>
       <h1>SlayCRM design tokens</h1>
-      <p class="lede">Två källor, ett system. Nya riktningen kommer ur Figma-ramen <code>Desktop&nbsp;-&nbsp;10</code>; status­tonerna och skalorna ur den skarpa appen (<code>src/styles.css</code>, <code>src/lib/crm.ts</code>). <span class="ver">v0.4.0 · 2026-07-09 · växande, nya vyer fylls på.</span></p>
+      <p class="lede">Två källor, ett system. Nya riktningen kommer ur Figma-ramen <code>Desktop&nbsp;-&nbsp;10</code>; status­tonerna och skalorna ur den skarpa appen (<code>src/styles.css</code>, <code>src/lib/crm.ts</code>). <span class="ver">v0.5.0 · 2026-07-09 · tema + ikon-kontrakt i systemet.</span></p>
     </div>
     <div class="toggle" role="group" aria-label="Tema">
       <button type="button" data-set="light" aria-pressed="false">Ljust</button>
@@ -343,9 +370,9 @@
   <section>
     <p class="eyebrow">Komponenter</p>
     <div class="specimen">
-      <button class="btn btn-primary icon-l" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Nytt företag</button>
-      <button class="btn btn-secondary icon-r" type="button">Åtgärder<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
-      <button class="btn btn-ghost icon-l" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4l-4 4 4 4"/></svg>Tillbaka</button>
+      <button class="btn btn-primary icon-l" type="button"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Nytt företag</button>
+      <button class="btn btn-secondary icon-r" type="button">Åtgärder<svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+      <button class="btn btn-ghost icon-l" type="button"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4l-4 4 4 4"/></svg>Tillbaka</button>
       <button class="btn btn-danger" type="button">Radera</button>
       <button class="btn btn-primary" type="button" disabled>Sparar</button>
     </div>
@@ -355,7 +382,7 @@
     </div>
     <div class="specimen">
       <div class="field"><label for="f3">Ansvarig</label>
-        <span class="select-wrap"><select class="sel" id="f3"><option>Wilma Bernting</option><option>Pia Sund</option><option>Alex Molin</option></select><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></span></div>
+        <span class="select-wrap"><select class="sel" id="f3"><option>Wilma Bernting</option><option>Pia Sund</option><option>Alex Molin</option></select><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></span></div>
       <div class="field"><label for="f4">Anteckning</label><textarea class="ta" id="f4" placeholder="Kort notering">Väntar på styrelsebeslut, hör av dig efter v.28.</textarea></div>
       <div class="field"><label>Avatar</label><span style="display:inline-flex;gap:12px;align-items:center"><span class="av">WB</span><span class="av sm">ON</span></span></div>
     </div>
@@ -368,6 +395,85 @@
     </div>
     <div class="specimen">
       <div class="card"><h3>Nordvik Entreprenad AB</h3><p>Transportavtal 2026 · Förhandling · 240 000 kr</p></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Komponent-states · kontraktet per läge</p>
+    <p style="color:var(--color-text-muted);margin:-4px 0 20px;max-width:64ch">Varje komponent har ett definierat läge. Fokus är alltid en 2px orange ring (utanför) eller glow (fält); disabled tappar skugga och sänks till <span class="mono">sunken</span>; fel markeras med danger-röd, aldrig med brand-orange.</p>
+    <div class="states">
+
+      <div class="state-set">
+        <p class="state-cap">KNAPPAR</p>
+        <div class="state-cell"><button class="btn btn-primary" type="button">Primär</button><span class="n">default</span></div>
+        <div class="state-cell"><button class="btn btn-primary is-focus" type="button">Primär</button><span class="n">focus</span></div>
+        <div class="state-cell"><button class="btn btn-primary" type="button" disabled>Sparar</button><span class="n">disabled</span></div>
+        <div class="state-cell"><button class="btn btn-secondary" type="button">Sekundär</button><span class="n">secondary</span></div>
+        <div class="state-cell"><button class="btn btn-ghost" type="button">Ghost</button><span class="n">ghost</span></div>
+        <div class="state-cell"><button class="btn btn-danger" type="button">Radera</button><span class="n">danger</span></div>
+      </div>
+
+      <div class="state-set">
+        <p class="state-cap">FÄLT</p>
+        <div class="state-cell" style="align-items:stretch"><input class="input" type="text" value="Nordvik AB" aria-label="Fält, default"><span class="n">default</span></div>
+        <div class="state-cell" style="align-items:stretch"><input class="input is-focus" type="text" value="Nordvik AB" aria-label="Fält, fokus"><span class="n">focus</span></div>
+        <div class="state-cell" style="align-items:stretch"><input class="input" type="text" value="Låst värde" disabled aria-label="Fält, låst"><span class="n">disabled</span></div>
+        <div class="state-cell" style="align-items:stretch"><input class="input is-error is-focus" type="text" value="ogiltig@" aria-label="Fält, fel" aria-invalid="true"><span class="field-err">Ange en giltig e-post</span><span class="n">error</span></div>
+      </div>
+
+      <div class="state-set">
+        <p class="state-cap">BADGES · en ton per status</p>
+        <div class="state-cell"><span class="badge badge--success">Vunnen</span><span class="n">success</span></div>
+        <div class="state-cell"><span class="badge badge--info">Skickad</span><span class="n">info</span></div>
+        <div class="state-cell"><span class="badge badge--warning">Partner</span><span class="n">warning</span></div>
+        <div class="state-cell"><span class="badge badge--danger">Förlorad</span><span class="n">danger</span></div>
+        <div class="state-cell"><span class="badge badge--neutral">Utkast</span><span class="n">neutral</span></div>
+      </div>
+
+      <div class="state-set" style="align-items:flex-start">
+        <div class="state-cell" style="align-items:flex-start">
+          <p class="state-cap">FILTER-PILL</p>
+          <span class="pill"><span class="f-label">Status</span><span class="f-val">Alla</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          <span class="n">idle</span>
+        </div>
+        <div class="state-cell" style="align-items:flex-start">
+          <p class="state-cap">FILTER-PILL · öppen</p>
+          <span class="pill is-open"><span class="f-label">Status</span><span class="f-val">Vunnen</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(180deg);color:var(--color-brand)"><path d="M4 6l4 4 4-4"/></svg></span>
+          <span class="n">open · vald</span>
+        </div>
+        <div class="state-cell" style="align-items:flex-start">
+          <p class="state-cap">MENY · vald rad</p>
+          <div class="menu">
+            <span class="item">Alla</span>
+            <span class="item is-active">Vunnen</span>
+            <span class="item">Förlorad</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Tomt tillstånd · rubrik, hjälpcopy, primär åtgärd</p>
+    <p style="color:var(--color-text-muted);margin:-4px 0 18px;max-width:64ch">Ett tomt läge säljer nästa steg, inte tomheten. Alltid tre delar: vad som saknas, en rad som hjälper, och en primär CTA. Samma <span class="mono">.empty</span> lever i <span class="mono">screens.css</span> för vyerna.</p>
+    <div class="empty">
+      <span class="empty-ic"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 5.5h11v7a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1z"/><path d="M2.5 5.5 4 2.5h8l1.5 3"/><path d="M6 8.5h4"/></svg></span>
+      <span class="empty-title">Inga affärer än</span>
+      <p>Skapa den första affären så börjar pipen fyllas. Du kan alltid ändra steg och belopp senare.</p>
+      <button class="btn btn-primary icon-l" type="button" style="margin-top:8px"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Ny affär</button>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Ikoner · kontrakt</p>
+    <p style="color:var(--color-text-muted);margin:-4px 0 18px;max-width:66ch"><b style="color:var(--color-text);font-weight:600">16px</b> är standard (i text, knappar, celler), <b style="color:var(--color-text);font-weight:600">18px</b> för icon-only knappar och avatar. Stroke harmoniseras systemiskt till <span class="mono">--icon-stroke 1.6</span> (CSS vinner över SVG-attributet). Dekorativa ikoner bär <span class="mono">aria-hidden="true"</span> när knappen/länken redan har text eller <span class="mono">aria-label</span>. Målbibliotek: <b style="color:var(--color-text);font-weight:600">IBM Carbon</b> (fill-baserat, Apache-2.0) — adoptionsväg och animerade ikoner står i <span class="mono">DESIGN.md</span>.</p>
+    <div class="icons">
+      <span class="icon-chip"><svg class="icon" aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg><span class="cap">16 · icon</span></span>
+      <span class="icon-chip"><svg class="icon--lg" aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="8" cy="5.5" r="2.5"/><path d="M3.5 13.5a4.5 4.5 0 0 1 9 0"/></svg><span class="cap">18 · icon--lg</span></span>
+      <span class="icon-chip"><svg class="icon" aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg><span class="cap">chevron</span></span>
+      <span class="icon-chip"><svg class="icon" aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg><span class="cap">close</span></span>
+      <span class="icon-chip"><svg class="icon" aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg><span class="cap">search</span></span>
     </div>
   </section>
 
@@ -407,7 +513,7 @@
   </section>
 
   <footer>
-    <p>Källa: <code>tokens.json</code> (struktur, med provenance) + <code>tokens.css</code> (implementation) i samma mapp. Sidan stylas av <code>tokens.css</code>, så den visar systemet med systemet. Nav, formulär, drawers och modaler är byggda och tokeniserade; nästa steg är mörkt tema in i systemet samt filter- och radmenyer.</p>
+    <p>Källa: <code>tokens.json</code> (struktur, med provenance) + <code>tokens.css</code> (implementation) i samma mapp. Sidan stylas av <code>tokens.css</code>, så den visar systemet med systemet. Nav, formulär, drawers och modaler är byggda och tokeniserade; tema och ikon-kontrakt bor nu i systemet (<code>tokens.css</code>). Systemkontraktet står i <code>DESIGN.md</code>; öppna punkter i <code>GAPS.md</code>.</p>
   </footer>
 
 </div>

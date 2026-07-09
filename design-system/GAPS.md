@@ -4,8 +4,9 @@ Skrivet 2026-07-08 efter att ha byggt sex applicerade vyer (Aktiviteter, Affäre
 
 ## Så här hänger filerna ihop nu
 
-- `tokens.css` / `tokens.json` — systemet (oförändrat denna omgång, förutom layout-lagret).
-- `index.html` — levande token-referens.
+- `tokens.css` / `tokens.json` — systemet. Äger nu även **theme-lagret** (ljust/mörkt) och **ikon-kontraktet** (v0.5.0).
+- `DESIGN.md` — **nytt.** Systemkontraktet: personlighet, foundations, states, tillgänglighet, responsivt, ikon-/Carbon-plan.
+- `index.html` — levande token-referens (med state-matris, tomt tillstånd och ikon-sektion).
 - `screens.css` — **nytt.** Delat app-skal + vy-patterns (topbar, nav, listrad, kort, flikar, kanban, händelseflöde, avatarer). Alla vyer länkar det efter tokens.css och dogfoodar semantiska tokens.
 - `screens.js` — **nytt.** Delad tema-växlare.
 - `screens*.html` — sex vyer, navigerbara via toppnav och klickbara rader.
@@ -16,7 +17,7 @@ Skrivet 2026-07-08 efter att ha byggt sex applicerade vyer (Aktiviteter, Affäre
 
 ## P1 — beslut som låser systemet
 
-1. **Mörkt tema bor inte i systemet än.** Mörka neutraler ligger som overrides i `screens.css` (och `index.html`), inte i `tokens.css`/`tokens.json`. De borde flyttas in som ett riktigt tema-lager så mörkt blir en del av systemet, inte per-fil-hack. Dessutom är feedback-tonernas tinter otrimmade mot mörk yta (t.ex. info-badgen "Följ upp" läser blek). Beslut: ska jag promota mörkt tema till tokens och trimma tonerna för mörk bakgrund?
+1. ~~**Mörkt tema bor inte i systemet än.**~~ **DELVIS LÖST 2026-07-09 (v0.5.0).** Theme-lagret (ljust + mörkt + `[data-theme]`-växlaren) är flyttat från `screens.css` och `index.html` till **`tokens.css`**, speglat i `tokens.json` (`semantic.theme`). Duplikaten borttagna, alla sidor delar nu samma tema-tokens. **Kvar:** feedback-tonernas tinter är fortfarande otrimmade mot mörk yta (info/warning läser blekt). Det är det enda som återstår av #1.
 
 2. ~~**H1-storleken är fortfarande provisorisk.**~~ **LÖST 2026-07-09.** Henrik bekräftade **20px**. `.screen-title` sänkt från 28/32 till 20/24, matchar `.t-page-title`-token. PROVISORISK-flaggan borttagen.
 
@@ -74,9 +75,9 @@ Dessa finns i `screens.css` och funkar, men de är inte formaliserade i `tokens.
 
 19. **Radval + massåtgärder.** Kryssrutor, vald rad, bulk-actionbar saknas.
 
-20. **Tomt tillstånd.** La in `empty`-CSS men ingen riktig design (ikon, copy, CTA). Behöver riktigt tomt-läge per lista.
+20. ~~**Tomt tillstånd.**~~ **LÖST 2026-07-09 (v0.5.0).** `.empty` är nu ett riktigt kontrakt: ikon-cirkel + rubrik + en rad hjälpcopy + primär CTA, i både `screens.css` och `index.html` (sektion *Tomt tillstånd*). **Kvar (valfritt):** droppa in ett skarpt tomt-läge i en faktisk listvy (nu bara dokumenterat som komponent).
 
-21. **Ikonsystem.** Alla ikoner är handritade inline-SVG, inkonsekvent set. Välj ett ikonbibliotek (storlek 16, stroke ~1.5) och lägg in som referens.
+21. **Ikonsystem — kontrakt satt, migrering kvar.** **2026-07-09 (v0.5.0):** ikon-kontraktet är definierat (16 standard / 18 icon-only, stroke harmoniserad till `--icon-stroke` 1.6 systemiskt, `aria-hidden` på alla dekorativa SVG i alla vyer + index). Målbibliotek **beslutat: IBM Carbon** (fill, Apache-2.0), adoptionsväg + animerade ikoner dokumenterade i `DESIGN.md`. **Kvar:** själva migreringen av det interima hand-ritade stroke-setet till Carbons fill-ikoner (större, egen omgång, gör setet konsekvent på riktigt).
 
 22. **Mobil / responsiv lista.** Listorna får horisontell scroll under ~1030px istället för att omflöda. Ett staplat kort-per-rad-läge för mobil är odesignat.
 

@@ -1,9 +1,10 @@
-/* SlayCRM design tokens — v0.3.0, updated 2026-07-08
+/* SlayCRM design tokens — v0.5.0, updated 2026-07-09
    Sources: figma (frame "Desktop - 10", node 3443:2659) + live (src/styles.css) + crm (src/lib/crm.ts).
    Decisions: Geist single family; brand #e26a00 (orange); danger #dc2626 (clean red, no vermillion);
    radius default 8; font floor 14px.
    Simplified neutrals: 3 backgrounds, 1 line, 3 text greys; dark ground reuses ink #111.
-   Two layers: --p-* primitives (raw), --* semantic (roles). Use semantic in components. */
+   Two layers: --p-* primitives (raw), --* semantic (roles). Use semantic in components.
+   v0.5.0: light/dark theme layer + icon contract lifted into the system (was per-file). */
 
 /* ───────── Geist — self-hostad (variabel woff2, weight 100–900) ─────────
    Ligger i fonts/. Utan detta föll systemet tillbaka på -apple-system (San Francisco). */
@@ -150,7 +151,48 @@
   --modal-width:       420px;              /* centrerad bekräftelse-modal */
   --overlay-scrim:     rgba(0,0,0,0.4);    /* mörkläggning bakom drawer/modal */
   --shadow-popover:    0 8px 24px rgba(0,0,0,0.12);  /* nav- och filter-menyns lyft */
+
+  /* ───────── semantic: icon contract ─────────
+     16 = standard (in-text, buttons, cells) · 18 = icon-only knappar + avatar.
+     Stroke gäller det nuvarande hand-ritade stroke-setet; Carbon (fill) ignorerar det. */
+  --icon-size:    16px;
+  --icon-size-lg: 18px;
+  --icon-stroke:  1.6;
 }
+
+/* ───────── theme layer (systemägt — flyttat hit från screens.css/index.html) ─────────
+   Bara neutralerna byts per tema; brand + feedback-toner är temaoberoende.
+   Kaskad: :root (ljust) → @media dark (följer OS) → [data-theme] (explicit växlare vinner,
+   specificitet 0,2,0 > medians 0,1,0). Alla sidor läser tokens.css, så index och screens delar tema. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg:#161616; --color-ground:#1b1b1a; --color-surface:#1e1e1d;
+    --color-surface-sunken:#242422; --color-border:#35342f;
+    --color-border-strong:#52514a; --color-text:#f5f5f3; --color-text-muted:#b3b1a8;
+    --color-text-faint:#8e8c84;
+  }
+}
+:root[data-theme="dark"] {
+  --color-bg:#161616; --color-ground:#1b1b1a; --color-surface:#1e1e1d;
+  --color-surface-sunken:#242422; --color-border:#35342f;
+  --color-border-strong:#52514a; --color-text:#f5f5f3; --color-text-muted:#b3b1a8;
+  --color-text-faint:#8e8c84;
+}
+:root[data-theme="light"] {
+  --color-bg:#ffffff; --color-ground:#f5f5f3; --color-surface:#ffffff;
+  --color-surface-sunken:#f9f9fb; --color-border:#e5e5e5;
+  --color-border-strong:#999999; --color-text:#111111; --color-text-muted:#666666;
+  --color-text-faint:#999999;
+}
+
+/* ───────── icon helpers + contract (se DESIGN.md) ─────────
+   .icon = 16px standard, .icon--lg = 18px för icon-only knappar/avatar.
+   Stroke-setet harmoniseras systemiskt: CSS stroke-width vinner över SVG:ns presentation-attribut,
+   så de hand-ritade ikonerna (1.4/1.6/2) dras till ett värde utan att röra markup i vyerna.
+   Carbon-ikoner (vald målbibliotek) är fill-baserade (fill:currentColor) och matchar inte [stroke], så de rörs inte. */
+.icon      { width:var(--icon-size);    height:var(--icon-size);    flex:none; }
+.icon--lg  { width:var(--icon-size-lg); height:var(--icon-size-lg); flex:none; }
+svg[stroke]:not([stroke="none"]) { stroke-width:var(--icon-stroke); }
 
 /* ───────── type helpers ───────── */
 .t-page-title  { font-family: var(--p-font); font-weight: 600; font-size: 20px; line-height: 24px; }
