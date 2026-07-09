@@ -1,0 +1,160 @@
+/* SlayCRM design tokens — v0.3.0, updated 2026-07-08
+   Sources: figma (frame "Desktop - 10", node 3443:2659) + live (src/styles.css) + crm (src/lib/crm.ts).
+   Decisions: Geist single family; brand #e26a00 (orange); danger #dc2626 (clean red, no vermillion);
+   radius default 8; font floor 14px.
+   Simplified neutrals: 3 backgrounds, 1 line, 3 text greys; dark ground reuses ink #111.
+   Two layers: --p-* primitives (raw), --* semantic (roles). Use semantic in components. */
+
+:root {
+  /* ───────── primitives: neutral (simplified) ─────────
+     3 backgrounds · 1 line · 3 text greys · 2 dark grounds */
+  --p-white:   #ffffff;   /* bg 1 — cards, surfaces */
+  --p-ground:  #f9f9fb;   /* bg 2 — page ground (off-white) */
+  --p-sunken:  #f5f5f3;   /* bg 3 — inset / sunken panels */
+  --p-line:    #e5e5e5;   /* the one hairline / border */
+  --p-ink:     #111111;   /* text — primary */
+  --p-muted:   #666666;   /* text — secondary / labels */
+  --p-faint:   #999999;   /* text — placeholder / disabled (merges old 8e8e8e/999/a1a1aa) */
+
+  /* ───────── primitives: brand ───────── */
+  --p-orange-500: #e26a00;   /* brand / CTA */
+  --p-orange-400: #f47300;   /* brand hover */
+
+  /* ───────── primitives: status ───────── */
+  --p-green-600: #16a34a; --p-green-100: #dcfce7;   /* success */
+  --p-blue-600:  #2563eb; --p-blue-100:  #eff6ff;   /* info */
+  --p-amber-600: #d97706; --p-amber-100: #fef3c7;   /* warning */
+  --p-red-600:   #dc2626; --p-red-100:   #fee2e2;   /* danger — clean red */
+
+  --p-overlay-hover: rgba(0,0,0,0.04);              /* row / ghost hover */
+
+  /* ───────── primitives: type ───────── */
+  --p-font:      'Geist Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --p-font-mono: ui-monospace, 'Geist Mono', monospace;
+  --p-fw-regular: 400; --p-fw-medium: 500; --p-fw-semibold: 600; --p-fw-bold: 700;
+  --p-fs-sm: 14px; --p-fs-md: 16px; --p-fs-lg: 20px; --p-fs-xl: 24px;  /* floor 14 */
+  --p-lh-sm: 18px; --p-lh-md: 21px; --p-lh-lg: 24px; --p-lh-xl: 30px;
+
+  /* ───────── primitives: space (4-based) ───────── */
+  --p-space-1: 4px;  --p-space-2: 8px;  --p-space-3: 12px; --p-space-4: 16px;
+  --p-space-5: 20px; --p-space-6: 24px; --p-space-8: 32px; --p-space-10: 40px;
+
+  /* ───────── primitives: radius / stroke / shadow ───────── */
+  --p-radius-xs: 2px; --p-radius-sm: 4px; --p-radius-md: 8px;
+  --p-radius-lg: 12px; --p-radius-xl: 16px; --p-radius-badge: 4px; --p-radius-pill: 999px;
+  --p-stroke-thin: 1px; --p-stroke-emphasis: 2px;
+  --p-shadow-card: 0 2px 8px rgba(0,0,0,0.10);
+  --p-shadow-pop:  0 2px 4px rgba(0,0,0,0.30);
+  --p-shadow-inset-highlight: inset 0 1px 0 rgba(255,255,255,0.25);
+
+  /* ───────── semantic: color ───────── */
+  --color-bg:               var(--p-white);
+  --color-ground:           var(--p-ground);
+  --color-surface:          var(--p-white);
+  --color-surface-sunken:   var(--p-sunken);
+  --color-surface-inverse:  var(--p-ink);
+  --color-border:           var(--p-line);
+  --color-border-strong:    var(--p-faint);
+  --color-text:             var(--p-ink);
+  --color-text-muted:       var(--p-muted);
+  --color-text-faint:       var(--p-faint);
+  --color-text-placeholder: var(--p-faint);
+  --color-text-on-dark:     var(--p-white);
+  --color-brand:            var(--p-orange-500);
+  --color-brand-hover:      var(--p-orange-400);
+  --color-on-brand:         var(--p-white);
+  --color-focus-ring:       var(--p-orange-500);
+  --color-hover-overlay:    var(--p-overlay-hover);
+
+  /* ───────── semantic: feedback (solid + tint per tone) ───────── */
+  --tone-success: var(--p-green-600); --tone-success-tint: var(--p-green-100);
+  --tone-info:    var(--p-blue-600);  --tone-info-tint:    var(--p-blue-100);
+  --tone-warning: var(--p-amber-600); --tone-warning-tint: var(--p-amber-100);
+  --tone-danger:  var(--p-red-600);   --tone-danger-tint:  var(--p-red-100);
+  --tone-neutral: var(--p-muted);     --tone-neutral-tint: var(--p-ground);
+
+  /* ───────── semantic: radius / shadow / space ───────── */
+  --radius-control: var(--p-radius-md);
+  --radius-button:  var(--p-radius-pill);
+  --radius-badge:   var(--p-radius-badge);
+  --radius-card:    var(--p-radius-lg);
+  --radius-pill:    var(--p-radius-pill);
+  --shadow-card:    var(--p-shadow-card);
+  --shadow-pop:     var(--p-shadow-pop);
+  --shadow-brand-highlight: var(--p-shadow-inset-highlight);
+  --shadow-button:  var(--p-shadow-pop), var(--p-shadow-inset-highlight);  /* figma: solid pill = drop + inset highlight */
+  --card-padding:      var(--p-space-5);
+  --button-padding-y:  10px;
+  --button-padding-x:  var(--p-space-5);   /* 20 — no icon, symmetric */
+  --button-padding-icon:      var(--p-space-4);   /* 16 — icon-side edge */
+  --button-padding-icon-text: var(--p-space-6);   /* 24 — text-side edge when an icon is present */
+  --button-gap:        var(--p-space-2);   /* 8 — icon-to-label */
+  --badge-height:      32px;
+  --badge-padding-x:   var(--p-space-3);
+  --gap-tight:         var(--p-space-2);
+  --gap:               var(--p-space-4);
+  --gap-section:       var(--p-space-10);
+
+  /* ───────── semantic: layout / app-shell (figma: Desktop-7/10, 1440-ram) ─────────
+     Ett app-skal: full-bredd topbar (hairline-botten) + fast sid-gutter, innehållet fyller mellan.
+     Vertikal rytm: topbar → 24 → sidhuvud → 24 → ground(16 topp) → filter → 16 → lista(radgap 8). */
+  --topbar-height:     64px;                /* full-bredd topbar */
+  --layout-gutter:     123px;              /* sid-marginal v/h (mätt: logo & avatar på gutter-kant, innehåll 1194 i ramen) */
+  --nav-item-pad-x:    var(--p-space-5);   /* 20 — padding per nav-item (→ 40 mellan etiketter) */
+  --nav-active-stroke: var(--p-stroke-emphasis);  /* 2 — orange aktiv-understrykning */
+  --header-pad-y:      var(--p-space-6);   /* 24 — topbar→titel och titel→ground */
+  --ground-pad-top:    var(--p-space-4);   /* 16 — ground topp till filterrad */
+  --field-height:      40px;               /* sök- och filterkontroll-höjd */
+  --search-width:      264px;              /* topbar/filter sökfält */
+  --avatar-size:       40px;               /* avatar / notis-knapp */
+
+  /* filterrad-pill */
+  --filter-height:     var(--field-height);
+  --filter-pad-x:      var(--p-space-4);   /* 16 */
+  --filter-pad-y:      9px;
+
+  /* listrad-kort */
+  --row-min-height:    72px;
+  --row-pad-x:         var(--p-space-6);   /* 24 */
+  --row-pad-y:         15px;
+  --row-col-gap:       var(--p-space-10);  /* 40 — mellan kolumner */
+  --row-gap:           var(--p-space-2);   /* 8 — mellan rader */
+
+  /* räknar-pill (t.ex. "2 Händelser", filter-count) */
+  --count-pad-x:       13px;
+  --count-pad-y:       var(--p-space-2);   /* 8 */
+
+  /* ───────── semantic: komponentmått (mönster ur de applicerade vyerna) ─────────
+     Värden som förr var magiska tal i screens.css. Nu systemägda så alla vyer delar dem. */
+  --shadow-focus:      0 0 0 3px color-mix(in srgb, var(--color-brand) 22%, transparent);  /* delad fältfokus-glow */
+  --avatar-sm-size:    32px;               /* radavatar + händelse-ikon */
+  --tab-height:        44px;               /* detaljvyns flikrad */
+  --kv-label-width:    120px;              /* nyckel-värde etikettspalt */
+  --menu-min-width:    200px;              /* dropdown / popover-meny */
+  --board-col-width:   300px;              /* kanban-kolumn */
+  --board-gap:         var(--p-space-4);   /* 16 — mellan kanban-kolumner */
+  --drawer-width:      480px;              /* höger-drawer (skapa/redigera) */
+  --modal-width:       420px;              /* centrerad bekräftelse-modal */
+  --overlay-scrim:     rgba(0,0,0,0.4);    /* mörkläggning bakom drawer/modal */
+  --shadow-popover:    0 8px 24px rgba(0,0,0,0.12);  /* nav- och filter-menyns lyft */
+}
+
+/* ───────── type helpers ───────── */
+.t-page-title  { font-family: var(--p-font); font-weight: 600; font-size: 20px; line-height: 24px; }
+.t-section     { font-family: var(--p-font); font-weight: 500; font-size: 16px; line-height: 21px; }
+.t-body        { font-family: var(--p-font); font-weight: 400; font-size: 14px; line-height: 18px; }
+.t-body-medium { font-family: var(--p-font); font-weight: 500; font-size: 14px; line-height: 18px; }
+.t-body-strong { font-family: var(--p-font); font-weight: 600; font-size: 14px; line-height: 18px; }
+
+/* ───────── status badge (mirrors .status-badge in styles.css) ───────── */
+.badge {
+  display: inline-flex; align-items: center; height: var(--badge-height);
+  padding: 0 var(--badge-padding-x); border-radius: var(--radius-badge);
+  font-size: 14px; font-weight: 500; line-height: 1;
+  white-space: nowrap; font-family: var(--p-font);
+}
+.badge--success { background: var(--tone-success-tint); color: var(--tone-success); }
+.badge--info    { background: var(--tone-info-tint);    color: var(--tone-info); }
+.badge--warning { background: var(--tone-warning-tint); color: var(--tone-warning); }
+.badge--danger  { background: var(--tone-danger-tint);  color: var(--tone-danger); }
+.badge--neutral { background: var(--tone-neutral-tint); color: var(--tone-neutral); }

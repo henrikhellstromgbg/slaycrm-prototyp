@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SlayCRM design tokens</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  /* page-only: dark-theme chrome + reference layout. Semantic values live in tokens.css;
+     here we only redefine chrome tokens for dark and add reference furniture. */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg:#161616; --color-ground:#1b1b1a; --color-surface:#1e1e1d;
+      --color-surface-sunken:#242422; --color-border:#35342f; --color-border-faint:#2c2b27;
+      --color-border-strong:#52514a; --color-text:#f5f5f3; --color-text-muted:#b3b1a8;
+      --color-text-faint:#8e8c84;
+    }
+  }
+  :root[data-theme="dark"] {
+    --color-bg:#161616; --color-ground:#1b1b1a; --color-surface:#1e1e1d;
+    --color-surface-sunken:#242422; --color-border:#35342f; --color-border-faint:#2c2b27;
+    --color-border-strong:#52514a; --color-text:#f5f5f3; --color-text-muted:#b3b1a8;
+    --color-text-faint:#8e8c84;
+  }
+  :root[data-theme="light"] {
+    --color-bg:#ffffff; --color-ground:#f9f9fb; --color-surface:#ffffff;
+    --color-surface-sunken:#f5f5f3; --color-border:#e5e5e5;
+    --color-border-strong:#999999; --color-text:#111111; --color-text-muted:#666666;
+    --color-text-faint:#999999;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin:0; font-family:var(--p-font); font-size:14px; line-height:18px;
+    color:var(--color-text); background:var(--color-bg); -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1080px; margin:0 auto; padding:48px 24px 96px; }
+  .mono { font-family:var(--p-font-mono); font-variant-numeric:tabular-nums; }
+  .eyebrow { font-weight:600; font-size:14px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--color-text-faint); margin:0 0 16px; }
+
+  header.top { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; flex-wrap:wrap; margin-bottom:36px; }
+  h1 { font-weight:600; font-size:28px; line-height:32px; margin:0 0 8px; letter-spacing:-.01em; }
+  .lede { color:var(--color-text-muted); max-width:64ch; margin:0; }
+  .lede code, .inline-code { font-family:var(--p-font-mono); font-size:14px; background:var(--color-surface-sunken); padding:1px 5px; border-radius:4px; }
+  .ver { font-size:14px; color:var(--color-text-faint); }
+
+  .toggle { display:inline-flex; border:1px solid var(--color-border); border-radius:var(--radius-pill); overflow:hidden; }
+  .toggle button { font:inherit; font-weight:500; padding:8px 14px; border:0; cursor:pointer; background:var(--color-surface); color:var(--color-text-muted); }
+  .toggle button[aria-pressed="true"] { background:var(--color-brand); color:var(--color-on-brand); }
+  .toggle button:focus-visible { outline:2px solid var(--color-focus-ring); outline-offset:-2px; }
+
+  /* callout */
+  .callout { display:flex; gap:14px; padding:18px 20px; border:1px solid var(--color-border);
+    border-left:3px solid var(--color-brand); border-radius:var(--radius-control);
+    background:var(--color-ground); margin:0 0 48px; }
+  .callout .k { font-weight:600; }
+  .callout p { margin:0 0 6px; }
+  .callout p:last-child { margin-bottom:0; color:var(--color-text-muted); }
+  .dot { display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:middle; }
+
+  .decisions { display:flex; gap:12px; flex-wrap:wrap; margin:0 0 56px; }
+  .decision { display:flex; flex-direction:column; gap:4px; padding:14px 18px; border:1px solid var(--color-border);
+    border-radius:var(--radius-control); background:var(--color-surface); min-width:140px; }
+  .decision .k { font-size:14px; letter-spacing:.06em; text-transform:uppercase; color:var(--color-text-faint); }
+  .decision .v { font-weight:600; font-size:16px; }
+
+  section { margin-bottom:64px; }
+  h2.sec { font-size:14px; }
+
+  .swatches { display:grid; grid-template-columns:repeat(auto-fill, minmax(168px,1fr)); gap:14px; }
+  .swatch { border:1px solid var(--color-border); border-radius:var(--radius-control); overflow:hidden; background:var(--color-surface); }
+  .swatch .chip { height:64px; border-bottom:1px solid var(--color-border); }
+  .swatch .meta { padding:10px 12px; display:flex; flex-direction:column; gap:2px; }
+  .swatch .name { font-weight:500; }
+  .swatch .hex { color:var(--color-text-muted); font-size:14px; }
+  .swatch .tag { color:var(--color-text-faint); font-size:14px; }
+
+  /* feedback tone cards */
+  .tones { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:16px; }
+  .tone-card { border:1px solid var(--color-border); border-radius:var(--radius-control); padding:16px; background:var(--color-surface); }
+  .tone-card .badge { margin-bottom:12px; }
+  .tone-name { font-weight:600; margin-bottom:2px; }
+  .tone-role { color:var(--color-text-muted); font-size:14px; line-height:1.4; margin-bottom:12px; min-height:38px; }
+  .tone-sw { display:flex; gap:6px; }
+  .tone-sw > div { flex:1; }
+  .tone-sw .c { height:20px; border-radius:5px; border:1px solid rgba(0,0,0,.06); }
+  .tone-sw .h { font-size:14px; color:var(--color-text-muted); margin-top:4px; }
+
+  .type-row { display:grid; grid-template-columns:1fr auto; gap:16px 24px; align-items:baseline;
+    padding:18px 0; border-top:1px solid var(--color-border); }
+  .type-row:last-of-type { border-bottom:1px solid var(--color-border); }
+  .type-spec { color:var(--color-text-muted); font-size:14px; text-align:right; white-space:nowrap; }
+
+  .space-row { display:flex; align-items:center; gap:16px; padding:8px 0; }
+  .space-row .label { width:120px; color:var(--color-text-muted); flex:none; }
+  .space-bar { height:16px; background:var(--color-brand); border-radius:3px; }
+
+  .demo-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:20px; }
+  .demo { display:flex; flex-direction:column; gap:12px; align-items:flex-start; }
+  .demo .box { width:100%; height:88px; background:var(--color-surface); border:1px solid var(--color-border); }
+  .demo .cap { color:var(--color-text-muted); }
+  .demo .cap b { color:var(--color-text); font-weight:500; }
+
+  .specimen { display:flex; flex-wrap:wrap; gap:16px; align-items:center; padding:28px;
+    background:var(--color-ground); border:1px solid var(--color-border); border-radius:var(--radius-control); }
+  .specimen + .specimen { margin-top:16px; }
+
+  .btn { font:inherit; font-weight:600; cursor:pointer; border-radius:var(--radius-button);
+    padding:var(--button-padding-y) var(--button-padding-x); border:1px solid transparent;
+    display:inline-flex; align-items:center; gap:var(--button-gap); line-height:18px; }
+  .btn svg { width:16px; height:16px; flex:none; }
+  /* with an icon: 16px on the icon side, 24px on the text side, 8px gap (no-icon stays symmetric 20/20) */
+  .btn.icon-l { padding-left: var(--button-padding-icon);      padding-right: var(--button-padding-icon-text); }
+  .btn.icon-r { padding-left: var(--button-padding-icon-text); padding-right: var(--button-padding-icon); }
+  .btn:focus-visible { outline:2px solid var(--color-focus-ring); outline-offset:2px; }
+  .btn-primary { background:var(--color-brand); color:var(--color-on-brand); box-shadow:var(--shadow-button); }
+  .btn-primary:hover { background:var(--color-brand-hover); }
+  .btn-secondary { background:var(--color-surface); color:var(--color-brand); border-color:var(--color-border); }
+  .btn-secondary:hover { background:var(--color-surface-sunken); }
+  .btn-ghost { background:transparent; color:var(--color-brand); }
+  .btn-ghost:hover { background:var(--color-hover-overlay); }
+  .btn-danger { background:var(--tone-danger); color:#fff; }
+  .btn[disabled] { opacity:.45; cursor:not-allowed; box-shadow:none; }
+
+  .field { display:flex; flex-direction:column; gap:6px; }
+  .field label { font-weight:500; }
+  .input { font:inherit; padding:9px 13px; border:1px solid var(--color-border-strong); border-radius:var(--radius-control);
+    background:var(--color-surface); color:var(--color-text); min-width:220px; }
+  .input::placeholder { color:var(--color-text-placeholder); }
+  .input:focus { outline:none; border-color:var(--color-brand); box-shadow:0 0 0 3px rgba(226,106,0,.18); }
+
+  .card { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-card);
+    box-shadow:var(--shadow-card); padding:var(--card-padding); max-width:280px; }
+  .card h3 { margin:0 0 6px; font-size:16px; font-weight:600; }
+  .card p { margin:0; color:var(--color-text-muted); }
+
+  /* field kit (mirrors screens.css) */
+  .select-wrap { position:relative; display:inline-flex; }
+  .sel { font:inherit; appearance:none; -webkit-appearance:none; height:var(--field-height); min-width:220px;
+    padding:0 36px 0 13px; border:1px solid var(--color-border-strong); border-radius:var(--radius-control);
+    background:var(--color-surface); color:var(--color-text); cursor:pointer; }
+  .select-wrap svg { position:absolute; right:12px; top:50%; transform:translateY(-50%); width:16px; height:16px;
+    color:var(--color-text-muted); pointer-events:none; }
+  .sel:focus, .ta:focus { outline:none; border-color:var(--color-brand); box-shadow:var(--shadow-focus); }
+  .ta { font:inherit; min-width:220px; min-height:64px; padding:10px 13px; border:1px solid var(--color-border-strong);
+    border-radius:var(--radius-control); background:var(--color-surface); color:var(--color-text); resize:vertical; }
+  .av { width:var(--avatar-size); height:var(--avatar-size); border-radius:var(--radius-pill);
+    display:inline-flex; align-items:center; justify-content:center; background:var(--color-surface-sunken);
+    color:var(--color-text-muted); font-weight:600; }
+  .av.sm { width:var(--avatar-sm-size); height:var(--avatar-sm-size); font-size:14px; }
+
+  /* component-dimension reference table */
+  .dimtbl { border:1px solid var(--color-border); border-radius:var(--radius-control); overflow:hidden; }
+  .dim-row { display:grid; grid-template-columns:200px 120px 1fr; gap:16px; padding:12px 18px; align-items:baseline;
+    border-bottom:1px solid var(--color-border); }
+  .dim-row:last-child { border-bottom:0; }
+  .dim-row .n { font-family:var(--p-font-mono); font-size:14px; color:var(--color-text); }
+  .dim-row .v { font-family:var(--p-font-mono); font-size:14px; color:var(--color-brand); font-variant-numeric:tabular-nums; }
+  .dim-row .r { color:var(--color-text-muted); font-size:14px; }
+  @media (max-width:560px) { .dim-row { grid-template-columns:1fr; gap:4px; } }
+
+  /* status per view table */
+  .statustbl { border:1px solid var(--color-border); border-radius:var(--radius-control); overflow:hidden; }
+  .st-row { display:grid; grid-template-columns:200px 1fr; gap:16px; padding:14px 18px; align-items:center;
+    border-bottom:1px solid var(--color-border); }
+  .st-row:last-child { border-bottom:0; }
+  .st-label { font-weight:500; }
+  .st-sub { font-size:14px; color:var(--color-text-faint); font-weight:400; margin-top:2px; }
+  .st-badges { display:flex; flex-wrap:wrap; gap:8px; }
+
+  footer { margin-top:40px; padding-top:24px; border-top:1px solid var(--color-border); color:var(--color-text-faint); }
+  footer code { font-family:var(--p-font-mono); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .btn, .toggle button, .input { transition:background .12s ease, box-shadow .12s ease, border-color .12s ease; }
+  }
+  @media (max-width:560px) { .st-row { grid-template-columns:1fr; gap:8px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>SlayCRM design tokens</h1>
+      <p class="lede">Två källor, ett system. Nya riktningen kommer ur Figma-ramen <code>Desktop&nbsp;-&nbsp;10</code>; status­tonerna och skalorna ur den skarpa appen (<code>src/styles.css</code>, <code>src/lib/crm.ts</code>). <span class="ver">v0.4.0 · 2026-07-09 · växande, nya vyer fylls på.</span></p>
+    </div>
+    <div class="toggle" role="group" aria-label="Tema">
+      <button type="button" data-set="light" aria-pressed="false">Ljust</button>
+      <button type="button" data-set="dark" aria-pressed="false">Mörkt</button>
+    </div>
+  </header>
+
+  <div class="callout">
+    <span class="dot" style="background:#e26a00"></span>
+    <div>
+      <p><span class="k">Brand skiljs från fara.</span> Brand är orange (<span class="mono">#e26a00</span>), danger är en ren röd (<span class="mono">#dc2626</span>). En primärknapp och en raderaknapp ska aldrig vara samma färg.</p>
+      <p>Golv 14px. Skarpa appen har mikrotext på 12px, det räknas som defekt att rätta, inte token att kopiera.</p>
+    </div>
+  </div>
+
+  <div class="decisions">
+    <div class="decision"><span class="k">Typsnitt</span><span class="v">Geist</span></div>
+    <div class="decision"><span class="k">Brand</span><span class="v mono">#e26a00</span></div>
+    <div class="decision"><span class="k">Danger</span><span class="v mono">#dc2626</span></div>
+    <div class="decision"><span class="k">Radie</span><span class="v mono">8px</span></div>
+  </div>
+
+  <div class="callout" style="border-left-color:var(--color-brand)">
+    <span class="dot" style="background:#e26a00"></span>
+    <div>
+      <p><span class="k">Applicerade vyer.</span> Systemet dogfoodas i sju skärmar (delat skal i <code>screens.css</code>):
+        <a href="screens.html" style="color:var(--color-brand);font-weight:500">Aktiviteter</a> ·
+        <a href="screens-affarer.html" style="color:var(--color-brand);font-weight:500">Affärer</a> ·
+        <a href="screens-offerter.html" style="color:var(--color-brand);font-weight:500">Offerter</a> ·
+        <a href="screens-foretag.html" style="color:var(--color-brand);font-weight:500">Företag</a> ·
+        <a href="screens-kontakter.html" style="color:var(--color-brand);font-weight:500">Kontakter</a> ·
+        <a href="screens-saljtavla.html" style="color:var(--color-brand);font-weight:500">Säljtavlan</a> ·
+        <a href="screens-detalj.html" style="color:var(--color-brand);font-weight:500">Detaljvy</a>.
+        Toppnaven grupperar Offerter under Affärer och Kontakter under Företag via chevron-dropdown.</p>
+      <p>Öppna punkter och luckor står i <span class="mono">GAPS.md</span>.</p>
+    </div>
+  </div>
+
+  <section>
+    <p class="eyebrow">Primitiver · neutraler</p>
+    <p style="color:var(--color-text-muted);margin:-4px 0 18px;max-width:60ch">3 bakgrunder, 1 linje, 3 text­grå. Den gamla mid-grå­klungan (8e8e8e / 999 / a1a1aa) är hopslagen till en enda <span class="mono">faint</span>. Mörka ytor återanvänder <span class="mono">ink #111</span>.</p>
+
+    <p class="mono" style="color:var(--color-text-faint);font-size:14px;letter-spacing:.04em;margin:0 0 10px">BAKGRUNDER</p>
+    <div class="swatches" style="margin-bottom:22px">
+      <div class="swatch"><div class="chip" style="background:#ffffff"></div><div class="meta"><span class="name">white</span><span class="hex mono">#ffffff</span><span class="tag">bg · kort, ytor</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#f9f9fb"></div><div class="meta"><span class="name">ground</span><span class="hex mono">#f9f9fb</span><span class="tag">sidgrund</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#f5f5f3"></div><div class="meta"><span class="name">sunken</span><span class="hex mono">#f5f5f3</span><span class="tag">insänkta paneler</span></div></div>
+    </div>
+
+    <p class="mono" style="color:var(--color-text-faint);font-size:14px;letter-spacing:.04em;margin:0 0 10px">LINJE</p>
+    <div class="swatches" style="margin-bottom:22px">
+      <div class="swatch"><div class="chip" style="background:#e5e5e5"></div><div class="meta"><span class="name">line</span><span class="hex mono">#e5e5e5</span><span class="tag">enda hårlinjen / border</span></div></div>
+    </div>
+
+    <p class="mono" style="color:var(--color-text-faint);font-size:14px;letter-spacing:.04em;margin:0 0 10px">TEXT</p>
+    <div class="swatches" style="margin-bottom:22px">
+      <div class="swatch"><div class="chip" style="background:#111111"></div><div class="meta"><span class="name">ink</span><span class="hex mono">#111111</span><span class="tag">primär text</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#666666"></div><div class="meta"><span class="name">muted</span><span class="hex mono">#666666</span><span class="tag">sekundär / labels</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#999999"></div><div class="meta"><span class="name">faint</span><span class="hex mono">#999999</span><span class="tag">placeholder / disabled</span></div></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Primitiver · brand</p>
+    <div class="swatches">
+      <div class="swatch"><div class="chip" style="background:#e26a00"></div><div class="meta"><span class="name">orange-500</span><span class="hex mono">#e26a00</span><span class="tag">CTA</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#f47300"></div><div class="meta"><span class="name">orange-400</span><span class="hex mono">#f47300</span><span class="tag">hover</span></div></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Feedback · en ton per status, tint + solid</p>
+    <div class="tones">
+      <div class="tone-card">
+        <span class="badge badge--success">Exempel</span>
+        <div class="tone-name">Success</div>
+        <div class="tone-role">Vunnen, kund, accepterad, aktiv</div>
+        <div class="tone-sw"><div><div class="c" style="background:#dcfce7"></div><div class="h mono">#dcfce7</div></div><div><div class="c" style="background:#16a34a"></div><div class="h mono">#16a34a</div></div></div>
+      </div>
+      <div class="tone-card">
+        <span class="badge badge--info">Exempel</span>
+        <div class="tone-name">Info</div>
+        <div class="tone-role">Skickad, prospekt, kvalificerad (SQL)</div>
+        <div class="tone-sw"><div><div class="c" style="background:#eff6ff"></div><div class="h mono">#eff6ff</div></div><div><div class="c" style="background:#2563eb"></div><div class="h mono">#2563eb</div></div></div>
+      </div>
+      <div class="tone-card">
+        <span class="badge badge--warning">Exempel</span>
+        <div class="tone-name">Warning</div>
+        <div class="tone-role">Förfallen, partner, pågående</div>
+        <div class="tone-sw"><div><div class="c" style="background:#fef3c7"></div><div class="h mono">#fef3c7</div></div><div><div class="c" style="background:#d97706"></div><div class="h mono">#d97706</div></div></div>
+      </div>
+      <div class="tone-card">
+        <span class="badge badge--danger">Exempel</span>
+        <div class="tone-name">Danger</div>
+        <div class="tone-role">Förlorad, avböjd, spärrad, inaktiv</div>
+        <div class="tone-sw"><div><div class="c" style="background:#fee2e2"></div><div class="h mono">#fee2e2</div></div><div><div class="c" style="background:#dc2626"></div><div class="h mono">#dc2626</div></div></div>
+      </div>
+      <div class="tone-card">
+        <span class="badge badge--neutral">Exempel</span>
+        <div class="tone-name">Neutral</div>
+        <div class="tone-role">Utkast, öppen, ny, standard</div>
+        <div class="tone-sw"><div><div class="c" style="background:#f9f9fb"></div><div class="h mono">#f9f9fb</div></div><div><div class="c" style="background:#666666"></div><div class="h mono">#666666</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Semantiska roller</p>
+    <div class="swatches">
+      <div class="swatch"><div class="chip" style="background:var(--color-brand)"></div><div class="meta"><span class="name">brand</span><span class="hex mono">orange-500</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--color-brand-hover)"></div><div class="meta"><span class="name">brand-hover</span><span class="hex mono">orange-400</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--color-text)"></div><div class="meta"><span class="name">text</span><span class="hex mono">ink</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--color-text-muted)"></div><div class="meta"><span class="name">text-muted</span><span class="hex mono">muted</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--color-border)"></div><div class="meta"><span class="name">border</span><span class="hex mono">line</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--color-ground)"></div><div class="meta"><span class="name">ground</span><span class="hex mono">ground</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--color-surface-inverse)"></div><div class="meta"><span class="name">surface-inverse</span><span class="hex mono">ink</span></div></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Typografi · Geist</p>
+    <div class="type-row"><span style="font-weight:600;font-size:20px;line-height:24px">Sidrubrik, företag och affärer</span><span class="type-spec mono">600 · 20 / 24</span></div>
+    <div class="type-row"><span style="font-weight:500;font-size:16px;line-height:21px">Navigation och sektioner</span><span class="type-spec mono">500 · 16 / 21</span></div>
+    <div class="type-row"><span style="font-weight:600;font-size:14px;line-height:18px">Betoning i tabell och knapp</span><span class="type-spec mono">600 · 14 / 18</span></div>
+    <div class="type-row"><span style="font-weight:500;font-size:14px;line-height:18px">Medium, värden och labels</span><span class="type-spec mono">500 · 14 / 18</span></div>
+    <div class="type-row"><span style="font-weight:400;font-size:14px;line-height:18px">Brödtext och fältetiketter</span><span class="type-spec mono">400 · 14 / 18</span></div>
+    <p style="color:var(--color-text-faint);margin:14px 0 0">Golv 14px. Inget mindre, oavsett roll.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Spacing · 4-baserad</p>
+    <div class="space-row"><span class="label mono">space-1 · 4</span><span class="space-bar" style="width:4px"></span></div>
+    <div class="space-row"><span class="label mono">space-2 · 8</span><span class="space-bar" style="width:8px"></span></div>
+    <div class="space-row"><span class="label mono">space-3 · 12</span><span class="space-bar" style="width:12px"></span></div>
+    <div class="space-row"><span class="label mono">space-4 · 16</span><span class="space-bar" style="width:16px"></span></div>
+    <div class="space-row"><span class="label mono">space-5 · 20</span><span class="space-bar" style="width:20px"></span></div>
+    <div class="space-row"><span class="label mono">space-6 · 24</span><span class="space-bar" style="width:24px"></span></div>
+    <div class="space-row"><span class="label mono">space-8 · 32</span><span class="space-bar" style="width:32px"></span></div>
+    <div class="space-row"><span class="label mono">space-10 · 40</span><span class="space-bar" style="width:40px"></span></div>
+    <p style="color:var(--color-text-faint);margin:14px 0 0">Skarpa appen applicerar dessa via <span class="inline-code">clamp()</span> för flytande skalning; stegvärdena är desamma.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Radie & skugga</p>
+    <div class="demo-grid">
+      <div class="demo"><div class="box" style="border-radius:2px"></div><span class="cap mono"><b>xs</b> · 2</span></div>
+      <div class="demo"><div class="box" style="border-radius:4px"></div><span class="cap mono"><b>sm / badge</b> · 4</span></div>
+      <div class="demo"><div class="box" style="border-radius:8px"></div><span class="cap mono"><b>md · control</b> · 8</span></div>
+      <div class="demo"><div class="box" style="border-radius:12px"></div><span class="cap mono"><b>lg · card</b> · 12</span></div>
+      <div class="demo"><div class="box" style="border-radius:999px"></div><span class="cap mono"><b>pill</b> · 999</span></div>
+      <div class="demo"><div class="box" style="border-color:transparent;box-shadow:var(--shadow-card)"></div><span class="cap mono"><b>shadow-card</b> · 0 2 8 /.10</span></div>
+      <div class="demo"><div class="box" style="border-color:transparent;box-shadow:var(--shadow-pop)"></div><span class="cap mono"><b>shadow-pop</b> · 0 2 4 /.30</span></div>
+      <div class="demo"><div class="box" style="background:var(--color-brand);border-color:transparent;box-shadow:var(--shadow-brand-highlight)"></div><span class="cap mono"><b>brand-highlight</b> · inset</span></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Komponenter</p>
+    <div class="specimen">
+      <button class="btn btn-primary icon-l" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Nytt företag</button>
+      <button class="btn btn-secondary icon-r" type="button">Åtgärder<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+      <button class="btn btn-ghost icon-l" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4l-4 4 4 4"/></svg>Tillbaka</button>
+      <button class="btn btn-danger" type="button">Radera</button>
+      <button class="btn btn-primary" type="button" disabled>Sparar</button>
+    </div>
+    <div class="specimen">
+      <div class="field"><label for="f1">Sök företag</label><input class="input" id="f1" type="text" placeholder="Namn, org.nr eller ansvarig"></div>
+      <div class="field"><label for="f2">Fokusläge</label><input class="input" id="f2" type="text" value="Aktivt fält" style="border-color:var(--color-brand);box-shadow:var(--shadow-focus)"></div>
+    </div>
+    <div class="specimen">
+      <div class="field"><label for="f3">Ansvarig</label>
+        <span class="select-wrap"><select class="sel" id="f3"><option>Wilma Bernting</option><option>Pia Sund</option><option>Alex Molin</option></select><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></span></div>
+      <div class="field"><label for="f4">Anteckning</label><textarea class="ta" id="f4" placeholder="Kort notering">Väntar på styrelsebeslut, hör av dig efter v.28.</textarea></div>
+      <div class="field"><label>Avatar</label><span style="display:inline-flex;gap:12px;align-items:center"><span class="av">WB</span><span class="av sm">ON</span></span></div>
+    </div>
+    <div class="specimen">
+      <span class="badge badge--info">Prospekt</span>
+      <span class="badge badge--success">Vunnen</span>
+      <span class="badge badge--warning">Partner</span>
+      <span class="badge badge--danger">Förlorad</span>
+      <span class="badge badge--neutral">Utkast</span>
+    </div>
+    <div class="specimen">
+      <div class="card"><h3>Nordvik Entreprenad AB</h3><p>Transportavtal 2026 · Förhandling · 240 000 kr</p></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Komponentmått · mönstren ur de applicerade vyerna</p>
+    <p style="color:var(--color-text-muted);margin:-4px 0 18px;max-width:64ch">Måtten som förr var magiska tal i <span class="mono">screens.css</span> är nu systemägda tokens, så drawer, modal, flikar, kanban och avatarer delar samma värden överallt. Se dem levande i <a href="screens-detalj.html" style="color:var(--color-brand);font-weight:500">detaljvyn</a> och <a href="screens-saljtavla.html" style="color:var(--color-brand);font-weight:500">säljtavlan</a>.</p>
+    <div class="dimtbl">
+      <div class="dim-row"><span class="n">--drawer-width</span><span class="v">480px</span><span class="r">Höger-drawer för skapa och redigera</span></div>
+      <div class="dim-row"><span class="n">--modal-width</span><span class="v">420px</span><span class="r">Centrerad bekräftelse-modal</span></div>
+      <div class="dim-row"><span class="n">--overlay-scrim</span><span class="v">rgba .4</span><span class="r">Mörkläggning bakom drawer och modal</span></div>
+      <div class="dim-row"><span class="n">--shadow-focus</span><span class="v">brand 22%</span><span class="r">Delad fokus-glow på input, select, textarea</span></div>
+      <div class="dim-row"><span class="n">--tab-height</span><span class="v">44px</span><span class="r">Flikrad i detaljvyn</span></div>
+      <div class="dim-row"><span class="n">--kv-label-width</span><span class="v">120px</span><span class="r">Etikettspalt i nyckel-värde-listor</span></div>
+      <div class="dim-row"><span class="n">--menu-min-width</span><span class="v">200px</span><span class="r">Dropdown och popover-meny (nav, filter)</span></div>
+      <div class="dim-row"><span class="n">--board-col-width</span><span class="v">300px</span><span class="r">Kanban-kolumn på säljtavlan</span></div>
+      <div class="dim-row"><span class="n">--board-gap</span><span class="v">16px</span><span class="r">Mellanrum mellan kanban-kolumner</span></div>
+      <div class="dim-row"><span class="n">--avatar-sm-size</span><span class="v">32px</span><span class="r">Radavatar och händelse-ikon</span></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Status per vy · kontraktet från crm.ts</p>
+    <div class="statustbl">
+      <div class="st-row"><div class="st-label">Affärer · status<div class="st-sub">deals.status</div></div>
+        <div class="st-badges"><span class="badge badge--neutral">Öppen</span><span class="badge badge--success">Vunnen</span><span class="badge badge--danger">Förlorad</span></div></div>
+      <div class="st-row"><div class="st-label">Offerter<div class="st-sub">quotes.status</div></div>
+        <div class="st-badges"><span class="badge badge--neutral">Utkast</span><span class="badge badge--info">Skickad</span><span class="badge badge--success">Accepterad</span><span class="badge badge--danger">Avböjd</span><span class="badge badge--warning">Förfallen</span></div></div>
+      <div class="st-row"><div class="st-label">Företag<div class="st-sub">accounts.status</div></div>
+        <div class="st-badges"><span class="badge badge--success">Kund</span><span class="badge badge--info">Prospekt</span><span class="badge badge--warning">Partner</span><span class="badge badge--danger">Inaktiv</span></div></div>
+      <div class="st-row"><div class="st-label">Kontakter<div class="st-sub">contacts.status</div></div>
+        <div class="st-badges"><span class="badge badge--success">Aktiv</span><span class="badge badge--danger">Inaktiv</span></div></div>
+      <div class="st-row"><div class="st-label">Plattform · tenant<div class="st-sub">operatörskonsol</div></div>
+        <div class="st-badges"><span class="badge badge--success">Aktiv</span><span class="badge badge--danger">Spärrad</span></div></div>
+      <div class="st-row"><div class="st-label">Kundresa<div class="st-sub">contacts.custom_fields.kundresa</div></div>
+        <div class="st-badges"><span class="badge badge--neutral">Ny</span><span class="badge badge--info">Tilldelad</span><span class="badge badge--info">Kvalificerad lead (SQL)</span><span class="badge badge--info">Pipeline</span><span class="badge badge--danger">Förlorad affärsmöjlighet</span><span class="badge badge--success">Kund</span><span class="badge badge--danger">Diskvalificerad</span><span class="badge badge--danger">Förlorad kund</span></div></div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Källa: <code>tokens.json</code> (struktur, med provenance) + <code>tokens.css</code> (implementation) i samma mapp. Sidan stylas av <code>tokens.css</code>, så den visar systemet med systemet. Nav, formulär, drawers och modaler är byggda och tokeniserade; nästa steg är mörkt tema in i systemet samt filter- och radmenyer.</p>
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var buttons = document.querySelectorAll('.toggle button');
+    function apply(mode) {
+      if (mode === 'light' || mode === 'dark') root.setAttribute('data-theme', mode);
+      else root.removeAttribute('data-theme');
+      var current = root.getAttribute('data-theme');
+      buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.set === current)); });
+    }
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var current = root.getAttribute('data-theme');
+        apply(current === b.dataset.set ? null : b.dataset.set);
+      });
+    });
+  })();
+</script>
+</body>
+</html>

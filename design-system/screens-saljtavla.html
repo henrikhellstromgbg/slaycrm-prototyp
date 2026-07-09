@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SlayCRM · Säljtavlan</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="screens.css">
+</head>
+<body>
+
+  <div class="refbar">
+    <div class="lbl">SlayCRM · applicerade vyer <span>— Säljtavlan (kanban)</span></div>
+    <div class="links">
+      <a href="index.html">← Tokens</a>
+      <div class="toggle" role="group" aria-label="Tema">
+        <button type="button" data-set="light" aria-pressed="false">Ljust</button>
+        <button type="button" data-set="dark" aria-pressed="false">Mörkt</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="app">
+
+    <header class="topbar">
+      <div class="topbar-inner gutter">
+        <a class="brand" href="screens.html">s<span class="slash">/</span>ay</a>
+        <nav class="nav">
+          <a class="nav-item" href="screens.html">Aktiviteter</a>
+          <div class="nav-group">
+            <button class="nav-item nav-parent" type="button" aria-haspopup="true" aria-expanded="false">Affärer<svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+            <div class="nav-menu" role="menu">
+              <a class="menu-item" role="menuitem" href="screens-affarer.html">Affärer</a>
+              <a class="menu-item" role="menuitem" href="screens-offerter.html">Offerter</a>
+            </div>
+          </div>
+          <div class="nav-group">
+            <button class="nav-item nav-parent" type="button" aria-haspopup="true" aria-expanded="false">Företag<svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+            <div class="nav-menu" role="menu">
+              <a class="menu-item" role="menuitem" href="screens-foretag.html">Företag</a>
+              <a class="menu-item" role="menuitem" href="screens-kontakter.html">Kontakter</a>
+            </div>
+          </div>
+          <a class="nav-item is-active" href="screens-saljtavla.html">Säljtavlan</a>
+        </nav>
+        <div class="topbar-right">
+          <label class="search">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M11 11l3 3"/></svg>
+            <input type="text" placeholder="Sök allt" aria-label="Sök allt">
+          </label>
+          <button class="icon-btn" aria-label="Notiser"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2a4 4 0 0 0-4 4v3l-1.5 2h11L12 9V6a4 4 0 0 0-4-4z"/><path d="M6.5 13a1.5 1.5 0 0 0 3 0"/></svg></button>
+          <button class="avatar" aria-label="Konto"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="5.5" r="2.5"/><path d="M3.5 13.5a4.5 4.5 0 0 1 9 0"/></svg></button>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-head gutter">
+      <h1 class="screen-title">Säljtavlan <small>7 affärer · 3,04 mkr i pipeline</small></h1>
+      <div class="page-actions">
+        <button class="btn btn-secondary" type="button">Anpassa steg</button>
+        <button class="btn btn-primary icon-l" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Ny affär</button>
+      </div>
+    </div>
+
+    <div class="ground">
+      <div class="board-scroll gutter">
+        <div class="board">
+
+          <section class="board-col">
+            <div class="board-col-head">
+              <span class="board-col-title"><span class="dot" style="background:var(--tone-neutral)"></span>Lead</span>
+              <span class="board-col-sum">2 · 380 tkr</span>
+            </div>
+            <a class="deal-card" href="screens-detalj.html">
+              <div class="title">Servicekontrakt 3 år</div>
+              <div class="company">Op &amp; Partners AB</div>
+              <div class="foot"><span class="amount">320 000 kr</span><span class="avatar-sm">AM</span></div>
+            </a>
+            <a class="deal-card" href="screens-detalj.html">
+              <div class="title">Supportavtal drift</div>
+              <div class="company">Sydfrakt &amp; Co AB</div>
+              <div class="foot"><span class="amount">60 000 kr</span><span class="avatar-sm">WB</span></div>
+            </a>
+          </section>
+
+          <section class="board-col">
+            <div class="board-col-head">
+              <span class="board-col-title"><span class="dot" style="background:var(--tone-info)"></span>Kvalificerad</span>
+              <span class="board-col-sum">2 · 1,79 mkr</span>
+            </div>
+            <a class="deal-card" href="screens-detalj.html">
+              <div class="title">Q3-leverans automation</div>
+              <div class="company">Bergström Automation AB</div>
+              <div class="foot"><span class="amount">1 250 000 kr</span><span class="avatar-sm">PS</span></div>
+            </a>
+            <a class="deal-card" href="screens-detalj.html">
+              <div class="title">Utbyggnad terminal</div>
+              <div class="company">Kvist Industri AB</div>
+              <div class="foot"><span class="amount">540 000 kr</span><span class="avatar-sm">PS</span></div>
+            </a>
+          </section>
+
+          <section class="board-col">
+            <div class="board-col-head">
+              <span class="board-col-title"><span class="dot" style="background:var(--tone-warning)"></span>Offert</span>
+              <span class="board-col-sum">1 · 480 tkr</span>
+            </div>
+            <a class="deal-card" href="screens-detalj.html">
+              <div class="title">Ramavtal transport 2026</div>
+              <div class="company">Nordvik Logistik AB</div>
+              <div class="foot"><span class="amount">480 000 kr</span><span class="avatar-sm">WB</span></div>
+            </a>
+          </section>
+
+          <section class="board-col">
+            <div class="board-col-head">
+              <span class="board-col-title"><span class="dot" style="background:var(--tone-success)"></span>Vunnen</span>
+              <span class="board-col-sum">2 · 390 tkr</span>
+            </div>
+            <a class="deal-card" href="screens-detalj.html">
+              <div class="title">Utökning lagersystem</div>
+              <div class="company">Nordvik Logistik AB</div>
+              <div class="foot"><span class="amount">210 000 kr</span><span class="avatar-sm">WB</span></div>
+            </a>
+            <a class="deal-card" href="screens-detalj.html">
+              <div class="title">Serviceavtal drift</div>
+              <div class="company">Kvist Industri AB</div>
+              <div class="foot"><span class="amount">180 000 kr</span><span class="avatar-sm">PS</span></div>
+            </a>
+          </section>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<script src="screens.js"></script>
+</body>
+</html>

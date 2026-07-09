@@ -1,0 +1,89 @@
+# SlayCRM designsystem · luckor och öppna beslut
+
+Skrivet 2026-07-08 efter att ha byggt sex applicerade vyer (Aktiviteter, Affärer, Företag, Kontakter, Säljtavlan, Detaljvy) ovanpå `tokens.css`. Här är allt jag stötte på som saknas i systemet, plus beslut jag tog provisoriskt och som du kan bekräfta eller ändra. Prioriterat.
+
+## Så här hänger filerna ihop nu
+
+- `tokens.css` / `tokens.json` — systemet (oförändrat denna omgång, förutom layout-lagret).
+- `index.html` — levande token-referens.
+- `screens.css` — **nytt.** Delat app-skal + vy-patterns (topbar, nav, listrad, kort, flikar, kanban, händelseflöde, avatarer). Alla vyer länkar det efter tokens.css och dogfoodar semantiska tokens.
+- `screens.js` — **nytt.** Delad tema-växlare.
+- `screens*.html` — sex vyer, navigerbara via toppnav och klickbara rader.
+
+Öppna `screens.html` och klicka runt: nav byter vy, rader och kort leder till detaljvyn.
+
+---
+
+## P1 — beslut som låser systemet
+
+1. **Mörkt tema bor inte i systemet än.** Mörka neutraler ligger som overrides i `screens.css` (och `index.html`), inte i `tokens.css`/`tokens.json`. De borde flyttas in som ett riktigt tema-lager så mörkt blir en del av systemet, inte per-fil-hack. Dessutom är feedback-tonernas tinter otrimmade mot mörk yta (t.ex. info-badgen "Följ upp" läser blek). Beslut: ska jag promota mörkt tema till tokens och trimma tonerna för mörk bakgrund?
+
+2. ~~**H1-storleken är fortfarande provisorisk.**~~ **LÖST 2026-07-09.** Henrik bekräftade **20px**. `.screen-title` sänkt från 28/32 till 20/24, matchar `.t-page-title`-token. PROVISORISK-flaggan borttagen.
+
+3. ~~**Statusvokabulär är påhittat.**~~ **LÖST 2026-07-09** mot `src/lib/crm.ts`. Alla påhittade etiketter utbytta mot appens riktiga vokabulär:
+   - **Affärssteg** (`STAGE_LABELS`): Lead · Kvalificerad · Offert · Vunnen · Förlorad. (Mina gamla Kvalificering/Förslag/Förhandling fanns inte.)
+   - **Företagsrelation** (`ACCOUNT_STATUS`): Kund (success) · Prospekt (info) · Partner (**warning**, inte info, så den inte krockar med Prospekt) · Inaktiv (danger). ("Ny" fanns inte, borttagen.)
+   - **Kontakter**: har ingen roll-enum i crm.ts. Titlar (VD, Inköpschef …) är fri text och behålls; de påhittade rollerna (Beslutsfattare/Påverkare/Användare) borttagna. Riktig kontaktstatus = Aktiv/Inaktiv (`CONTACT_STATUS`); den rika resan är `KUNDRESA` (Ny/Tilldelad/SQL/Pipeline/Kund …).
+   - **Aktiviteter**: har **ingen statusenum** i schemat, bara `completed_at` (öppen/klar) + `due_date`. UI-vokabulären är tidshinkar från `dashboard-buckets.ts`: **Försenade · Idag · Imorgon · Denna vecka · Nästa vecka · Utan datum** (bara Försenade är röd/overdue, resten neutrala). Aktivitetsvyn och detaljvyn använder nu dessa. Mina gamla "Följ upp"/"Pågående" var påhittade.
+   - **Aktivitetstyp** (`ACTIVITY_TYPE_LABELS`): Samtal · E-post · Möte · Anteckning · Uppgift (dessa stämde redan).
+   - Kvar att bekräfta: affärsstegens **toner** (jag valde lead=neutral, qualified=info, proposal=warning, won=success, lost=danger; crm.ts tonar inte steg, bara status) och om Aktiviteter ska visa tidshink som badge **plus** relativ tid i datumkolumnen (nu görs båda).
+
+4. ~~**Kontakter i toppnaven.**~~ **LÖST 2026-07-09.** Henrik: Kontakter nästlas **under Företag** med chevron, och Offerter nästlas **under Affärer** med chevron. Toppnaven är nu Aktiviteter · Affärer▾ · Företag▾ · Säljtavlan, där Affärer▾ = {Affärer, Offerter} och Företag▾ = {Företag, Kontakter}. Byggd som klickbar dropdown (`.nav-group/.nav-parent/.nav-menu/.menu-item` i screens.css, controller i screens.js: en öppen i taget, outside-klick + Esc stänger). Detta är också första instansen av dropdown-mönstret (se P3 #16).
+
+---
+
+## P2 — komponenter jag byggde men som inte är tokeniserade/dokumenterade
+
+Dessa finns i `screens.css` och funkar, men de är inte formaliserade i `tokens.json`/`index.html` och bör lyftas in i systemet.
+
+**Måtten tokeniserade 2026-07-09 (v0.4.0).** Alla magiska tal i `screens.css` är utbrutna till semantiska tokens (`--drawer-width` 480, `--modal-width` 420, `--overlay-scrim`, `--shadow-focus`, `--tab-height` 44, `--kv-label-width` 120, `--menu-min-width` 200, `--board-col-width` 300, `--board-gap` 16, `--avatar-sm-size` 32). Speglade i `tokens.json` (ny `semantic.component`-grupp) och dokumenterade i `index.html` (ny "Komponentmått"-sektion + fält-specimen för select/textarea/avatar). `screens.css` dogfoodar dem nu, vyerna är oförändrade. **Kvar för P2 = beslutsfrågorna nedan** (avatarskala/färg #5, list-head-policy #8, hover-stil #9, numeric-helper #14, ghost-knappens plats #15), inte måtten.
+
+5. **Avatar / initialer.** `avatar-sm` 32px och toppbarens 40px. Bara en neutral variant. Beslut: en storleksskala (sm/md) och ska avataren färgkodas per entitet eller vara neutral?
+
+6. **Flikar (tabs).** Detaljvyns flikrad: höjd 44, aktiv orange understrykning, räknar-pill. Ny. Behöver token (tab-height) och plats i referensen.
+
+7. **Kanban / tavla.** Kolumnbredd 300, gap 16, affärskort (radius-card, padding), steg-prick färgad per ton. Inget tokeniserat (board-col-width, board-gap).
+
+8. **Listrubrik-rad (`list-head`).** Kolumnetiketter ovanför rader. Aktiviteter saknar den, Affärer/Företag/Kontakter har den. Beslut: ska alla listor ha rubrikrad eller bara de med numeriska/många kolumner?
+
+9. **Rad som länk + hover.** Rader är nu klickbara `<a>` med hover = starkare kant + pekare. Var inte definierat förut. Beslut: bekräfta hover (kant vs bakgrund vs skugga).
+
+10. **Nyckel-värde (kv).** Detaljvyns Detaljer/Adresser: etikett 120 / värde. Ny pattern.
+
+11. **Händelseflöde (feed).** Ikon-cirkel 32 + titel + tid + text, hairline mellan rader. Ny pattern.
+
+12. **Brödsmulor (breadcrumb).** Mutade länkar + chevron. Ny.
+
+13. **Kort (`card` / `side-card`).** Generisk yta radius-card 12, padding 20. Sidopanelens entitetskort. Bekräfta mot Figma-detaljvyns kort.
+
+14. **Numeriskt värde.** `amount` 16/600 med tabular-nums (Affärer, kanban). Överväg en type-helper "numeric" i systemet.
+
+15. **Ghost-knapp.** La till `btn-ghost` (används ej i vy än). Bekräfta att den hör till knappuppsättningen.
+
+---
+
+## P3 — hela mönster som saknas (behövs för nästa vygeneration)
+
+16. **Dropdowns / menyer.** **Mest klart 2026-07-09:** (a) nav-dropdown byggd (`.nav-menu/.menu-item`, klick-toggle, outside-klick + Esc) för Affärer▾/Företag▾. (b) **Filter-pillren är nu levande** i alla fem listvyer (Aktiviteter/Affärer/Offerter/Företag/Kontakter). Varje pill wrappad i `.filter-group` med en `.filter-menu`-popover som återanvänder `menu-item`-stilen; val skrivs in i pillens `.f-val` och menyn stänger (controller i `screens.js`, en öppen i taget, outside-klick + Esc). Menyinnehållet är riktig vokabulär (STAGE_LABELS, QUOTE_STATUS, ACCOUNT_STATUS, CONTACT_STATUS, tidshinkar, ACTIVITY_TYPE_LABELS). Popover-skuggan är nu en token (`--shadow-popover`) som nav och filter delar. `menu-item` fick button-reset så den funkar för både `<a>` (nav) och `<button>` (filter). Verifierat i Chrome ljust+mörkt. **Kvar:** radens kebab-meny saknas fortfarande (samma popover kan återanvändas). En generisk `.menu`-komponent kan lyftas ut när kebab byggs.
+
+17. ~~**Formulär, drawers, modaler.**~~ **BYGGT 2026-07-09** (fältkit + drawer + bekräftelse-modal). Fältkit i `screens.css` (input/select/textarea/type-picker, brand-fokusring via color-mix, disabled-läge), overlay/drawer/modal i `screens.css`, styrning i `screens.js` (data-open/data-close, Esc + overlay-klick, type-picker single-select). Skapa-drawers byggda och verifierade i ljust+mörkt på **tre entiteter**: Ny aktivitet (`screens.html`), Ny affär (`screens-affarer.html`), Ny kontakt (`screens-kontakter.html`). Samma fältkit generaliserade utan per-vy-CSS. **Kvar:** "Logga händelse" + "Redigera" på detaljvyn (edit-mönster, inte create) och "Logga aktivitet"-sekundärknappen. ~~tokenisering av fält/drawer/modal~~ **KLART 2026-07-09** (se P2: drawer/modal/overlay/fokus-glow är tokens nu). Öppna beslut jag tog: höger-drawer 480px, centrerad bekräftelse-modal 420px, footer destruktiv-vänster / avbryt+bekräfta-höger, type-picker som valbara ikon-chips.
+
+18. **Paginering / ladda fler.** Listorna har ingen sidbrytning eller "ladda fler".
+
+19. **Radval + massåtgärder.** Kryssrutor, vald rad, bulk-actionbar saknas.
+
+20. **Tomt tillstånd.** La in `empty`-CSS men ingen riktig design (ikon, copy, CTA). Behöver riktigt tomt-läge per lista.
+
+21. **Ikonsystem.** Alla ikoner är handritade inline-SVG, inkonsekvent set. Välj ett ikonbibliotek (storlek 16, stroke ~1.5) och lägg in som referens.
+
+22. **Mobil / responsiv lista.** Listorna får horisontell scroll under ~1030px istället för att omflöda. Ett staplat kort-per-rad-läge för mobil är odesignat.
+
+23. **Notiser (toast) och aviseringar.** Klockan i toppbaren och bekräftelse-toaster saknar design.
+
+---
+
+## Vad jag INTE rörde (medvetet)
+
+- `tokens.css` / `tokens.json` semantiska värden — oförändrade, bara dogfoodade.
+- Skarpa SlayCRM-repot och dess Vercel-deploy — aldrig vidrört (läsrätt).
+- Inga commits eller push. Allt ligger lokalt i `slaycrm-prototyp/design-system/` och väntar på dig.
