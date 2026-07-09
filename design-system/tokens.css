@@ -9,8 +9,8 @@
   /* ───────── primitives: neutral (simplified) ─────────
      3 backgrounds · 1 line · 3 text greys · 2 dark grounds */
   --p-white:   #ffffff;   /* bg 1 — cards, surfaces */
-  --p-ground:  #f9f9fb;   /* bg 2 — page ground (off-white) */
-  --p-sunken:  #f5f5f3;   /* bg 3 — inset / sunken panels */
+  --p-ground:  #f5f5f3;   /* bg 2 — page ground (off-white) */
+  --p-sunken:  #f9f9fb;   /* bg 3 — inset / sunken panels */
   --p-line:    #e5e5e5;   /* the one hairline / border */
   --p-ink:     #111111;   /* text — primary */
   --p-muted:   #666666;   /* text — secondary / labels */
