@@ -1,0 +1,1420 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SlayCRM · app (prototyp)</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="screens.css">
+<script src="theme.js"></script>
+<style>
+  /* ─────────────────────────────────────────────────────────────
+     app.html — navigerbar prototyp byggd rakt på designsystemet.
+     Skalet (topbar/nav/drawer/modal) står en gång; vyerna är
+     .view-sektioner som växlas av app.js via hash-routing.
+     screens.css/screens.js/theme.js/tokens.css är orörda.
+     ───────────────────────────────────────────────────────────── */
+
+  /* view-växling: aktiv vy släpper igenom sina barn (page-head + ground)
+     rakt in i .app:s flex-kolumn, exakt som i de statiska screens-*.html.
+     display:contents = noll layoutskillnad mot originalet. */
+  .view { display:none; }
+  .view.is-active { display:contents; }
+
+  /* per-vy kolumnmallar — scoped till vy-id så de sex .row-mallarna
+     inte krockar när de bor i samma dokument. */
+  #view-aktiviteter .row { grid-template-columns:minmax(0,120px) minmax(160px,1fr) minmax(0,200px) minmax(0,120px) minmax(0,100px) minmax(0,130px); }
+  #view-aktiviteter .col-count .primary { font-size:20px; line-height:24px; }
+  #view-affarer .row,
+  #view-offerter .row { grid-template-columns:minmax(180px,1fr) minmax(0,220px) minmax(0,150px) minmax(0,150px) minmax(0,190px); }
+  #view-foretag .row { grid-template-columns:minmax(160px,1.4fr) minmax(0,120px) minmax(0,150px) minmax(0,110px) minmax(0,150px) minmax(0,150px) minmax(0,120px); }
+  #view-kontakter .row { grid-template-columns:minmax(160px,1.2fr) minmax(0,200px) minmax(0,150px) minmax(160px,1fr) minmax(0,150px) minmax(0,110px); }
+
+  /* topbar-tema-växlaren: samma .toggle-komponent, placerad i appen
+     (refbaren är borta, det här är en riktig app-yta) */
+  .topbar .toggle { flex:none; }
+
+  /* ── detaljvyns extradelar (lyfta ur screens-detalj, DS-tokens) ── */
+  .detail-back { display:inline-flex; align-items:center; gap:4px; color:var(--color-brand);
+    text-decoration:none; font-weight:500; font-size:14px; margin-right:var(--p-space-5); }
+  .detail-back:hover { text-decoration:underline; }
+  .detail-back svg { width:16px; height:16px; }
+
+  .meta-row { display:flex; flex-wrap:wrap; gap:40px; padding:4px 0; }
+  .meta-item { display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .meta-item .primary { display:flex; align-items:center; gap:8px;
+    font-weight:500; font-size:16px; line-height:21px; color:var(--color-text); }
+  .meta-item .primary svg { width:16px; height:16px; color:var(--color-text-muted); flex:none; }
+  .meta-item .secondary { font-size:14px; line-height:18px; color:var(--color-text-muted); }
+
+  /* tab-paneler: app.js växlar .is-active mellan flikar och paneler */
+  .tab-pane { display:none; padding-top:4px; }
+  .tab-pane.is-active { display:block; }
+
+  /* händelseflöde som rad-kort (ej klickbart) */
+  .feed-list .row { grid-template-columns:150px minmax(0,1fr) 150px; align-items:start; cursor:default; box-shadow:none; }
+  .feed-list .row:hover { border-color:var(--color-border); }
+  .feed-list .col-owner { align-items:flex-end; text-align:right; }
+  .feed-list .cell .primary { white-space:normal; overflow:visible; text-overflow:clip; line-height:21px; }
+
+  /* enkel etikett/värde-tabell för Översikt + Detaljer */
+  .kv-grid { display:grid; grid-template-columns:180px minmax(0,1fr); gap:12px 24px; }
+  .kv-grid dt { color:var(--color-text-muted); font-size:14px; }
+  .kv-grid dd { margin:0; color:var(--color-text); font-weight:500; }
+
+  /* liten lista för offert-panelen (utan grid-krock mot list-vyerna) */
+  .mini-list { display:flex; flex-direction:column; gap:8px; }
+  .mini-row { display:flex; align-items:center; justify-content:space-between; gap:16px;
+    border:1px solid var(--color-border); border-radius:var(--radius-card);
+    background:var(--color-surface); padding:14px 16px; box-shadow:var(--shadow-card); }
+  .mini-row .mini-title { font-weight:500; color:var(--color-text); }
+  .mini-row .mini-sub { font-size:14px; color:var(--color-text-muted); }
+  .mini-row .amount { font-variant-numeric:tabular-nums; }
+  /* klickbar mini-row (t.ex. affär-lista på företaget): ingen länk-underline,
+     ärver textfärg, får en tydlig hover-affordans */
+  a.mini-row { text-decoration:none; color:inherit; cursor:pointer; transition:border-color .12s, background .12s; }
+  a.mini-row:hover { border-color:var(--color-border-strong); background:var(--color-surface-sunken); }
+  .mini-row .link { color:var(--color-brand); text-decoration:none; }
+  .mini-row .link:hover { text-decoration:underline; }
+
+  /* sidokolumn */
+  .side-block { display:flex; flex-direction:column; gap:16px; }
+  .side-block h3 { margin:0; font-weight:600; font-size:18px; line-height:24px; color:var(--color-text); }
+  .side-divider { height:1px; background:var(--color-border); border:0; margin:0; }
+  .side-entity { display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .side-entity + .side-entity { margin-top:16px; }
+  .side-entity .primary { font-weight:600; font-size:16px; line-height:24px; color:var(--color-text); }
+  .side-entity .secondary { font-size:16px; line-height:24px; color:var(--color-text-muted); }
+  .side-entity .secondary:has(a) { margin-top:10px; }
+  .side-entity a { color:var(--color-brand); text-decoration:none; }
+  .side-entity a:hover { text-decoration:underline; }
+
+  /* ── uppföljnings-modal: bredare modal-kort ── */
+  .modal-card.modal-wide { width:min(560px, calc(100vw - 32px)); text-align:left;
+    max-height:calc(100vh - 48px); overflow-y:auto; }
+  .fu-head { display:flex; align-items:center; gap:8px; }
+  .fu-head svg { width:20px; height:20px; color:var(--color-brand); flex:none; }
+  .fu-block { margin-top:16px; }
+  .fu-block > .field-label { display:block; margin-bottom:8px; }
+  .modal-wide .modal-actions { margin-top:20px; }
+
+  /* affärsboxen i uppföljningen: streckad ram, rundad (ingen accentkant) */
+  .deal-toggle { display:inline-flex; align-items:center; gap:8px; }
+  .deal-box { display:none; margin-top:12px; border:1px dashed var(--color-border-strong);
+    background:var(--color-surface-sunken); border-radius:var(--radius-card); padding:16px; }
+  .deal-box.is-open { display:block; }
+  .deal-box-head { display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:14px; font-weight:600; }
+
+  /* ── inline-kalender (delad av uppföljning + datumintervall-filter) ── */
+  .cal { border:1px solid var(--color-border-strong); border-radius:var(--radius-control);
+    padding:12px; background:var(--color-surface); width:308px; max-width:100%; }
+  .cal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+  .cal-head .mlbl { font-weight:600; font-size:15px; }
+  .cal-nav { width:30px; height:30px; border:1px solid var(--color-border-strong);
+    border-radius:var(--radius-control); background:var(--color-surface); cursor:pointer;
+    font-size:18px; line-height:1; color:var(--color-text-muted); }
+  .cal-nav:hover { background:var(--color-surface-sunken); color:var(--color-text); }
+  .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+  .cal-dow { font-size:14px; color:var(--color-text-faint); text-align:center; padding:4px 0; font-weight:600; }
+  .cal-day { aspect-ratio:1; border:1px solid transparent; border-radius:var(--radius-control);
+    background:transparent; font:inherit; font-size:14px; color:var(--color-text); cursor:pointer; }
+  .cal-day:not([disabled]):hover { background:var(--color-surface-sunken); }
+  .cal-day[disabled] { color:var(--color-text-faint); opacity:.4; cursor:default; }
+  .cal-day.today { border-color:var(--color-border-strong); font-weight:600; }
+  .cal-day.sel { background:var(--color-brand); color:var(--color-on-brand); border-color:var(--color-brand); }
+  .cal-day.in-range { background:var(--color-surface-sunken); border-radius:0; }
+  .cal-time { margin-top:10px; display:flex; align-items:center; gap:10px;
+    border-top:1px solid var(--color-border); padding-top:10px; }
+  .cal-time label { font-size:14px; font-weight:500; color:var(--color-text-muted); }
+  .cal-time input { width:130px; }
+
+  /* datumintervall-filtrets meny: bredare än en vanlig filter-menu */
+  .filter-menu.range-menu { width:auto; padding:12px; }
+  .range-foot { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px; }
+  .range-foot .range-lbl { font-size:14px; color:var(--color-text-muted); }
+</style>
+</head>
+<body>
+
+  <div class="app">
+
+    <header class="topbar">
+      <div class="topbar-inner gutter">
+        <a class="brand" href="#/aktiviteter">s<span class="slash">/</span>ay</a>
+        <nav class="nav">
+          <a class="nav-item" data-nav="aktiviteter" href="#/aktiviteter">Aktiviteter</a>
+          <div class="nav-group" data-group="affar">
+            <button class="nav-item nav-parent" type="button" aria-expanded="false">Affärer<svg aria-hidden="true" class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+            <div class="nav-menu">
+              <a class="menu-item" data-nav="affarer" href="#/affarer">Affärer</a>
+              <a class="menu-item" data-nav="offerter" href="#/offerter">Offerter</a>
+            </div>
+          </div>
+          <div class="nav-group" data-group="foretag">
+            <button class="nav-item nav-parent" type="button" aria-expanded="false">Företag<svg aria-hidden="true" class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+            <div class="nav-menu">
+              <a class="menu-item" data-nav="foretag" href="#/foretag">Företag</a>
+              <a class="menu-item" data-nav="kontakter" href="#/kontakter">Kontakter</a>
+            </div>
+          </div>
+          <a class="nav-item" data-nav="saljtavlan" href="#/saljtavlan">Säljtavlan</a>
+        </nav>
+        <div class="topbar-right">
+          <label class="search">
+            <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M11 11l3 3"/></svg>
+            <input type="text" placeholder="Sök allt" aria-label="Sök allt">
+          </label>
+          <div class="toggle" role="group" aria-label="Tema">
+            <button type="button" data-set="light" aria-pressed="false">Ljust</button>
+            <button type="button" data-set="dark" aria-pressed="false">Mörkt</button>
+          </div>
+          <button class="icon-btn" aria-label="Notiser"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2a4 4 0 0 0-4 4v3l-1.5 2h11L12 9V6a4 4 0 0 0-4-4z"/><path d="M6.5 13a1.5 1.5 0 0 0 3 0"/></svg></button>
+          <button class="avatar" aria-label="Konto"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="5.5" r="2.5"/><path d="M3.5 13.5a4.5 4.5 0 0 1 9 0"/></svg></button>
+          <button class="icon-btn nav-toggle" type="button" aria-label="Meny" aria-expanded="false"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/></svg></button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ═══════════════ VY: AKTIVITETER ═══════════════ -->
+    <section class="view" id="view-aktiviteter">
+      <div class="page-head gutter">
+        <h1 class="screen-title">Aktiviteter</h1>
+        <div class="page-actions">
+          <button class="btn btn-secondary" type="button">Logga aktivitet</button>
+          <button class="btn btn-primary icon-l" type="button" data-open="drawer-aktivitet"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Ny aktivitet</button>
+        </div>
+      </div>
+      <div class="ground">
+        <div class="ground-scroll gutter">
+          <div class="filterbar">
+            <div class="filter-left">
+              <div class="filter-group">
+                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Datum</span><span class="f-val">Alla</span><span class="count">4</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+                <div class="filter-menu">
+                  <button class="menu-item is-active" type="button">Alla</button>
+                  <button class="menu-item" type="button">Försenade</button>
+                  <button class="menu-item" type="button">Idag</button>
+                  <button class="menu-item" type="button">Imorgon</button>
+                  <button class="menu-item" type="button">Denna vecka</button>
+                  <button class="menu-item" type="button">Nästa vecka</button>
+                  <button class="menu-item" type="button">Utan datum</button>
+                </div>
+              </div>
+              <div class="filter-group" data-daterange>
+                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Datumintervall</span><span class="f-val">Alla datum</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+                <div class="filter-menu range-menu"></div>
+              </div>
+              <div class="filter-group">
+                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Ansvarig</span><span class="f-val">Mina</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+                <div class="filter-menu">
+                  <button class="menu-item is-active" type="button">Mina</button>
+                  <button class="menu-item" type="button">Alla</button>
+                  <button class="menu-item" type="button">P. Steinberger</button>
+                  <button class="menu-item" type="button">W. Bernting</button>
+                  <button class="menu-item" type="button">A. Malmberg</button>
+                </div>
+              </div>
+              <div class="filter-group">
+                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Typ</span><span class="f-val">Alla typer</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+                <div class="filter-menu">
+                  <button class="menu-item is-active" type="button">Alla typer</button>
+                  <button class="menu-item" type="button">Samtal</button>
+                  <button class="menu-item" type="button">E-post</button>
+                  <button class="menu-item" type="button">Möte</button>
+                  <button class="menu-item" type="button">Anteckning</button>
+                  <button class="menu-item" type="button">Uppgift</button>
+                </div>
+              </div>
+            </div>
+            <label class="search">
+              <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M11 11l3 3"/></svg>
+              <input type="text" placeholder="Sök aktiviteter" aria-label="Sök aktiviteter">
+            </label>
+          </div>
+
+          <div class="list">
+            <div class="row">
+              <div class="cell col-date"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3.5h2.5l1 3-1.5 1a8 8 0 0 0 3.5 3.5l1-1.5 3 1V15a.8.8 0 0 1-.9.8A11 11 0 0 1 2.2 4.4.8.8 0 0 1 3 3.5z"/></svg><div class="cell"><div class="primary">7 juli, 09:00</div><div class="secondary">2 dgr sedan</div></div></div>
+              <div class="cell col-title"><div class="primary">Transportavtal</div><div class="secondary">Väntar på styrelsebeslut, hör av dig efter v.28.</div></div>
+              <div class="cell col-company"><div class="primary">Nordvik Logistik AB</div><div class="secondary">Göteborg</div></div>
+              <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+              <div class="cell col-count"><div class="primary">2</div><div class="secondary">Händelser</div></div>
+              <div class="col-status"><span class="badge badge--danger">Försenad</span></div>
+            </div>
+            <div class="row">
+              <div class="cell col-date"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3" width="11" height="11" rx="1.5"/><path d="M2.5 6.5h11M5 2v2M11 2v2"/></svg><div class="cell"><div class="primary">9 juli, 09:00</div><div class="secondary">Idag</div></div></div>
+              <div class="cell col-title"><div class="primary">Uppföljningsmöte inför Q3-avtal</div><div class="secondary">Ola vill ha med båda delägarna. Föreslå tisdag fm.</div></div>
+              <div class="cell col-company"><div class="primary">Op &amp; Partners AB</div><div class="secondary">Hässleholm</div></div>
+              <div class="cell col-owner"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
+              <div class="cell col-count"><div class="primary">4</div><div class="secondary">Händelser</div></div>
+              <div class="col-status"><span class="badge badge--info">Idag</span></div>
+            </div>
+            <div class="row">
+              <div class="cell col-date"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3.5h2.5l1 3-1.5 1a8 8 0 0 0 3.5 3.5l1-1.5 3 1V15a.8.8 0 0 1-.9.8A11 11 0 0 1 2.2 4.4.8.8 0 0 1 3 3.5z"/></svg><div class="cell"><div class="primary">10 juli, 14:00</div><div class="secondary">Imorgon</div></div></div>
+              <div class="cell col-title"><div class="primary">Möte</div><div class="secondary">Ville ha 5% rabatt vid 3-årsavtal. Kolla med chef.</div></div>
+              <div class="cell col-company"><div class="primary">Bergström Automation AB</div><div class="secondary">Västerås</div></div>
+              <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+              <div class="cell col-count"><div class="primary">1</div><div class="secondary">Händelser</div></div>
+              <div class="col-status"><span class="badge badge--neutral">Imorgon</span></div>
+            </div>
+            <div class="row">
+              <div class="cell col-date"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3" width="11" height="11" rx="1.5"/><path d="M2.5 6.5h11M5 2v2M11 2v2"/></svg><div class="cell"><div class="primary">11 juli, 16:00</div><div class="secondary">Denna vecka</div></div></div>
+              <div class="cell col-title"><div class="primary">Följ upp möte</div><div class="secondary">Undrar om vi klarar leverans inom 48h till Norrland.</div></div>
+              <div class="cell col-company"><div class="primary">Nordvik Logistik AB</div><div class="secondary">Göteborg</div></div>
+              <div class="cell col-owner"><div class="primary">A. Malmberg</div><div class="secondary">Ansvarig</div></div>
+              <div class="cell col-count"><div class="primary">10</div><div class="secondary">Händelser</div></div>
+              <div class="col-status"><span class="badge badge--neutral">Denna vecka</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ VY: AFFÄRER ═══════════════ -->
+    <section class="view" id="view-affarer">
+      <div class="page-head gutter">
+        <h1 class="screen-title">Affärer <small>5 affärer · 2,36 mkr totalt</small></h1>
+        <div class="page-actions">
+          <button class="btn btn-primary icon-l" type="button" data-open="drawer-affar"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Ny affär</button>
+        </div>
+      </div>
+      <div class="ground">
+        <div class="ground-scroll gutter">
+          <div class="filterbar">
+            <div class="filter-left">
+              <div class="filter-group">
+                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Steg</span><span class="f-val">Alla</span><span class="count">5</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+                <div class="filter-menu">
+                  <button class="menu-item is-active" type="button">Alla</button>
+                  <button class="menu-item" type="button">Lead</button>
+                  <button class="menu-item" type="button">Kvalificerad</button>
+                  <button class="menu-item" type="button">Offert</button>
+                  <button class="menu-item" type="button">Vunnen</button>
+                  <button class="menu-item" type="button">Förlorad</button>
+                </div>
+              </div>
+              <div class="filter-group" data-daterange>
+                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Öppnad</span><span class="f-val">Alla datum</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+                <div class="filter-menu range-menu"></div>
+              </div>
+              <div class="filter-group">
+                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Ansvarig</span><span class="f-val">Alla</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+                <div class="filter-menu">
+                  <button class="menu-item is-active" type="button">Alla</button>
+                  <button class="menu-item" type="button">P. Steinberger</button>
+                  <button class="menu-item" type="button">W. Bernting</button>
+                  <button class="menu-item" type="button">A. Malmberg</button>
+                </div>
+              </div>
+              <div class="filter-group">
+                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Sortering</span><span class="f-val">Värde</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+                <div class="filter-menu">
+                  <button class="menu-item is-active" type="button">Värde</button>
+                  <button class="menu-item" type="button">Namn</button>
+                  <button class="menu-item" type="button">Senast öppnad</button>
+                  <button class="menu-item" type="button">Steg</button>
+                </div>
+              </div>
+            </div>
+            <label class="search">
+              <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M11 11l3 3"/></svg>
+              <input type="text" placeholder="Sök affärer" aria-label="Sök affärer">
+            </label>
+          </div>
+
+          <div class="list">
+            <a class="row" href="#/affar/AFF-2041">
+              <div class="cell col-title"><div class="primary">Q3-leverans automation</div><div class="secondary">AFF-2041 · öppnad 12 juni</div></div>
+              <div class="cell col-company"><div class="primary">Bergström Automation AB</div><div class="secondary">Västerås</div></div>
+              <div class="cell col-amount"><span class="amount">1 250 000 kr</span><div class="secondary">Värde</div></div>
+              <div class="cell col-owner"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
+              <div class="col-status"><span class="badge badge--warning">Offert</span></div>
+            </a>
+            <a class="row" href="#/affar/AFF-2038">
+              <div class="cell col-title"><div class="primary">Ramavtal transport 2026</div><div class="secondary">AFF-2038 · öppnad 3 juni</div></div>
+              <div class="cell col-company"><div class="primary">Nordvik Logistik AB</div><div class="secondary">Göteborg</div></div>
+              <div class="cell col-amount"><span class="amount">480 000 kr</span><div class="secondary">Värde</div></div>
+              <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+              <div class="col-status"><span class="badge badge--info">Kvalificerad</span></div>
+            </a>
+            <a class="row" href="#/affar/AFF-2044">
+              <div class="cell col-title"><div class="primary">Servicekontrakt 3 år</div><div class="secondary">AFF-2044 · öppnad 28 juni</div></div>
+              <div class="cell col-company"><div class="primary">Op &amp; Partners AB</div><div class="secondary">Hässleholm</div></div>
+              <div class="cell col-amount"><span class="amount">320 000 kr</span><div class="secondary">Värde</div></div>
+              <div class="cell col-owner"><div class="primary">A. Malmberg</div><div class="secondary">Ansvarig</div></div>
+              <div class="col-status"><span class="badge badge--neutral">Lead</span></div>
+            </a>
+            <a class="row" href="#/affar/AFF-2029">
+              <div class="cell col-title"><div class="primary">Utökning lagersystem</div><div class="secondary">AFF-2029 · öppnad 20 maj</div></div>
+              <div class="cell col-company"><div class="primary">Nordvik Logistik AB</div><div class="secondary">Göteborg</div></div>
+              <div class="cell col-amount"><span class="amount">210 000 kr</span><div class="secondary">Värde</div></div>
+              <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+              <div class="col-status"><span class="badge badge--success">Vunnen</span></div>
+            </a>
+            <a class="row" href="#/affar/AFF-2015">
+              <div class="cell col-title"><div class="primary">Pilotprojekt sensorer</div><div class="secondary">AFF-2015 · öppnad 2 maj</div></div>
+              <div class="cell col-company"><div class="primary">Bergström Automation AB</div><div class="secondary">Västerås</div></div>
+              <div class="cell col-amount"><span class="amount">95 000 kr</span><div class="secondary">Värde</div></div>
+              <div class="cell col-owner"><div class="primary">A. Malmberg</div><div class="secondary">Ansvarig</div></div>
+              <div class="col-status"><span class="badge badge--danger">Förlorad</span></div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ VY: AFFÄR (detalj) ═══════════════ -->
+    <section class="view" id="view-affar-detalj">
+      <div class="page-head gutter">
+        <h1 class="screen-title" id="af-title">Affär</h1>
+        <div class="page-actions">
+          <a class="detail-back" href="#/affarer"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4l-4 4 4 4"/></svg>Affärer</a>
+          <button class="btn btn-secondary" type="button">Åtgärder<svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+          <button class="btn btn-primary icon-l" type="button" data-open="modal-followup"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.5 3.5L13 5"/></svg>Markera klar</button>
+        </div>
+      </div>
+      <div class="ground">
+        <div class="gutter" style="padding-top:16px">
+          <div class="detail">
+
+            <div class="detail-main">
+              <div class="meta-row">
+                <div class="meta-item"><div class="primary" id="af-value">—</div><div class="secondary">Värde</div></div>
+                <div class="meta-item"><div class="primary"><span class="badge" id="af-stage">—</span></div><div class="secondary">Steg</div></div>
+                <div class="meta-item"><div class="primary" id="af-owner">—</div><div class="secondary">Ansvarig</div></div>
+                <div class="meta-item"><div class="primary" id="af-close">—</div><div class="secondary">Förväntat avslut</div></div>
+              </div>
+
+              <div class="composer">
+                <textarea class="composer-input" placeholder="Lägg till kommentar, logga ett samtal, skriv en anteckning…"></textarea>
+                <div class="composer-foot">
+                  <button class="btn btn-primary" type="button" disabled>Lägg till</button>
+                </div>
+              </div>
+
+              <div class="tabs" role="tablist">
+                <a class="tab is-active" role="tab" data-tab="oversikt">Översikt</a>
+                <a class="tab" role="tab" data-tab="aktiviteter">Aktiviteter <span class="count">4</span></a>
+                <a class="tab" role="tab" data-tab="offerter">Offerter <span class="count">2</span></a>
+                <a class="tab" role="tab" data-tab="dokument">Dokument</a>
+                <a class="tab" role="tab" data-tab="detaljer">Detaljer</a>
+              </div>
+
+              <!-- Översikt -->
+              <div class="tab-pane is-active" data-pane="oversikt">
+                <dl class="kv-grid">
+                  <dt>Företag</dt><dd id="af-ov-company">—</dd>
+                  <dt>Ort</dt><dd id="af-ov-city">—</dd>
+                  <dt>Steg</dt><dd id="af-ov-stage">—</dd>
+                  <dt>Värde</dt><dd id="af-ov-value">—</dd>
+                  <dt>Ansvarig</dt><dd id="af-ov-owner">—</dd>
+                  <dt>Senaste händelse</dt><dd>5 juli · E-post med prisunderlag för Q3</dd>
+                </dl>
+              </div>
+
+              <!-- Aktiviteter -->
+              <div class="tab-pane" data-pane="aktiviteter">
+                <div class="list feed-list">
+                  <div class="row">
+                    <div class="cell"><div class="primary">11 juli, 16:00</div><div class="secondary">Möte</div></div>
+                    <div class="cell"><div class="primary">Följ upp möte inför Q3-avtal.</div></div>
+                    <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+                  </div>
+                  <div class="row">
+                    <div class="cell"><div class="primary">8 juli</div><div class="secondary">Fråga</div></div>
+                    <div class="cell"><div class="primary">Undrar om vi klarar leverans inom 48h till Norrland.</div></div>
+                    <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+                  </div>
+                  <div class="row">
+                    <div class="cell"><div class="primary">5 juli, 14:00</div><div class="secondary">E-post</div></div>
+                    <div class="cell"><div class="primary">Skickade prisunderlag för Q3.</div></div>
+                    <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+                  </div>
+                  <div class="row">
+                    <div class="cell"><div class="primary">2 juli, 09:15</div><div class="secondary">Samtal</div></div>
+                    <div class="cell"><div class="primary">Samtal med Elin, positiv ton. Vill förankra internt.</div></div>
+                    <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Offerter -->
+              <div class="tab-pane" data-pane="offerter">
+                <div class="mini-list">
+                  <div class="mini-row">
+                    <div><div class="mini-title">Ramavtal transport 2026</div><div class="mini-sub">OFF-3038 · utkast</div></div>
+                    <div style="display:flex;align-items:center;gap:16px"><span class="amount">480 000 kr</span><span class="badge badge--neutral">Utkast</span></div>
+                  </div>
+                  <div class="mini-row">
+                    <div><div class="mini-title">Q3-leverans automation</div><div class="mini-sub">OFF-3041 · skickad 4 juli</div></div>
+                    <div style="display:flex;align-items:center;gap:16px"><span class="amount">1 250 000 kr</span><span class="badge badge--info">Skickad</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dokument (tomt tillstånd) -->
+              <div class="tab-pane" data-pane="dokument">
+                <div class="empty">
+                  <span class="empty-ic"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2.5h5l3 3V13a.5.5 0 0 1-.5.5h-7A.5.5 0 0 1 4 13z"/><path d="M9 2.5v3h3"/></svg></span>
+                  <div class="empty-title">Inga dokument än</div>
+                  <p>Ladda upp offert, avtal eller underlag så samlas de här på affären.</p>
+                  <button class="btn btn-primary" type="button">Ladda upp dokument</button>
+                </div>
+              </div>
+
+              <!-- Detaljer -->
+              <div class="tab-pane" data-pane="detaljer">
+                <dl class="kv-grid">
+                  <dt>Affärs-ID</dt><dd id="af-de-id">—</dd>
+                  <dt>Steg</dt><dd id="af-de-stage">—</dd>
+                  <dt>Värde</dt><dd id="af-de-value">—</dd>
+                  <dt>Ansvarig</dt><dd id="af-de-owner">—</dd>
+                  <dt>Förväntat avslut</dt><dd id="af-de-close">—</dd>
+                  <dt>Källa</dt><dd>Inkommande förfrågan</dd>
+                </dl>
+              </div>
+            </div>
+
+            <aside class="detail-side">
+              <div class="side-block">
+                <h3>Företag</h3>
+                <div class="side-entity">
+                  <div class="primary" id="af-side-company">—</div>
+                  <div class="secondary" id="af-side-addr1"></div>
+                  <div class="secondary" id="af-side-addr2"></div>
+                </div>
+              </div>
+              <hr class="side-divider">
+              <div class="side-block">
+                <h3>Kontaktpersoner</h3>
+                <div id="af-side-contacts"></div>
+              </div>
+            </aside>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ VY: FÖRETAG (detalj) ═══════════════ -->
+    <section class="view" id="view-foretag-detalj">
+      <div class="page-head gutter">
+        <h1 class="screen-title" id="fo-title">Företag</h1>
+        <div class="page-actions">
+          <a class="detail-back" href="#/foretag"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4l-4 4 4 4"/></svg>Företag</a>
+          <button class="btn btn-secondary" type="button">Åtgärder<svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+          <button class="btn btn-primary icon-l" type="button" data-open="drawer-aktivitet"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Logga aktivitet</button>
+        </div>
+      </div>
+      <div class="ground">
+        <div class="gutter" style="padding-top:16px">
+          <div class="detail">
+
+            <div class="detail-main">
+              <div class="meta-row">
+                <div class="meta-item"><div class="primary"><span class="badge" id="fo-relation">—</span></div><div class="secondary">Relation</div></div>
+                <div class="meta-item"><div class="primary" id="fo-city">—</div><div class="secondary">Ort</div></div>
+                <div class="meta-item"><div class="primary" id="fo-owner">—</div><div class="secondary">Ansvarig</div></div>
+                <div class="meta-item"><div class="primary" id="fo-senaste">—</div><div class="secondary">Senaste kontakt</div></div>
+              </div>
+
+              <div class="composer">
+                <textarea class="composer-input" placeholder="Lägg till kommentar, logga ett samtal, skriv en anteckning…"></textarea>
+                <div class="composer-foot">
+                  <button class="btn btn-primary" type="button" disabled>Lägg till</button>
+                </div>
+              </div>
+
+              <div class="tabs" role="tablist">
+                <a class="tab is-active" role="tab" data-tab="fo-oversikt">Översikt</a>
+                <a class="tab" role="tab" data-tab="fo-kontakter">Kontakter <span class="count" id="fo-kontakter-count">0</span></a>
+                <a class="tab" role="tab" data-tab="fo-affarer">Affärer <span class="count" id="fo-affarer-count">0</span></a>
+                <a class="tab" role="tab" data-tab="fo-detaljer">Detaljer</a>
+              </div>
+
+              <!-- Översikt -->
+              <div class="tab-pane is-active" data-pane="fo-oversikt">
+                <dl class="kv-grid">
+                  <dt>Ort</dt><dd id="fo-ov-city">—</dd>
+                  <dt>Relation</dt><dd id="fo-ov-relation">—</dd>
+                  <dt>Kategori</dt><dd id="fo-ov-kategori">—</dd>
+                  <dt>Telefon</dt><dd id="fo-ov-tel">—</dd>
+                  <dt>Ansvarig</dt><dd id="fo-ov-owner">—</dd>
+                  <dt>Senaste kontakt</dt><dd id="fo-ov-senaste">—</dd>
+                </dl>
+              </div>
+
+              <!-- Kontakter -->
+              <div class="tab-pane" data-pane="fo-kontakter">
+                <div class="mini-list" id="fo-kontakter"></div>
+              </div>
+
+              <!-- Affärer -->
+              <div class="tab-pane" data-pane="fo-affarer">
+                <div class="mini-list" id="fo-affarer"></div>
+              </div>
+
+              <!-- Detaljer -->
+              <div class="tab-pane" data-pane="fo-detaljer">
+                <dl class="kv-grid">
+                  <dt>Relation</dt><dd id="fo-de-relation">—</dd>
+                  <dt>Kategori</dt><dd id="fo-de-kategori">—</dd>
+                  <dt>Telefon</dt><dd id="fo-de-tel">—</dd>
+                  <dt>Ort</dt><dd id="fo-de-city">—</dd>
+                  <dt>Ansvarig</dt><dd id="fo-de-owner">—</dd>
+                  <dt>Källa</dt><dd>Manuellt tillagd</dd>
+                </dl>
+              </div>
+            </div>
+
+            <aside class="detail-side">
+              <div class="side-block">
+                <h3>Primär kontakt</h3>
+                <div id="fo-side-primary"></div>
+              </div>
+              <hr class="side-divider">
+              <div class="side-block">
+                <h3>Adress</h3>
+                <div class="side-entity">
+                  <div class="secondary" id="fo-side-addr1"></div>
+                  <div class="secondary" id="fo-side-addr2"></div>
+                </div>
+              </div>
+            </aside>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ VY: KONTAKT-DETALJ ═══════════════ -->
+    <section class="view" id="view-kontakt-detalj">
+      <div class="page-head gutter">
+        <h1 class="screen-title" id="ko-title">Kontakt</h1>
+        <div class="page-actions">
+          <a class="detail-back" href="#/kontakter"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4l-4 4 4 4"/></svg>Kontakter</a>
+          <button class="btn btn-secondary" type="button">Åtgärder<svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+          <button class="btn btn-primary icon-l" type="button" data-open="drawer-aktivitet"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Logga aktivitet</button>
+        </div>
+      </div>
+      <div class="ground">
+        <div class="gutter" style="padding-top:16px">
+          <div class="detail">
+
+            <div class="detail-main">
+              <div class="meta-row">
+                <div class="meta-item"><div class="primary"><span class="badge" id="ko-status">—</span></div><div class="secondary">Status</div></div>
+                <div class="meta-item"><div class="primary" id="ko-company">—</div><div class="secondary">Företag</div></div>
+                <div class="meta-item"><div class="primary" id="ko-role">—</div><div class="secondary">Roll</div></div>
+                <div class="meta-item"><div class="primary" id="ko-owner">—</div><div class="secondary">Ansvarig</div></div>
+              </div>
+
+              <div class="composer">
+                <textarea class="composer-input" placeholder="Lägg till kommentar, logga ett samtal, skriv en anteckning…"></textarea>
+                <div class="composer-foot">
+                  <button class="btn btn-primary" type="button" disabled>Lägg till</button>
+                </div>
+              </div>
+
+              <div class="tabs" role="tablist">
+                <a class="tab is-active" role="tab" data-tab="ko-oversikt">Översikt</a>
+                <a class="tab" role="tab" data-tab="ko-affarer">Affärer <span class="count" id="ko-affarer-count">0</span></a>
+                <a class="tab" role="tab" data-tab="ko-detaljer">Detaljer</a>
+              </div>
+
+              <!-- Översikt -->
+              <div class="tab-pane is-active" data-pane="ko-oversikt">
+                <dl class="kv-grid">
+                  <dt>Företag</dt><dd id="ko-ov-company">—</dd>
+                  <dt>Roll</dt><dd id="ko-ov-role">—</dd>
+                  <dt>E-post</dt><dd id="ko-ov-email">—</dd>
+                  <dt>Telefon</dt><dd id="ko-ov-tel">—</dd>
+                  <dt>Ansvarig</dt><dd id="ko-ov-owner">—</dd>
+                  <dt>Status</dt><dd id="ko-ov-status">—</dd>
+                </dl>
+              </div>
+
+              <!-- Affärer -->
+              <div class="tab-pane" data-pane="ko-affarer">
+                <div class="mini-list" id="ko-affarer"></div>
+              </div>
+
+              <!-- Detaljer -->
+              <div class="tab-pane" data-pane="ko-detaljer">
+                <dl class="kv-grid">
+                  <dt>Företag</dt><dd id="ko-de-company">—</dd>
+                  <dt>Roll</dt><dd id="ko-de-role">—</dd>
+                  <dt>Ansvarig</dt><dd id="ko-de-owner">—</dd>
+                  <dt>Status</dt><dd id="ko-de-status">—</dd>
+                  <dt>Källa</dt><dd>Manuellt tillagd</dd>
+                </dl>
+              </div>
+            </div>
+
+            <aside class="detail-side">
+              <div class="side-block">
+                <h3>Företag</h3>
+                <div class="side-entity">
+                  <div class="primary" id="ko-side-company">—</div>
+                  <div class="secondary" id="ko-side-addr1"></div>
+                  <div class="secondary" id="ko-side-addr2"></div>
+                </div>
+              </div>
+              <hr class="side-divider">
+              <div class="side-block">
+                <h3>Kanaler</h3>
+                <div class="side-entity" id="ko-side-channels"></div>
+              </div>
+            </aside>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ VY: OFFERT-DETALJ ═══════════════ -->
+    <section class="view" id="view-offert-detalj">
+      <div class="page-head gutter">
+        <h1 class="screen-title" id="of-title">Offert</h1>
+        <div class="page-actions">
+          <a class="detail-back" href="#/offerter"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4l-4 4 4 4"/></svg>Offerter</a>
+          <button class="btn btn-secondary" type="button">Åtgärder<svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+          <button class="btn btn-primary icon-l" type="button" data-open="drawer-aktivitet"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Logga aktivitet</button>
+        </div>
+      </div>
+      <div class="ground">
+        <div class="gutter" style="padding-top:16px">
+          <div class="detail">
+
+            <div class="detail-main">
+              <div class="meta-row">
+                <div class="meta-item"><div class="primary" id="of-value">—</div><div class="secondary">Belopp</div></div>
+                <div class="meta-item"><div class="primary"><span class="badge" id="of-status">—</span></div><div class="secondary">Status</div></div>
+                <div class="meta-item"><div class="primary" id="of-company">—</div><div class="secondary">Företag</div></div>
+                <div class="meta-item"><div class="primary" id="of-owner">—</div><div class="secondary">Ansvarig</div></div>
+              </div>
+
+              <div class="composer">
+                <textarea class="composer-input" placeholder="Lägg till kommentar, logga ett samtal, skriv en anteckning…"></textarea>
+                <div class="composer-foot">
+                  <button class="btn btn-primary" type="button" disabled>Lägg till</button>
+                </div>
+              </div>
+
+              <div class="tabs" role="tablist">
+                <a class="tab is-active" role="tab" data-tab="of-oversikt">Översikt</a>
+                <a class="tab" role="tab" data-tab="of-detaljer">Detaljer</a>
+              </div>
+
+              <!-- Översikt -->
+              <div class="tab-pane is-active" data-pane="of-oversikt">
+                <dl class="kv-grid">
+                  <dt>Företag</dt><dd id="of-ov-company">—</dd>
+                  <dt>Belopp</dt><dd id="of-ov-value">—</dd>
+                  <dt>Status</dt><dd id="of-ov-status">—</dd>
+                  <dt>Ansvarig</dt><dd id="of-ov-owner">—</dd>
+                  <dt>Datum</dt><dd id="of-ov-date">—</dd>
+                  <dt>Giltig till</dt><dd id="of-ov-valid">—</dd>
+                  <dt>Kopplad affär</dt><dd id="of-ov-deal">—</dd>
+                </dl>
+              </div>
+
+              <!-- Detaljer -->
+              <div class="tab-pane" data-pane="of-detaljer">
+                <dl class="kv-grid">
+                  <dt>Offertnr</dt><dd id="of-de-id">—</dd>
+                  <dt>Belopp</dt><dd id="of-de-value">—</dd>
+                  <dt>Status</dt><dd id="of-de-status">—</dd>
+                  <dt>Ansvarig</dt><dd id="of-de-owner">—</dd>
+                  <dt>Giltig till</dt><dd id="of-de-valid">—</dd>
+                  <dt>Källa</dt><dd>Skapad i SlayCRM</dd>
+                </dl>
+              </div>
+            </div>
+
+            <aside class="detail-side">
+              <div class="side-block">
+                <h3>Företag</h3>
+                <div class="side-entity">
+                  <div class="primary" id="of-side-company">—</div>
+                  <div class="secondary" id="of-side-addr1"></div>
+                  <div class="secondary" id="of-side-addr2"></div>
+                </div>
+              </div>
+              <hr class="side-divider">
+              <div class="side-block">
+                <h3>Kopplad affär</h3>
+                <div class="side-entity">
+                  <div class="primary" id="of-side-deal">—</div>
+                </div>
+              </div>
+            </aside>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ VY: OFFERTER ═══════════════ -->
+    <section class="view" id="view-offerter">
+      <div class="page-head gutter">
+        <h1 class="screen-title">Offerter <small>5 offerter · 1,73 mkr utestående</small></h1>
+        <div class="page-actions">
+          <button class="btn btn-primary icon-l" type="button" data-open="drawer-offert"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Ny offert</button>
+        </div>
+      </div>
+      <div class="ground">
+        <div class="ground-scroll gutter">
+          <div class="filterbar">
+            <div class="filter-left">
+              <div class="filter-group">
+                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Status</span><span class="f-val">Alla</span><span class="count">5</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+                <div class="filter-menu">
+                  <button class="menu-item is-active" type="button">Alla</button>
+                  <button class="menu-item" type="button">Utkast</button>
+                  <button class="menu-item" type="button">Skickad</button>
+                  <button class="menu-item" type="button">Accepterad</button>
+                  <button class="menu-item" type="button">Avböjd</button>
+                  <button class="menu-item" type="button">Förfallen</button>
+                </div>
+              </div>
+              <div class="filter-group">
+                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Ansvarig</span><span class="f-val">Alla</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+                <div class="filter-menu">
+                  <button class="menu-item is-active" type="button">Alla</button>
+                  <button class="menu-item" type="button">P. Steinberger</button>
+                  <button class="menu-item" type="button">W. Bernting</button>
+                  <button class="menu-item" type="button">A. Malmberg</button>
+                </div>
+              </div>
+              <div class="filter-group">
+                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Sortering</span><span class="f-val">Datum</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+                <div class="filter-menu">
+                  <button class="menu-item is-active" type="button">Datum</button>
+                  <button class="menu-item" type="button">Belopp</button>
+                  <button class="menu-item" type="button">Status</button>
+                </div>
+              </div>
+            </div>
+            <label class="search">
+              <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M11 11l3 3"/></svg>
+              <input type="text" placeholder="Sök offerter" aria-label="Sök offerter">
+            </label>
+          </div>
+
+          <div class="list">
+            <a class="row" href="#/offert/OFF-3041">
+              <div class="cell col-title"><div class="primary">Q3-leverans automation</div><div class="secondary">OFF-3041 · skickad 4 juli</div></div>
+              <div class="cell col-company"><div class="primary">Bergström Automation AB</div><div class="secondary">Västerås</div></div>
+              <div class="cell col-amount"><span class="amount">1 250 000 kr</span><div class="secondary">Värde</div></div>
+              <div class="cell col-owner"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
+              <div class="col-status"><span class="badge badge--info">Skickad</span></div>
+            </a>
+            <a class="row" href="#/offert/OFF-3038">
+              <div class="cell col-title"><div class="primary">Ramavtal transport 2026</div><div class="secondary">OFF-3038 · utkast</div></div>
+              <div class="cell col-company"><div class="primary">Nordvik Logistik AB</div><div class="secondary">Göteborg</div></div>
+              <div class="cell col-amount"><span class="amount">480 000 kr</span><div class="secondary">Värde</div></div>
+              <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+              <div class="col-status"><span class="badge badge--neutral">Utkast</span></div>
+            </a>
+            <a class="row" href="#/offert/OFF-3044">
+              <div class="cell col-title"><div class="primary">Servicekontrakt 3 år</div><div class="secondary">OFF-3044 · accepterad 6 juli</div></div>
+              <div class="cell col-company"><div class="primary">Op &amp; Partners AB</div><div class="secondary">Hässleholm</div></div>
+              <div class="cell col-amount"><span class="amount">320 000 kr</span><div class="secondary">Värde</div></div>
+              <div class="cell col-owner"><div class="primary">A. Malmberg</div><div class="secondary">Ansvarig</div></div>
+              <div class="col-status"><span class="badge badge--success">Accepterad</span></div>
+            </a>
+            <a class="row" href="#/offert/OFF-3029">
+              <div class="cell col-title"><div class="primary">Utökning lagersystem</div><div class="secondary">OFF-3029 · förfallen 30 juni</div></div>
+              <div class="cell col-company"><div class="primary">Nordvik Logistik AB</div><div class="secondary">Göteborg</div></div>
+              <div class="cell col-amount"><span class="amount">210 000 kr</span><div class="secondary">Värde</div></div>
+              <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+              <div class="col-status"><span class="badge badge--warning">Förfallen</span></div>
+            </a>
+            <a class="row" href="#/offert/OFF-3015">
+              <div class="cell col-title"><div class="primary">Pilotprojekt sensorer</div><div class="secondary">OFF-3015 · avböjd 24 juni</div></div>
+              <div class="cell col-company"><div class="primary">Bergström Automation AB</div><div class="secondary">Västerås</div></div>
+              <div class="cell col-amount"><span class="amount">95 000 kr</span><div class="secondary">Värde</div></div>
+              <div class="cell col-owner"><div class="primary">A. Malmberg</div><div class="secondary">Ansvarig</div></div>
+              <div class="col-status"><span class="badge badge--danger">Avböjd</span></div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ VY: FÖRETAG ═══════════════ -->
+    <section class="view" id="view-foretag">
+      <div class="page-head gutter">
+        <h1 class="screen-title">Företag</h1>
+        <div class="page-actions">
+          <button class="btn btn-primary icon-l" type="button"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Nytt företag</button>
+        </div>
+      </div>
+      <div class="ground">
+        <div class="ground-scroll gutter">
+          <div class="filterbar">
+            <div class="filter-left">
+              <div class="filter-group">
+                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Relation</span><span class="f-val">Alla</span><span class="count">5</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+                <div class="filter-menu">
+                  <button class="menu-item is-active" type="button">Alla</button>
+                  <button class="menu-item" type="button">Kund</button>
+                  <button class="menu-item" type="button">Prospekt</button>
+                  <button class="menu-item" type="button">Partner</button>
+                  <button class="menu-item" type="button">Inaktiv</button>
+                </div>
+              </div>
+              <div class="filter-group">
+                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Ansvarig</span><span class="f-val">Alla</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+                <div class="filter-menu">
+                  <button class="menu-item is-active" type="button">Alla</button>
+                  <button class="menu-item" type="button">P. Steinberger</button>
+                  <button class="menu-item" type="button">W. Bernting</button>
+                  <button class="menu-item" type="button">A. Malmberg</button>
+                </div>
+              </div>
+              <div class="filter-group">
+                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Ort</span><span class="f-val">Alla</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+                <div class="filter-menu">
+                  <button class="menu-item is-active" type="button">Alla</button>
+                  <button class="menu-item" type="button">Göteborg</button>
+                  <button class="menu-item" type="button">Stockholm</button>
+                  <button class="menu-item" type="button">Malmö</button>
+                  <button class="menu-item" type="button">Västerås</button>
+                </div>
+              </div>
+            </div>
+            <label class="search">
+              <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M11 11l3 3"/></svg>
+              <input type="text" placeholder="Sök företag" aria-label="Sök företag">
+            </label>
+          </div>
+
+          <div class="list">
+            <div class="row" data-href="#/foretag/nordvik" role="link" tabindex="0">
+              <div class="cell"><div class="primary">Nordvik Logistik AB</div><div class="secondary">Företag</div></div>
+              <div class="cell"><div class="primary">Göteborg</div><div class="secondary">Ort</div></div>
+              <div class="cell"><a class="primary link" href="tel:086112200">08-611 22 00</a><div class="secondary">Telefon</div></div>
+              <div class="cell"><div class="primary">Logistik</div><div class="secondary">Kategori</div></div>
+              <div class="cell"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+              <div class="cell"><div class="primary">16 juni 2026</div><div class="secondary">Senaste kontakt</div></div>
+              <div class="col-status"><span class="badge badge--success">Kund</span></div>
+            </div>
+            <div class="row" data-href="#/foretag/bergstrom" role="link" tabindex="0">
+              <div class="cell"><div class="primary">Bergström Automation AB</div><div class="secondary">Företag</div></div>
+              <div class="cell"><div class="primary">Västerås</div><div class="secondary">Ort</div></div>
+              <div class="cell"><a class="primary link" href="tel:021148800">021-14 88 00</a><div class="secondary">Telefon</div></div>
+              <div class="cell"><div class="primary">Automation</div><div class="secondary">Kategori</div></div>
+              <div class="cell"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
+              <div class="cell"><div class="primary">12 juni 2026</div><div class="secondary">Senaste kontakt</div></div>
+              <div class="col-status"><span class="badge badge--info">Prospekt</span></div>
+            </div>
+            <div class="row" data-href="#/foretag/oppartners" role="link" tabindex="0">
+              <div class="cell"><div class="primary">Op &amp; Partners AB</div><div class="secondary">Företag</div></div>
+              <div class="cell"><div class="primary">Hässleholm</div><div class="secondary">Ort</div></div>
+              <div class="cell"><a class="primary link" href="tel:045121000">0451-210 00</a><div class="secondary">Telefon</div></div>
+              <div class="cell"><div class="primary">Konsult</div><div class="secondary">Kategori</div></div>
+              <div class="cell"><div class="primary">A. Malmberg</div><div class="secondary">Ansvarig</div></div>
+              <div class="cell"><div class="primary">4 juli 2026</div><div class="secondary">Senaste kontakt</div></div>
+              <div class="col-status"><span class="badge badge--warning">Partner</span></div>
+            </div>
+            <div class="row" data-href="#/foretag/sydfrakt" role="link" tabindex="0">
+              <div class="cell"><div class="primary">Sydfrakt &amp; Co AB</div><div class="secondary">Företag</div></div>
+              <div class="cell"><div class="primary">Malmö</div><div class="secondary">Ort</div></div>
+              <div class="cell"><a class="primary link" href="tel:0406601200">040-660 12 00</a><div class="secondary">Telefon</div></div>
+              <div class="cell"><div class="primary">—</div><div class="secondary">Kategori</div></div>
+              <div class="cell"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+              <div class="cell"><div class="primary">2 maj 2026</div><div class="secondary">Senaste kontakt</div></div>
+              <div class="col-status"><span class="badge badge--danger">Inaktiv</span></div>
+            </div>
+            <div class="row" data-href="#/foretag/kvist" role="link" tabindex="0">
+              <div class="cell"><div class="primary">Kvist Industri AB</div><div class="secondary">Företag</div></div>
+              <div class="cell"><div class="primary">Jönköping</div><div class="secondary">Ort</div></div>
+              <div class="cell"><a class="primary link" href="tel:036714000">036-71 40 00</a><div class="secondary">Telefon</div></div>
+              <div class="cell"><div class="primary">Tillverkning</div><div class="secondary">Kategori</div></div>
+              <div class="cell"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
+              <div class="cell"><div class="primary">27 juni 2026</div><div class="secondary">Senaste kontakt</div></div>
+              <div class="col-status"><span class="badge badge--success">Kund</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ VY: KONTAKTER ═══════════════ -->
+    <section class="view" id="view-kontakter">
+      <div class="page-head gutter">
+        <h1 class="screen-title">Kontakter</h1>
+        <div class="page-actions">
+          <button class="btn btn-primary icon-l" type="button" data-open="drawer-kontakt"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Ny kontakt</button>
+        </div>
+      </div>
+      <div class="ground">
+        <div class="ground-scroll gutter">
+          <div class="filterbar">
+            <div class="filter-left">
+              <div class="filter-group">
+                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Status</span><span class="f-val">Alla</span><span class="count">5</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+                <div class="filter-menu">
+                  <button class="menu-item is-active" type="button">Alla</button>
+                  <button class="menu-item" type="button">Aktiv</button>
+                  <button class="menu-item" type="button">Inaktiv</button>
+                </div>
+              </div>
+              <div class="filter-group">
+                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Företag</span><span class="f-val">Alla</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+                <div class="filter-menu">
+                  <button class="menu-item is-active" type="button">Alla</button>
+                  <button class="menu-item" type="button">Bergström Automation AB</button>
+                  <button class="menu-item" type="button">Nordvik Logistik AB</button>
+                  <button class="menu-item" type="button">Kvist Industri AB</button>
+                  <button class="menu-item" type="button">Op &amp; Partners AB</button>
+                  <button class="menu-item" type="button">Sydfrakt &amp; Co AB</button>
+                </div>
+              </div>
+              <div class="filter-group">
+                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Ansvarig</span><span class="f-val">Alla</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+                <div class="filter-menu">
+                  <button class="menu-item is-active" type="button">Alla</button>
+                  <button class="menu-item" type="button">P. Steinberger</button>
+                  <button class="menu-item" type="button">W. Bernting</button>
+                  <button class="menu-item" type="button">A. Malmberg</button>
+                </div>
+              </div>
+            </div>
+            <label class="search">
+              <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M11 11l3 3"/></svg>
+              <input type="text" placeholder="Sök kontakter" aria-label="Sök kontakter">
+            </label>
+          </div>
+
+          <div class="list">
+            <div class="row" data-href="#/kontakt/ola-nordvik" role="link" tabindex="0">
+              <div class="cell"><div class="primary">Ola Nordvik</div><div class="secondary">Kontakt</div></div>
+              <div class="cell"><div class="primary">Nordvik Logistik AB</div><div class="secondary">Företag</div></div>
+              <div class="cell"><a class="primary link" href="tel:0701112233">070 111 22 33</a><div class="secondary">Telefon</div></div>
+              <div class="cell"><a class="primary link" href="mailto:ola@nordvik.se">ola@nordvik.se</a><div class="secondary">E-post</div></div>
+              <div class="cell"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+              <div class="col-status"><span class="badge badge--success">Aktiv</span></div>
+            </div>
+            <div class="row" data-href="#/kontakt/petra-bergstrom" role="link" tabindex="0">
+              <div class="cell"><div class="primary">Petra Bergström</div><div class="secondary">Kontakt</div></div>
+              <div class="cell"><div class="primary">Bergström Automation AB</div><div class="secondary">Företag</div></div>
+              <div class="cell"><a class="primary link" href="tel:0702223344">070 222 33 44</a><div class="secondary">Telefon</div></div>
+              <div class="cell"><a class="primary link" href="mailto:petra@bergstrom.se">petra@bergstrom.se</a><div class="secondary">E-post</div></div>
+              <div class="cell"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
+              <div class="col-status"><span class="badge badge--success">Aktiv</span></div>
+            </div>
+            <div class="row" data-href="#/kontakt/johan-op" role="link" tabindex="0">
+              <div class="cell"><div class="primary">Johan Op</div><div class="secondary">Kontakt</div></div>
+              <div class="cell"><div class="primary">Op &amp; Partners AB</div><div class="secondary">Företag</div></div>
+              <div class="cell"><a class="primary link" href="tel:0703334455">070 333 44 55</a><div class="secondary">Telefon</div></div>
+              <div class="cell"><a class="primary link" href="mailto:johan@oppartners.se">johan@oppartners.se</a><div class="secondary">E-post</div></div>
+              <div class="cell"><div class="primary">A. Malmberg</div><div class="secondary">Ansvarig</div></div>
+              <div class="col-status"><span class="badge badge--success">Aktiv</span></div>
+            </div>
+            <div class="row" data-href="#/kontakt/mia-kvist" role="link" tabindex="0">
+              <div class="cell"><div class="primary">Mia Kvist</div><div class="secondary">Kontakt</div></div>
+              <div class="cell"><div class="primary">Kvist Industri AB</div><div class="secondary">Företag</div></div>
+              <div class="cell"><a class="primary link" href="tel:0704445566">070 444 55 66</a><div class="secondary">Telefon</div></div>
+              <div class="cell"><a class="primary link" href="mailto:mia@kvistindustri.se">mia@kvistindustri.se</a><div class="secondary">E-post</div></div>
+              <div class="cell"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
+              <div class="col-status"><span class="badge badge--success">Aktiv</span></div>
+            </div>
+            <div class="row" data-href="#/kontakt/lars-sydfrakt" role="link" tabindex="0">
+              <div class="cell"><div class="primary">Lars Sydfrakt</div><div class="secondary">Kontakt</div></div>
+              <div class="cell"><div class="primary">Sydfrakt &amp; Co AB</div><div class="secondary">Företag</div></div>
+              <div class="cell"><a class="primary link" href="tel:0705556677">070 555 66 77</a><div class="secondary">Telefon</div></div>
+              <div class="cell"><a class="primary link" href="mailto:lars@sydfrakt.se">lars@sydfrakt.se</a><div class="secondary">E-post</div></div>
+              <div class="cell"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+              <div class="col-status"><span class="badge badge--neutral">Inaktiv</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ VY: SÄLJTAVLAN ═══════════════ -->
+    <section class="view" id="view-saljtavlan">
+      <div class="page-head gutter">
+        <h1 class="screen-title">Säljtavlan <small>7 affärer · 3,04 mkr i pipeline</small></h1>
+        <div class="page-actions">
+          <button class="btn btn-primary icon-l" type="button" data-open="drawer-affar"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Ny affär</button>
+        </div>
+      </div>
+      <div class="ground">
+        <div class="board-scroll gutter">
+          <div class="board">
+            <section class="board-col">
+              <div class="board-col-head">
+                <span class="board-col-title"><span class="dot" style="background:var(--tone-neutral)"></span>Lead</span>
+                <span class="board-col-sum">2 · 380 tkr</span>
+              </div>
+              <a class="deal-card" href="#/affar/AFF-2044">
+                <div class="title">Servicekontrakt 3 år</div>
+                <div class="company">Op &amp; Partners AB</div>
+                <div class="foot"><span class="amount">320 000 kr</span></div>
+              </a>
+              <a class="deal-card" href="#/affar/AFF-2050">
+                <div class="title">Supportavtal drift</div>
+                <div class="company">Sydfrakt &amp; Co AB</div>
+                <div class="foot"><span class="amount">60 000 kr</span></div>
+              </a>
+            </section>
+            <section class="board-col">
+              <div class="board-col-head">
+                <span class="board-col-title"><span class="dot" style="background:var(--tone-info)"></span>Kvalificerad</span>
+                <span class="board-col-sum">2 · 1,79 mkr</span>
+              </div>
+              <a class="deal-card" href="#/affar/AFF-2041">
+                <div class="title">Q3-leverans automation</div>
+                <div class="company">Bergström Automation AB</div>
+                <div class="foot"><span class="amount">1 250 000 kr</span></div>
+              </a>
+              <a class="deal-card" href="#/affar/AFF-2051">
+                <div class="title">Utbyggnad terminal</div>
+                <div class="company">Kvist Industri AB</div>
+                <div class="foot"><span class="amount">540 000 kr</span></div>
+              </a>
+            </section>
+            <section class="board-col">
+              <div class="board-col-head">
+                <span class="board-col-title"><span class="dot" style="background:var(--tone-warning)"></span>Offert</span>
+                <span class="board-col-sum">1 · 480 tkr</span>
+              </div>
+              <a class="deal-card" href="#/affar/AFF-2038">
+                <div class="title">Ramavtal transport 2026</div>
+                <div class="company">Nordvik Logistik AB</div>
+                <div class="foot"><span class="amount">480 000 kr</span></div>
+              </a>
+            </section>
+            <section class="board-col">
+              <div class="board-col-head">
+                <span class="board-col-title"><span class="dot" style="background:var(--tone-success)"></span>Vunnen</span>
+                <span class="board-col-sum">2 · 390 tkr</span>
+              </div>
+              <a class="deal-card" href="#/affar/AFF-2029">
+                <div class="title">Utökning lagersystem</div>
+                <div class="company">Nordvik Logistik AB</div>
+                <div class="foot"><span class="amount">210 000 kr</span></div>
+              </a>
+              <a class="deal-card" href="#/affar/AFF-2052">
+                <div class="title">Serviceavtal drift</div>
+                <div class="company">Kvist Industri AB</div>
+                <div class="foot"><span class="amount">180 000 kr</span></div>
+              </a>
+            </section>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /.app -->
+
+  <!-- overlay shared by drawers + modals -->
+  <div class="overlay" data-close></div>
+
+  <!-- drawer: Ny aktivitet -->
+  <aside class="drawer" id="drawer-aktivitet" role="dialog" aria-modal="true" aria-labelledby="drawer-aktivitet-title">
+    <div class="drawer-head">
+      <div>
+        <h2 id="drawer-aktivitet-title">Ny aktivitet</h2>
+        <div class="sub">Loggas på Nordvik Logistik AB</div>
+      </div>
+      <button class="drawer-close" type="button" data-close aria-label="Stäng"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    </div>
+    <div class="drawer-body">
+      <form class="form" onsubmit="return false">
+        <div class="field">
+          <span class="field-label">Typ</span>
+          <div class="type-pick" role="group" aria-label="Typ av aktivitet">
+            <button type="button" class="type-opt is-active"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3.5h2.5l1 3-1.5 1a8 8 0 0 0 3.5 3.5l1-1.5 3 1V15a.8.8 0 0 1-.9.8A11 11 0 0 1 2.2 4.4.8.8 0 0 1 3 3.5z"/></svg>Samtal</button>
+            <button type="button" class="type-opt"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3.5" width="12" height="9" rx="1.5"/><path d="M2.5 4.5l5.5 4 5.5-4"/></svg>E-post</button>
+            <button type="button" class="type-opt"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3" width="11" height="11" rx="1.5"/><path d="M2.5 6.5h11M5 2v2M11 2v2"/></svg>Möte</button>
+            <button type="button" class="type-opt"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2.5h6l3 3V13a.5.5 0 0 1-.5.5h-8A.5.5 0 0 1 4 13z"/><path d="M9.5 2.5v3h3"/></svg>Anteckning</button>
+            <button type="button" class="type-opt"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3 3 7-7"/></svg>Uppgift</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="f-rubrik">Rubrik<span class="req">*</span></label>
+          <input class="input" id="f-rubrik" type="text" placeholder="t.ex. Uppföljning ramavtal" value="Uppföljning ramavtal">
+        </div>
+        <div class="field">
+          <label class="field-label" for="f-kontakt">Kontaktperson</label>
+          <div class="select-wrap">
+            <select class="select" id="f-kontakt"><option>Ola Nordvik · VD</option><option>Anna Vik · Inköp</option></select>
+            <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label class="field-label" for="f-datum">Datum</label><input class="input" id="f-datum" type="date" value="2026-07-11"></div>
+          <div class="field"><label class="field-label" for="f-tid">Tid</label><input class="input" id="f-tid" type="time" value="09:00"></div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="f-notis">Anteckning</label>
+          <textarea class="textarea" id="f-notis" placeholder="Vad hände, eller vad ska göras?"></textarea>
+          <span class="field-hint">Syns i händelseflödet på affären och företaget.</span>
+        </div>
+      </form>
+    </div>
+    <div class="drawer-foot">
+      <button class="btn btn-ghost" type="button" data-open="modal-confirm">Ta bort utkast</button>
+      <span class="spacer"></span>
+      <button class="btn btn-secondary" type="button" data-close>Avbryt</button>
+      <button class="btn btn-primary" type="button" data-close>Skapa aktivitet</button>
+    </div>
+  </aside>
+
+  <!-- drawer: Ny affär -->
+  <aside class="drawer" id="drawer-affar" role="dialog" aria-modal="true" aria-labelledby="drawer-affar-title">
+    <div class="drawer-head">
+      <div>
+        <h2 id="drawer-affar-title">Ny affär</h2>
+        <div class="sub">Skapas i pipelinen</div>
+      </div>
+      <button class="drawer-close" type="button" data-close aria-label="Stäng"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    </div>
+    <div class="drawer-body">
+      <form class="form" onsubmit="return false">
+        <div class="field">
+          <label class="field-label" for="a-namn">Affärsnamn<span class="req">*</span></label>
+          <input class="input" id="a-namn" type="text" placeholder="t.ex. Ramavtal transport 2026" value="Ramavtal transport 2026">
+        </div>
+        <div class="field">
+          <label class="field-label" for="a-foretag">Företag<span class="req">*</span></label>
+          <div class="select-wrap">
+            <select class="select" id="a-foretag"><option>Nordvik Logistik AB</option><option>Bergström Automation AB</option><option>Op &amp; Partners AB</option></select>
+            <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label class="field-label" for="a-varde">Värde (kr)</label><input class="input" id="a-varde" type="text" inputmode="numeric" placeholder="0" value="480 000"></div>
+          <div class="field">
+            <label class="field-label" for="a-steg">Steg</label>
+            <div class="select-wrap">
+              <select class="select" id="a-steg"><option>Lead</option><option selected>Kvalificerad</option><option>Offert</option><option>Vunnen</option><option>Förlorad</option></select>
+              <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label" for="a-ansvarig">Ansvarig</label>
+            <div class="select-wrap">
+              <select class="select" id="a-ansvarig"><option>W. Bernting</option><option>P. Steinberger</option><option>A. Malmberg</option></select>
+              <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+            </div>
+          </div>
+          <div class="field"><label class="field-label" for="a-avslut">Förväntat avslut</label><input class="input" id="a-avslut" type="date" value="2026-08-31"></div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="a-notis">Anteckning</label>
+          <textarea class="textarea" id="a-notis" placeholder="Bakgrund, nästa steg, villkor?"></textarea>
+          <span class="field-hint">Syns i händelseflödet på affären och företaget.</span>
+        </div>
+      </form>
+    </div>
+    <div class="drawer-foot">
+      <button class="btn btn-ghost" type="button" data-open="modal-confirm">Ta bort utkast</button>
+      <span class="spacer"></span>
+      <button class="btn btn-secondary" type="button" data-close>Avbryt</button>
+      <button class="btn btn-primary" type="button" data-close>Skapa affär</button>
+    </div>
+  </aside>
+
+  <!-- drawer: Ny offert -->
+  <aside class="drawer" id="drawer-offert" role="dialog" aria-modal="true" aria-labelledby="drawer-offert-title">
+    <div class="drawer-head">
+      <div>
+        <h2 id="drawer-offert-title">Ny offert</h2>
+        <div class="sub">Kopplas till en affär</div>
+      </div>
+      <button class="drawer-close" type="button" data-close aria-label="Stäng"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    </div>
+    <div class="drawer-body">
+      <form class="form" onsubmit="return false">
+        <div class="field">
+          <label class="field-label" for="o-rubrik">Rubrik<span class="req">*</span></label>
+          <input class="input" id="o-rubrik" type="text" placeholder="t.ex. Ramavtal transport 2026" value="Ramavtal transport 2026">
+        </div>
+        <div class="field">
+          <label class="field-label" for="o-affar">Affär<span class="req">*</span></label>
+          <div class="select-wrap">
+            <select class="select" id="o-affar"><option>Ramavtal transport 2026 · Nordvik Logistik AB</option><option>Q3-leverans automation · Bergström Automation AB</option><option>Servicekontrakt 3 år · Op &amp; Partners AB</option></select>
+            <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label class="field-label" for="o-varde">Värde (kr)</label><input class="input" id="o-varde" type="text" inputmode="numeric" placeholder="0" value="480 000"></div>
+          <div class="field">
+            <label class="field-label" for="o-status">Status</label>
+            <div class="select-wrap">
+              <select class="select" id="o-status"><option selected>Utkast</option><option>Skickad</option><option>Accepterad</option><option>Avböjd</option><option>Förfallen</option></select>
+              <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label" for="o-ansvarig">Ansvarig</label>
+            <div class="select-wrap">
+              <select class="select" id="o-ansvarig"><option>W. Bernting</option><option>P. Steinberger</option><option>A. Malmberg</option></select>
+              <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+            </div>
+          </div>
+          <div class="field"><label class="field-label" for="o-giltig">Giltig till</label><input class="input" id="o-giltig" type="date" value="2026-08-15"></div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="o-notis">Anteckning</label>
+          <textarea class="textarea" id="o-notis" placeholder="Villkor, rabatter, förbehåll?"></textarea>
+          <span class="field-hint">Syns i händelseflödet på affären och företaget.</span>
+        </div>
+      </form>
+    </div>
+    <div class="drawer-foot">
+      <button class="btn btn-ghost" type="button" data-open="modal-confirm">Ta bort utkast</button>
+      <span class="spacer"></span>
+      <button class="btn btn-secondary" type="button" data-close>Avbryt</button>
+      <button class="btn btn-primary" type="button" data-close>Skapa offert</button>
+    </div>
+  </aside>
+
+  <!-- drawer: Ny kontakt -->
+  <aside class="drawer" id="drawer-kontakt" role="dialog" aria-modal="true" aria-labelledby="drawer-kontakt-title">
+    <div class="drawer-head">
+      <div>
+        <h2 id="drawer-kontakt-title">Ny kontakt</h2>
+        <div class="sub">Läggs till i kontaktregistret</div>
+      </div>
+      <button class="drawer-close" type="button" data-close aria-label="Stäng"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    </div>
+    <div class="drawer-body">
+      <form class="form" onsubmit="return false">
+        <div class="field-row">
+          <div class="field"><label class="field-label" for="k-fornamn">Förnamn<span class="req">*</span></label><input class="input" id="k-fornamn" type="text" placeholder="t.ex. Ola" value="Ola"></div>
+          <div class="field"><label class="field-label" for="k-efternamn">Efternamn<span class="req">*</span></label><input class="input" id="k-efternamn" type="text" placeholder="t.ex. Nordvik" value="Nordvik"></div>
+        </div>
+        <div class="field"><label class="field-label" for="k-titel">Titel</label><input class="input" id="k-titel" type="text" placeholder="t.ex. VD" value="VD"></div>
+        <div class="field">
+          <label class="field-label" for="k-foretag">Företag<span class="req">*</span></label>
+          <div class="select-wrap">
+            <select class="select" id="k-foretag"><option>Nordvik Logistik AB</option><option>Bergström Automation AB</option><option>Op &amp; Partners AB</option></select>
+            <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label class="field-label" for="k-epost">E-post</label><input class="input" id="k-epost" type="email" placeholder="namn@foretag.se" value="ola@nordvik.se"></div>
+          <div class="field"><label class="field-label" for="k-tel">Telefon</label><input class="input" id="k-tel" type="tel" placeholder="070 000 00 00" value="070 111 22 33"></div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label" for="k-ansvarig">Ansvarig</label>
+            <div class="select-wrap">
+              <select class="select" id="k-ansvarig"><option>W. Bernting</option><option>P. Steinberger</option><option>A. Malmberg</option></select>
+              <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label" for="k-status">Status</label>
+            <div class="select-wrap">
+              <select class="select" id="k-status"><option>Aktiv</option><option>Inaktiv</option></select>
+              <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="k-notis">Anteckning</label>
+          <textarea class="textarea" id="k-notis" placeholder="Roll i affären, hur ni fick kontakt?"></textarea>
+          <span class="field-hint">Syns i händelseflödet på kontakten och företaget.</span>
+        </div>
+      </form>
+    </div>
+    <div class="drawer-foot">
+      <button class="btn btn-ghost" type="button" data-open="modal-confirm">Ta bort utkast</button>
+      <span class="spacer"></span>
+      <button class="btn btn-secondary" type="button" data-close>Avbryt</button>
+      <button class="btn btn-primary" type="button" data-close>Skapa kontakt</button>
+    </div>
+  </aside>
+
+  <!-- confirm modal (destructive-action pattern) -->
+  <div class="modal-card" id="modal-confirm" role="alertdialog" aria-modal="true" aria-labelledby="modal-confirm-title">
+    <h2 id="modal-confirm-title">Ta bort utkastet?</h2>
+    <p>Uppgifterna du fyllt i försvinner. Det går inte att ångra.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" type="button" data-close>Avbryt</button>
+      <button class="btn btn-danger" type="button" data-close>Ta bort</button>
+    </div>
+  </div>
+
+  <!-- uppföljnings-modal (rikt flöde: Markera klar → vad händer härnäst) -->
+  <div class="modal-card modal-wide" id="modal-followup" role="dialog" aria-modal="true" aria-labelledby="modal-followup-title">
+    <div class="fu-head">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      <h2 id="modal-followup-title">Aktivitet klar. Vad händer härnäst?</h2>
+    </div>
+    <p>Skapa en uppföljning så du inte tappar kunden.</p>
+
+    <div class="fu-block">
+      <span class="field-label">Typ av uppföljning</span>
+      <div class="type-pick" id="fu-types" role="group" aria-label="Typ av uppföljning">
+        <button type="button" class="type-opt is-active" data-time="1">Telefon</button>
+        <button type="button" class="type-opt">E-post</button>
+        <button type="button" class="type-opt" data-time="1">Möte</button>
+        <button type="button" class="type-opt">Uppgift</button>
+      </div>
+    </div>
+
+    <div class="fu-block">
+      <span class="field-label">När</span>
+      <div class="type-pick" id="fu-when" role="group" aria-label="När">
+        <button type="button" class="type-opt" data-days="1">Imorgon</button>
+        <button type="button" class="type-opt is-active" data-days="3">Om 3 dagar</button>
+        <button type="button" class="type-opt" data-days="7">Nästa vecka</button>
+        <button type="button" class="type-opt" data-days="30">Om 1 månad</button>
+        <button type="button" class="type-opt" data-cal="1" id="fu-custom-chip">Annat datum…</button>
+      </div>
+      <div id="fu-cal" style="margin-top:12px"></div>
+    </div>
+
+    <div class="fu-block">
+      <label class="field-label" for="fu-subject">Rubrik</label>
+      <input class="input" id="fu-subject" type="text">
+    </div>
+
+    <div class="fu-block">
+      <button class="btn btn-secondary deal-toggle" type="button" id="deal-toggle"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Skapade det här en affär?</button>
+      <div class="deal-box" id="deal-box">
+        <div class="deal-box-head">
+          <span>Ny affär</span>
+          <button class="btn btn-ghost" type="button" id="deal-remove">Ta bort</button>
+        </div>
+        <div class="field" style="margin-bottom:14px">
+          <label class="field-label" for="deal-name">Affärsnamn</label>
+          <input class="input" id="deal-name" type="text">
+        </div>
+        <div class="field-row">
+          <div class="field"><label class="field-label" for="deal-value">Värde (kr)</label><input class="input" id="deal-value" type="text" inputmode="numeric" placeholder="t.ex. 120 000"></div>
+          <div class="field">
+            <span class="field-label">Steg</span>
+            <div class="type-pick" id="deal-stage">
+              <button type="button" class="type-opt is-active">Förslag</button>
+              <button type="button" class="type-opt">Förhandling</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" type="button" data-close>Inte nu</button>
+      <button class="btn btn-primary" type="button" data-close>Skapa uppföljning</button>
+    </div>
+  </div>
+
+<script src="screens.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
