@@ -125,3 +125,21 @@
     opt.classList.add('is-active');
   });
 })();
+
+/* Row navigation: a .row carries data-href and behaves like a link. Clicking anywhere
+   on the row follows it, except when the click lands on a real link or button inside it
+   (t.ex. tel:/mailto:) — those keep their own behaviour. The row is focusable and Enter
+   follows the href too. Rows that stay <a> (other views) are untouched. */
+(function () {
+  document.addEventListener('click', function (e) {
+    var row = e.target.closest('.row[data-href]');
+    if (!row) return;
+    if (e.target.closest('a, button')) return;  /* låt inbäddade länkar/knappar sköta sitt */
+    window.location.href = row.getAttribute('data-href');
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    var row = e.target.closest('.row[data-href]');
+    if (row && e.target === row) { e.preventDefault(); window.location.href = row.getAttribute('data-href'); }
+  });
+})();
