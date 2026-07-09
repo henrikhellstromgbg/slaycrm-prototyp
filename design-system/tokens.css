@@ -1,10 +1,11 @@
-/* SlayCRM design tokens — v0.5.0, updated 2026-07-09
+/* SlayCRM design tokens — v0.5.1, updated 2026-07-09
    Sources: figma (frame "Desktop - 10", node 3443:2659) + live (src/styles.css) + crm (src/lib/crm.ts).
    Decisions: Geist single family; brand #e26a00 (orange); danger #dc2626 (clean red, no vermillion);
    radius default 8; font floor 14px.
    Simplified neutrals: 3 backgrounds, 1 line, 3 text greys; dark ground reuses ink #111.
    Two layers: --p-* primitives (raw), --* semantic (roles). Use semantic in components.
-   v0.5.0: light/dark theme layer + icon contract lifted into the system (was per-file). */
+   v0.5.0: light/dark theme layer + icon contract lifted into the system (was per-file).
+   v0.5.1: feedback-tinter trimmade mot mörk yta — tint+fg temaberoende, solid/identitet oförändrad. */
 
 /* ───────── Geist — self-hostad (variabel woff2, weight 100–900) ─────────
    Ligger i fonts/. Utan detta föll systemet tillbaka på -apple-system (San Francisco). */
@@ -80,12 +81,16 @@
   --color-focus-ring:       var(--p-orange-500);
   --color-hover-overlay:    var(--p-overlay-hover);
 
-  /* ───────── semantic: feedback (solid + tint per tone) ───────── */
-  --tone-success: var(--p-green-600); --tone-success-tint: var(--p-green-100);
-  --tone-info:    var(--p-blue-600);  --tone-info-tint:    var(--p-blue-100);
-  --tone-warning: var(--p-amber-600); --tone-warning-tint: var(--p-amber-100);
-  --tone-danger:  var(--p-red-600);   --tone-danger-tint:  var(--p-red-100);
-  --tone-neutral: var(--p-muted);     --tone-neutral-tint: var(--p-ground);
+  /* ───────── semantic: feedback (solid + tint + badge-fg, per tone) ─────────
+     solid = tonens identitet: knappfyllning, fältram, asterisk, badge-text i ljust. Temaoberoende.
+     tint  = chip-bakgrund. Temaberoende (dämpas mot mörk yta i theme-lagret).
+     fg    = badge-text. Temaberoende (ljusas i mörkt så chip+text håller kontrast utan att röra solid,
+             som annars också är knappfyllning och inte kan ljusas). I ljust = solid. */
+  --tone-success: var(--p-green-600); --tone-success-tint: var(--p-green-100); --tone-success-fg: var(--p-green-600);
+  --tone-info:    var(--p-blue-600);  --tone-info-tint:    var(--p-blue-100);  --tone-info-fg:    var(--p-blue-600);
+  --tone-warning: var(--p-amber-600); --tone-warning-tint: var(--p-amber-100); --tone-warning-fg: var(--p-amber-600);
+  --tone-danger:  var(--p-red-600);   --tone-danger-tint:  var(--p-red-100);   --tone-danger-fg:  var(--p-red-600);
+  --tone-neutral: var(--p-muted);     --tone-neutral-tint: var(--p-ground);    --tone-neutral-fg: var(--p-muted);
 
   /* ───────── semantic: radius / shadow / space ───────── */
   --radius-control: var(--p-radius-md);
@@ -161,15 +166,24 @@
 }
 
 /* ───────── theme layer (systemägt — flyttat hit från screens.css/index.html) ─────────
-   Bara neutralerna byts per tema; brand + feedback-toner är temaoberoende.
+   Neutralerna byts per tema. Feedback: solid/identitet är temaoberoende, men chip-bakgrund (tint)
+   och badge-text (fg) trimmas mot mörk yta — ljusa 100-tinter glimmar annars mot mörk grund.
+   Mörkt = dämpad tonad chip + ljus 400-text (behåller AA utan att röra solid, som också är knappfyllning).
    Kaskad: :root (ljust) → @media dark (följer OS) → [data-theme] (explicit växlare vinner,
-   specificitet 0,2,0 > medians 0,1,0). Alla sidor läser tokens.css, så index och screens delar tema. */
+   specificitet 0,2,0 > medians 0,1,0). [data-theme="light"] återställer även tinterna så explicit
+   ljust slår igenom på en mörk OS-grund. Alla sidor läser tokens.css, så index och screens delar tema. */
 @media (prefers-color-scheme: dark) {
   :root {
     --color-bg:#161616; --color-ground:#1b1b1a; --color-surface:#1e1e1d;
     --color-surface-sunken:#242422; --color-border:#35342f;
     --color-border-strong:#52514a; --color-text:#f5f5f3; --color-text-muted:#b3b1a8;
     --color-text-faint:#8e8c84;
+    /* feedback trimmad mot mörk yta — dämpad chip + ljus text, solid orörd */
+    --tone-success-tint:#16311f; --tone-success-fg:#4ade80;
+    --tone-info-tint:#17263f;    --tone-info-fg:#60a5fa;
+    --tone-warning-tint:#38290f; --tone-warning-fg:#fbbf24;
+    --tone-danger-tint:#3a1a1c;  --tone-danger-fg:#f87171;
+    --tone-neutral-tint:#2b2b28; --tone-neutral-fg:#b3b1a8;
   }
 }
 :root[data-theme="dark"] {
@@ -177,12 +191,23 @@
   --color-surface-sunken:#242422; --color-border:#35342f;
   --color-border-strong:#52514a; --color-text:#f5f5f3; --color-text-muted:#b3b1a8;
   --color-text-faint:#8e8c84;
+  --tone-success-tint:#16311f; --tone-success-fg:#4ade80;
+  --tone-info-tint:#17263f;    --tone-info-fg:#60a5fa;
+  --tone-warning-tint:#38290f; --tone-warning-fg:#fbbf24;
+  --tone-danger-tint:#3a1a1c;  --tone-danger-fg:#f87171;
+  --tone-neutral-tint:#2b2b28; --tone-neutral-fg:#b3b1a8;
 }
 :root[data-theme="light"] {
   --color-bg:#ffffff; --color-ground:#f5f5f3; --color-surface:#ffffff;
   --color-surface-sunken:#f9f9fb; --color-border:#e5e5e5;
   --color-border-strong:#999999; --color-text:#111111; --color-text-muted:#666666;
   --color-text-faint:#999999;
+  /* återställ ljusa tinter/fg så explicit ljust slår @media dark på mörk OS-grund */
+  --tone-success-tint:#dcfce7; --tone-success-fg:#16a34a;
+  --tone-info-tint:#eff6ff;    --tone-info-fg:#2563eb;
+  --tone-warning-tint:#fef3c7; --tone-warning-fg:#d97706;
+  --tone-danger-tint:#fee2e2;  --tone-danger-fg:#dc2626;
+  --tone-neutral-tint:#f5f5f3; --tone-neutral-fg:#666666;
 }
 
 /* ───────── icon helpers + contract (se DESIGN.md) ─────────
@@ -208,8 +233,8 @@ svg[stroke]:not([stroke="none"]) { stroke-width:var(--icon-stroke); }
   font-size: 14px; font-weight: 500; line-height: 1;
   white-space: nowrap; font-family: var(--p-font);
 }
-.badge--success { background: var(--tone-success-tint); color: var(--tone-success); }
-.badge--info    { background: var(--tone-info-tint);    color: var(--tone-info); }
-.badge--warning { background: var(--tone-warning-tint); color: var(--tone-warning); }
-.badge--danger  { background: var(--tone-danger-tint);  color: var(--tone-danger); }
-.badge--neutral { background: var(--tone-neutral-tint); color: var(--tone-neutral); }
+.badge--success { background: var(--tone-success-tint); color: var(--tone-success-fg); }
+.badge--info    { background: var(--tone-info-tint);    color: var(--tone-info-fg); }
+.badge--warning { background: var(--tone-warning-tint); color: var(--tone-warning-fg); }
+.badge--danger  { background: var(--tone-danger-tint);  color: var(--tone-danger-fg); }
+.badge--neutral { background: var(--tone-neutral-tint); color: var(--tone-neutral-fg); }

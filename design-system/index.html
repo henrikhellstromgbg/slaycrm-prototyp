@@ -61,9 +61,11 @@
   .tone-card .badge { margin-bottom:12px; }
   .tone-name { font-weight:600; margin-bottom:2px; }
   .tone-role { color:var(--color-text-muted); font-size:14px; line-height:1.4; margin-bottom:12px; min-height:38px; }
-  .tone-sw { display:flex; gap:6px; }
-  .tone-sw > div { flex:1; }
-  .tone-sw .c { height:20px; border-radius:5px; border:1px solid rgba(0,0,0,.06); }
+  .tone-sw { display:flex; flex-direction:column; gap:12px; }
+  .tone-sw .grp-lbl { font-size:14px; letter-spacing:.04em; color:var(--color-text-faint); margin-bottom:4px; }
+  .tone-sw .pair { display:flex; gap:6px; }
+  .tone-sw .pair > div { flex:1; }
+  .tone-sw .c { height:20px; border-radius:5px; border:1px solid var(--color-border); }
   .tone-sw .h { font-size:14px; color:var(--color-text-muted); margin-top:4px; }
 
   .type-row { display:grid; grid-template-columns:1fr auto; gap:16px 24px; align-items:baseline;
@@ -283,37 +285,52 @@
   </section>
 
   <section>
-    <p class="eyebrow">Feedback · en ton per status, tint + solid</p>
+    <p class="eyebrow">Feedback · en ton per status · chip-bakgrund + text, trimmat per tema</p>
     <div class="tones">
       <div class="tone-card">
         <span class="badge badge--success">Exempel</span>
         <div class="tone-name">Success</div>
         <div class="tone-role">Vunnen, kund, accepterad, aktiv</div>
-        <div class="tone-sw"><div><div class="c" style="background:#dcfce7"></div><div class="h mono">#dcfce7</div></div><div><div class="c" style="background:#16a34a"></div><div class="h mono">#16a34a</div></div></div>
+        <div class="tone-sw">
+          <div class="grp"><div class="grp-lbl">Ljust</div><div class="pair"><div><div class="c" style="background:#dcfce7"></div><div class="h mono">#dcfce7</div></div><div><div class="c" style="background:#16a34a"></div><div class="h mono">#16a34a</div></div></div></div>
+          <div class="grp"><div class="grp-lbl">Mörkt</div><div class="pair"><div><div class="c" style="background:#16311f"></div><div class="h mono">#16311f</div></div><div><div class="c" style="background:#4ade80"></div><div class="h mono">#4ade80</div></div></div></div>
+        </div>
       </div>
       <div class="tone-card">
         <span class="badge badge--info">Exempel</span>
         <div class="tone-name">Info</div>
         <div class="tone-role">Skickad, prospekt, kvalificerad (SQL)</div>
-        <div class="tone-sw"><div><div class="c" style="background:#eff6ff"></div><div class="h mono">#eff6ff</div></div><div><div class="c" style="background:#2563eb"></div><div class="h mono">#2563eb</div></div></div>
+        <div class="tone-sw">
+          <div class="grp"><div class="grp-lbl">Ljust</div><div class="pair"><div><div class="c" style="background:#eff6ff"></div><div class="h mono">#eff6ff</div></div><div><div class="c" style="background:#2563eb"></div><div class="h mono">#2563eb</div></div></div></div>
+          <div class="grp"><div class="grp-lbl">Mörkt</div><div class="pair"><div><div class="c" style="background:#17263f"></div><div class="h mono">#17263f</div></div><div><div class="c" style="background:#60a5fa"></div><div class="h mono">#60a5fa</div></div></div></div>
+        </div>
       </div>
       <div class="tone-card">
         <span class="badge badge--warning">Exempel</span>
         <div class="tone-name">Warning</div>
         <div class="tone-role">Förfallen, partner, pågående</div>
-        <div class="tone-sw"><div><div class="c" style="background:#fef3c7"></div><div class="h mono">#fef3c7</div></div><div><div class="c" style="background:#d97706"></div><div class="h mono">#d97706</div></div></div>
+        <div class="tone-sw">
+          <div class="grp"><div class="grp-lbl">Ljust</div><div class="pair"><div><div class="c" style="background:#fef3c7"></div><div class="h mono">#fef3c7</div></div><div><div class="c" style="background:#d97706"></div><div class="h mono">#d97706</div></div></div></div>
+          <div class="grp"><div class="grp-lbl">Mörkt</div><div class="pair"><div><div class="c" style="background:#38290f"></div><div class="h mono">#38290f</div></div><div><div class="c" style="background:#fbbf24"></div><div class="h mono">#fbbf24</div></div></div></div>
+        </div>
       </div>
       <div class="tone-card">
         <span class="badge badge--danger">Exempel</span>
         <div class="tone-name">Danger</div>
         <div class="tone-role">Förlorad, avböjd, spärrad, inaktiv</div>
-        <div class="tone-sw"><div><div class="c" style="background:#fee2e2"></div><div class="h mono">#fee2e2</div></div><div><div class="c" style="background:#dc2626"></div><div class="h mono">#dc2626</div></div></div>
+        <div class="tone-sw">
+          <div class="grp"><div class="grp-lbl">Ljust</div><div class="pair"><div><div class="c" style="background:#fee2e2"></div><div class="h mono">#fee2e2</div></div><div><div class="c" style="background:#dc2626"></div><div class="h mono">#dc2626</div></div></div></div>
+          <div class="grp"><div class="grp-lbl">Mörkt</div><div class="pair"><div><div class="c" style="background:#3a1a1c"></div><div class="h mono">#3a1a1c</div></div><div><div class="c" style="background:#f87171"></div><div class="h mono">#f87171</div></div></div></div>
+        </div>
       </div>
       <div class="tone-card">
         <span class="badge badge--neutral">Exempel</span>
         <div class="tone-name">Neutral</div>
         <div class="tone-role">Utkast, öppen, ny, standard</div>
-        <div class="tone-sw"><div><div class="c" style="background:#f5f5f3"></div><div class="h mono">#f5f5f3</div></div><div><div class="c" style="background:#666666"></div><div class="h mono">#666666</div></div></div>
+        <div class="tone-sw">
+          <div class="grp"><div class="grp-lbl">Ljust</div><div class="pair"><div><div class="c" style="background:#f5f5f3"></div><div class="h mono">#f5f5f3</div></div><div><div class="c" style="background:#666666"></div><div class="h mono">#666666</div></div></div></div>
+          <div class="grp"><div class="grp-lbl">Mörkt</div><div class="pair"><div><div class="c" style="background:#2b2b28"></div><div class="h mono">#2b2b28</div></div><div><div class="c" style="background:#b3b1a8"></div><div class="h mono">#b3b1a8</div></div></div></div>
+        </div>
       </div>
     </div>
   </section>

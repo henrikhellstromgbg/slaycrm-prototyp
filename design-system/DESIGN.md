@@ -15,7 +15,7 @@ En regel bär hela systemet: **brand skiljs från fara.** Brand är orange `#e26
 - **Typsnitt:** Geist (en familj), self-hostad i `fonts/`. Golv 14px, inget mindre oavsett roll. Skala i `.t-*`-hjälparna.
 - **Neutraler:** 3 bakgrunder (white / ground `#f5f5f3` / sunken `#f9f9fb`), 1 linje `#e5e5e5`, 3 textgrå (ink / muted / faint).
 - **Brand:** orange-500 `#e26a00`, hover orange-400 `#f47300`.
-- **Feedback:** en ton per status, solid + tint. success / info / warning / danger / neutral. Statusfärg är inte fri, den binds i `statusMap` (`tokens.json`) mot `src/lib/crm.ts`. Badges renderar det kontraktet, inte påhittade etiketter.
+- **Feedback:** en ton per status, solid + tint + badge-fg. success / info / warning / danger / neutral. Solid är identitet (temaoberoende); tint och fg trimmas per tema (se Tema). Statusfärg är inte fri, den binds i `statusMap` (`tokens.json`) mot `src/lib/crm.ts`. Badges renderar det kontraktet, inte påhittade etiketter.
 - **Spacing:** 4-baserad (4/8/12/16/20/24/32/40).
 - **Radie:** default 8 (kontroller), 12 (kort), pill 999 (knappar, badges-pill). Accent-kant = alltid skarpa hörn (composer, callout), aldrig rundade.
 - **Skugga:** `--shadow-card` (vilande lyft), `--shadow-button` (primärknapp: drop + inset-highlight), `--shadow-popover` (menyer).
@@ -24,11 +24,11 @@ Två lager: `--p-*` primitiver (råa värden), `--*` semantiska (roller). Bygg a
 
 ## Tema
 
-Ljust och mörkt bor i `tokens.css` (theme-lagret), inte per fil. Bara neutralerna byts, brand och feedback-toner är temaoberoende. Kaskad: `:root` (ljust) → `@media (prefers-color-scheme: dark)` (följer OS) → `:root[data-theme]` (explicit växlare vinner, högre specificitet). Alla sidor läser `tokens.css`, så `index.html` och vyerna delar exakt samma tema.
+Ljust och mörkt bor i `tokens.css` (theme-lagret), inte per fil. Neutralerna byts per tema. Feedback-tonernas **identitet** (solid) är temaoberoende, men **chip-bakgrund** (`--tone-*-tint`) och **badge-text** (`--tone-*-fg`) trimmas per tema: ljusa 100-tinter glimmar mot mörk yta, så mörkt läge dämpar chippen till en tonad mörk yta och ljusar texten till 400-nivå (behåller AA). `fg` finns just för att badge-texten måste kunna ljusas utan att röra solid, som också fyller danger-knappen och fältramar och därför måste stanna mörk. Kaskad: `:root` (ljust) → `@media (prefers-color-scheme: dark)` (följer OS) → `:root[data-theme]` (explicit växlare vinner, högre specificitet); `[data-theme="light"]` återställer tinterna så explicit ljust slår igenom på en mörk OS-grund. Alla sidor läser `tokens.css`, så `index.html` och vyerna delar exakt samma tema.
 
 Växlaren är delad (`theme.js`, laddad i `<head>` på alla sidor). Den stämplar bara `data-theme` på `<html>` och minns det explicita valet i `localStorage` (`slay-theme`). Hydreringen körs före första paint så temat aldrig blinkar fel vid laddning, och `aria-pressed` speglar valt tema direkt. Utan explicit val ligger `data-theme` borta och OS-temat styr. Klick på det redan aktiva temat nollar valet tillbaka till OS.
 
-Öppet: mörka feedback-tinter är inte trimmade mot mörk yta än (se `GAPS.md` P1).
+Mörka feedback-tinter är nu trimmade (v0.5.1): dämpad tonad chip + ljus 400-text per ton, verifierat i `index.html` och vyerna i båda lägena.
 
 ## Komponenter och states
 
@@ -79,7 +79,6 @@ Fast sid-gutter, full bredd. Brytpunkter:
 
 Detaljer och prioritet i `GAPS.md`. I korthet:
 
-- Trimma mörka feedback-tinter mot mörk yta (P1).
 - Avatarskala och färgkodning (#5), radens hover-stil (#9), numeric type-helper (#14), ghost-knappens plats (#15).
 - Saknade mönster: radens kebab-meny, paginering (#18), radval + massåtgärder (#19), toasts (#23), riktig mobil kort-lista (#22).
 - Migrera det interima stroke-setet till Carbon när tid finns.

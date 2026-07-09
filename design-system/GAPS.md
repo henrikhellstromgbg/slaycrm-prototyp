@@ -27,7 +27,7 @@ Fyra fynd ur reviewen av `db25ca3`, alla i delade lager:
 
 ## P1 — beslut som låser systemet
 
-1. ~~**Mörkt tema bor inte i systemet än.**~~ **DELVIS LÖST 2026-07-09 (v0.5.0).** Theme-lagret (ljust + mörkt + `[data-theme]`-växlaren) är flyttat från `screens.css` och `index.html` till **`tokens.css`**, speglat i `tokens.json` (`semantic.theme`). Duplikaten borttagna, alla sidor delar nu samma tema-tokens. **Kvar:** feedback-tonernas tinter är fortfarande otrimmade mot mörk yta (info/warning läser blekt). Det är det enda som återstår av #1.
+1. ~~**Mörkt tema bor inte i systemet än.**~~ **LÖST 2026-07-09 (v0.5.0 → v0.5.1).** Theme-lagret (ljust + mörkt + `[data-theme]`-växlaren) flyttat från `screens.css` och `index.html` till **`tokens.css`**, speglat i `tokens.json` (`semantic.theme`), alla sidor delar tema-tokens. **v0.5.1:** feedback-tinterna trimmade mot mörk yta. De ljusa 100-tinterna (`#dcfce7` osv.) glimmade som godis-chips och info/warning läste blekt. Mörkt läge dämpar nu chippen till en tonad mörk yta (`#16311f`/`#17263f`/`#38290f`/`#3a1a1c`/`#2b2b28`) och ljusar badge-texten till 400-nivå (`#4ade80`/`#60a5fa`/`#fbbf24`/`#f87171`/`#b3b1a8`, alla AA mot sin chip). Badge-texten bröts ut till ett eget `--tone-*-fg`-token eftersom solid-tonen också fyller danger-knappen och fältramar och därför inte kan ljusas; solid/identitet är fortsatt temaoberoende. `[data-theme="light"]` återställer tinterna så explicit ljust slår `@media dark`.
 
 2. ~~**H1-storleken är fortfarande provisorisk.**~~ **LÖST 2026-07-09.** Henrik bekräftade **20px**. `.screen-title` sänkt från 28/32 till 20/24, matchar `.t-page-title`-token. PROVISORISK-flaggan borttagen.
 
