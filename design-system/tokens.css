@@ -130,7 +130,7 @@
   --row-min-height:    72px;
   --row-pad-x:         var(--p-space-6);   /* 24 */
   --row-pad-y:         15px;
-  --row-col-gap:       var(--p-space-10);  /* 40 — mellan kolumner */
+  --row-col-gap:       var(--p-space-6);   /* 24 — mellan kolumner (tätt för breda datatabeller) */
   --row-gap:           var(--p-space-2);   /* 8 — mellan rader */
 
   /* räknar-pill (t.ex. "2 Händelser", filter-count) */

@@ -152,8 +152,8 @@ a { color:inherit; }
 .filter-group.is-open .filter-menu { opacity:1; visibility:visible; transform:translateY(0); }
 
 /* ───────── list rows — grid so every column shares one track across all rows ───────── */
-.list { display:flex; flex-direction:column; gap:var(--row-gap); }
-.row { display:grid; align-items:center; column-gap:var(--row-col-gap);
+.list { display:flex; flex-direction:column; gap:var(--row-gap); min-width:0; }
+.row { display:grid; align-items:center; column-gap:var(--row-col-gap); min-width:0;
   min-height:var(--row-min-height); padding:var(--row-pad-y) var(--row-pad-x);
   background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-control);
   cursor:pointer; text-decoration:none; color:inherit; }
@@ -183,8 +183,8 @@ a { color:inherit; }
 
 /* ───────── kanban board (Säljtavlan) ───────── */
 .board-scroll { overflow-x:auto; overscroll-behavior-x:contain; padding-bottom:8px; }  /* stoppar bakåt-gesten vid sidled-scroll */
-.board { display:flex; gap:var(--board-gap); min-width:max-content; align-items:flex-start; }
-.board-col { flex:none; width:var(--board-col-width); display:flex; flex-direction:column; gap:8px; }
+.board { display:flex; gap:var(--board-gap); align-items:flex-start; }
+.board-col { flex:1 1 var(--board-col-width); min-width:240px; display:flex; flex-direction:column; gap:8px; }
 .board-col-head { display:flex; align-items:center; justify-content:space-between; gap:8px;
   padding:0 4px 4px; }
 .board-col-title { display:flex; align-items:center; gap:8px; font-weight:600; font-size:16px; }
