@@ -7,8 +7,10 @@
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="screens.css">
 <style>
-  /* view-specific: Aktiviteter list column template */
-  .row { grid-template-columns:minmax(0,120px) minmax(160px,1fr) minmax(0,220px) minmax(0,120px) minmax(0,210px); }
+  /* view-specific: Aktiviteter list column template (datum · ärende · företag · ansvarig · antal händelser · status) */
+  .row { grid-template-columns:minmax(0,120px) minmax(160px,1fr) minmax(0,200px) minmax(0,120px) minmax(0,100px) minmax(0,130px); }
+  /* händelseantal: värde överst, etikett under (samma mönster som övriga celler, ingen räknar-cirkel) */
+  .col-count .primary { font-size:20px; line-height:24px; }
 </style>
 </head>
 <body>
@@ -116,7 +118,8 @@
             <div class="cell col-title"><div class="primary">Transportavtal</div><div class="secondary">Väntar på styrelsebeslut, hör av dig efter v.28.</div></div>
             <div class="cell col-company"><div class="primary">Nordvik Logistik AB</div><div class="secondary">Göteborg</div></div>
             <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
-            <div class="col-status"><span class="badge badge--danger">Försenad</span><span class="count-chip"><span class="count">2</span> Händelser</span></div>
+            <div class="cell col-count"><div class="primary">2</div><div class="secondary">Händelser</div></div>
+            <div class="col-status"><span class="badge badge--danger">Försenad</span></div>
           </a>
 
           <a class="row" href="screens-detalj.html">
@@ -124,7 +127,8 @@
             <div class="cell col-title"><div class="primary">Uppföljningsmöte inför Q3-avtal</div><div class="secondary">Ola vill ha med båda delägarna. Föreslå tisdag fm.</div></div>
             <div class="cell col-company"><div class="primary">Op &amp; Partners AB</div><div class="secondary">Hässleholm</div></div>
             <div class="cell col-owner"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
-            <div class="col-status"><span class="badge badge--info">Idag</span><span class="count-chip"><span class="count">4</span> Händelser</span></div>
+            <div class="cell col-count"><div class="primary">4</div><div class="secondary">Händelser</div></div>
+            <div class="col-status"><span class="badge badge--info">Idag</span></div>
           </a>
 
           <a class="row" href="screens-detalj.html">
@@ -132,7 +136,8 @@
             <div class="cell col-title"><div class="primary">Möte</div><div class="secondary">Ville ha 5% rabatt vid 3-årsavtal. Kolla med chef.</div></div>
             <div class="cell col-company"><div class="primary">Bergström Automation AB</div><div class="secondary">Västerås</div></div>
             <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
-            <div class="col-status"><span class="badge badge--neutral">Imorgon</span><span class="count-chip"><span class="count">2</span> Händelser</span></div>
+            <div class="cell col-count"><div class="primary">1</div><div class="secondary">Händelser</div></div>
+            <div class="col-status"><span class="badge badge--neutral">Imorgon</span></div>
           </a>
 
           <a class="row" href="screens-detalj.html">
@@ -140,7 +145,8 @@
             <div class="cell col-title"><div class="primary">Följ upp möte</div><div class="secondary">Undrar om vi klarar leverans inom 48h till Norrland.</div></div>
             <div class="cell col-company"><div class="primary">Nordvik Logistik AB</div><div class="secondary">Göteborg</div></div>
             <div class="cell col-owner"><div class="primary">A. Malmberg</div><div class="secondary">Ansvarig</div></div>
-            <div class="col-status"><span class="badge badge--neutral">Denna vecka</span><span class="count-chip"><span class="count">1</span> Händelser</span></div>
+            <div class="cell col-count"><div class="primary">10</div><div class="secondary">Händelser</div></div>
+            <div class="col-status"><span class="badge badge--neutral">Denna vecka</span></div>
           </a>
         </div>
       </div>

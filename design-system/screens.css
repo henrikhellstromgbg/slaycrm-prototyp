@@ -167,7 +167,6 @@ a { color:inherit; }
 .col-date { flex-direction:row; align-items:flex-start; gap:8px; }
 .col-date svg { width:16px; height:16px; margin-top:3px; color:var(--color-text-muted); }
 .col-status { display:flex; align-items:center; gap:16px; }  /* badge left edge aligns across rows */
-.count-chip { display:inline-flex; align-items:center; gap:8px; color:var(--color-text-muted); white-space:nowrap; }
 
 /* right-aligned numeric cell (Affärer värde) */
 .col-amount { align-items:flex-end; text-align:right; }
