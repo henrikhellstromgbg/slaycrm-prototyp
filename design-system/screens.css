@@ -123,7 +123,7 @@ a { color:inherit; }
 /* ───────── ground: filter + list ───────── */
 .ground { background:var(--color-ground); border-top:1px solid var(--color-border);
   padding-top:var(--ground-pad-top); padding-bottom:64px; flex:1 1 auto; }
-.ground-scroll { overflow-x:auto; overscroll-behavior-x:contain; }  /* stoppar bakåt-gesten vid sidled-scroll */
+.ground-scroll { overflow-x:auto; overscroll-behavior-x:contain; padding-bottom:12px; }  /* stoppar bakåt-gesten vid sidled-scroll; padding ger sista radens skugga plats (overflow-x gör overflow-y till auto som annars klipper) */
 
 .filterbar { display:flex; align-items:center; gap:16px; margin-bottom:var(--ground-pad-top); }
 .filter-left { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }

@@ -11,7 +11,7 @@
 
   /* Tillbaka-länk (ersätter brödsmulorna) */
   .detail-back { display:inline-flex; align-items:center; gap:4px; color:var(--color-brand);
-    text-decoration:none; font-weight:500; font-size:14px; margin-right:var(--gap); }  /* extra luft till CTA-knapparna */
+    text-decoration:none; font-weight:500; font-size:14px; margin-right:var(--p-space-5); }  /* 20 + 12 gap = 32 (space-8) till CTA-knapparna */
   .detail-back:hover { text-decoration:underline; }
   .detail-back svg { width:16px; height:16px; }
 
@@ -24,7 +24,7 @@
   .meta-item .secondary { font-size:14px; line-height:18px; color:var(--color-text-muted); }
 
   /* händelseflöde som rad-kort (datum · text · ansvarig) — ej klickbart */
-  .feed-list .row { grid-template-columns:150px minmax(0,1fr) 150px; align-items:start; cursor:default; }
+  .feed-list .row { grid-template-columns:150px minmax(0,1fr) 150px; align-items:start; cursor:default; box-shadow:none; }  /* flödesrader är inte klickbara — ingen skugga */
   .feed-list .row:hover { border-color:var(--color-border); }
   .feed-list .col-owner { align-items:flex-end; text-align:right; }
   .feed-list .cell .primary { white-space:normal; overflow:visible; text-overflow:clip; line-height:21px; }
