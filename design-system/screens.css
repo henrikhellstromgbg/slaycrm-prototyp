@@ -362,10 +362,12 @@ a { color:inherit; }
   .nav-item { height:auto; padding:12px; font-size:16px; border-bottom:0; border-radius:var(--radius-control); }
   .nav-item:hover { background:var(--color-surface-sunken); }
   .nav-item.is-active { color:var(--color-brand); background:var(--color-surface-sunken); }
-  /* nästlade menyval visas platt, inte som popover */
+  /* nästlade menyval visas platt, inte som popover.
+     visibility:inherit = följ .nav: osynlig OCH oklickbar när navet är stängt
+     (opacity:0 döljer bara visuellt, stänger inte av tryck → annars kapar de osynliga länkarna klick på sidhuvudet) */
   .nav-menu { position:static; min-width:0; margin:0; padding:0; border:0; box-shadow:none;
     background:transparent; flex-direction:column; gap:2px;
-    opacity:1; visibility:visible; transform:none; }
+    opacity:1; visibility:inherit; transform:none; }
   .menu-item { padding:12px; font-size:16px; border-radius:var(--radius-control); }
   .menu-item.is-active { background:var(--color-surface-sunken); }
 
@@ -386,8 +388,9 @@ a { color:inherit; }
   .board { flex-direction:column; }
   .board-col { min-width:0; width:100%; }
 
-  /* detaljvy: fliklisten får scrolla i sidled om den inte får plats */
-  .tabs { overflow-x:auto; }
+  /* detaljvy: fliklisten får scrolla i sidled om den inte får plats (dold scrollbar) */
+  .tabs { overflow-x:auto; scrollbar-width:none; }
+  .tabs::-webkit-scrollbar { display:none; }
 
   /* drawer/modal-formulär: fältpar staplas */
   .field-row { grid-template-columns:1fr; }
