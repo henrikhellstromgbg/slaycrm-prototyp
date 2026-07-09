@@ -29,15 +29,17 @@
   .feed-list .col-owner { align-items:flex-end; text-align:right; }
   .feed-list .cell .primary { white-space:normal; overflow:visible; text-overflow:clip; line-height:21px; }
 
-  /* sidokolumn: rena block utan kortram */
-  .side-block { display:flex; flex-direction:column; gap:12px; }
-  .side-block h3 { margin:0; font-weight:600; font-size:14px; text-transform:uppercase;
-    letter-spacing:.04em; color:var(--color-text-faint); }
+  /* sidokolumn: rena block utan kortram (Figma: rubrik i gemener, mörk, luftigt) */
+  .side-block { display:flex; flex-direction:column; gap:16px; }
+  .side-block h3 { margin:0; font-weight:600; font-size:18px; line-height:24px;
+    color:var(--color-text); }
   .side-divider { height:1px; background:var(--color-border); border:0; margin:0; }
-  .side-entity { display:flex; flex-direction:column; gap:3px; min-width:0; }
-  .side-entity + .side-entity { margin-top:4px; }
-  .side-entity .primary { font-weight:500; font-size:16px; line-height:22px; color:var(--color-text); }
-  .side-entity .secondary { font-size:14px; line-height:20px; color:var(--color-text-muted); }
+  .side-entity { display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .side-entity + .side-entity { margin-top:16px; }
+  .side-entity .primary { font-weight:600; font-size:16px; line-height:24px; color:var(--color-text); }
+  .side-entity .secondary { font-size:16px; line-height:24px; color:var(--color-text-muted); }
+  .side-entity .secondary:has(a) { margin-top:10px; }
+  .side-entity .secondary:has(a) + .secondary:has(a) { margin-top:2px; }
   .side-entity a { color:var(--color-brand); text-decoration:none; }
   .side-entity a:hover { text-decoration:underline; }
 </style>
