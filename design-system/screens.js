@@ -1,21 +1,6 @@
-/* SlayCRM · screens.js — theme toggle shared by all applied-reference pages.
-   The toggle stamps data-theme on <html>; screens.css redefines the neutral tokens per theme. */
-(function () {
-  var root = document.documentElement;
-  var buttons = document.querySelectorAll('.toggle button');
-  function apply(mode) {
-    if (mode === 'light' || mode === 'dark') root.setAttribute('data-theme', mode);
-    else root.removeAttribute('data-theme');
-    var current = root.getAttribute('data-theme');
-    buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.set === current)); });
-  }
-  buttons.forEach(function (b) {
-    b.addEventListener('click', function () {
-      var current = root.getAttribute('data-theme');
-      apply(current === b.dataset.set ? null : b.dataset.set);
-    });
-  });
-})();
+/* SlayCRM · screens.js — beteende för de applicerade vyerna (nav, drawer, filter,
+   composer, type-picker, rad-navigering, mobil-nav). Tema-växlaren bor i theme.js
+   (delad, laddas i <head>); tokens.css äger tema-tokenlagret. */
 
 /* Nav dropdown: clicking a .nav-parent toggles its .nav-group open; only one open at a time.
    Outside-click and Esc close. Menus carry the parent page + its nested view. */

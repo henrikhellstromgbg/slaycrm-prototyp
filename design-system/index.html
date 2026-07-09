@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SlayCRM design tokens</title>
 <link rel="stylesheet" href="tokens.css">
+<script src="theme.js"></script>
 <style>
   /* page-only reference furniture. Tema (ljust/mörkt) och ikon-kontraktet bor i tokens.css;
      den här sidan ärver dem därifrån precis som de applicerade vyerna. */
@@ -518,23 +519,6 @@
 
 </div>
 
-<script>
-  (function () {
-    var root = document.documentElement;
-    var buttons = document.querySelectorAll('.toggle button');
-    function apply(mode) {
-      if (mode === 'light' || mode === 'dark') root.setAttribute('data-theme', mode);
-      else root.removeAttribute('data-theme');
-      var current = root.getAttribute('data-theme');
-      buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.set === current)); });
-    }
-    buttons.forEach(function (b) {
-      b.addEventListener('click', function () {
-        var current = root.getAttribute('data-theme');
-        apply(current === b.dataset.set ? null : b.dataset.set);
-      });
-    });
-  })();
-</script>
+<!-- tema-växlaren bor i theme.js (laddad i <head>, delad med vyerna) -->
 </body>
 </html>

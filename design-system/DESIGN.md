@@ -26,6 +26,8 @@ Två lager: `--p-*` primitiver (råa värden), `--*` semantiska (roller). Bygg a
 
 Ljust och mörkt bor i `tokens.css` (theme-lagret), inte per fil. Bara neutralerna byts, brand och feedback-toner är temaoberoende. Kaskad: `:root` (ljust) → `@media (prefers-color-scheme: dark)` (följer OS) → `:root[data-theme]` (explicit växlare vinner, högre specificitet). Alla sidor läser `tokens.css`, så `index.html` och vyerna delar exakt samma tema.
 
+Växlaren är delad (`theme.js`, laddad i `<head>` på alla sidor). Den stämplar bara `data-theme` på `<html>` och minns det explicita valet i `localStorage` (`slay-theme`). Hydreringen körs före första paint så temat aldrig blinkar fel vid laddning, och `aria-pressed` speglar valt tema direkt. Utan explicit val ligger `data-theme` borta och OS-temat styr. Klick på det redan aktiva temat nollar valet tillbaka till OS.
+
 Öppet: mörka feedback-tinter är inte trimmade mot mörk yta än (se `GAPS.md` P1).
 
 ## Komponenter och states
@@ -44,7 +46,7 @@ Varje komponent har definierade lägen. Se dem levande i `index.html` under *Kom
 
 Kontrakt (`tokens.css` icon-lagret):
 
-- **Storlek:** 16px standard (i text, knappar, celler), 18px (`--icon-size-lg`) för icon-only knappar och avatar. Hjälpare `.icon` / `.icon--lg`.
+- **Storlek:** 16px standard (i text, knappar, celler), 18px (`--icon-size-lg`) för icon-only knappar och avatar. Hjälpare `.icon` / `.icon--lg`. `screens.css` läser `--icon-size` / `--icon-size-lg` direkt på sina svg-regler (sök, knapp, filter, cell, händelse, select, type-chip, drawer-stäng), så vyerna dogfoodar kontraktet. Enda kvarvarande undantaget är tomt-tillståndets illustrativa 20px-ikon i sin 40px-cirkel.
 - **Stroke:** harmoniseras systemiskt till `--icon-stroke` (1.6) via `svg[stroke]:not([stroke="none"])`. CSS stroke-width vinner över SVG:ns attribut, så det hand-ritade setet (1.4/1.6/2) dras till ett värde utan markup-ändring i vyerna.
 - **Tillgänglighet:** dekorativa ikoner bär `aria-hidden="true"` när knappen eller länken redan har text eller `aria-label`. Icon-only knappar (notiser, konto, stäng, hamburgare) bär `aria-label`, deras SVG är `aria-hidden`.
 

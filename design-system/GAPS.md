@@ -8,12 +8,22 @@ Skrivet 2026-07-08 efter att ha byggt sex applicerade vyer (Aktiviteter, Affäre
 - `DESIGN.md` — **nytt.** Systemkontraktet: personlighet, foundations, states, tillgänglighet, responsivt, ikon-/Carbon-plan.
 - `index.html` — levande token-referens (med state-matris, tomt tillstånd och ikon-sektion).
 - `screens.css` — **nytt.** Delat app-skal + vy-patterns (topbar, nav, listrad, kort, flikar, kanban, händelseflöde, avatarer). Alla vyer länkar det efter tokens.css och dogfoodar semantiska tokens.
-- `screens.js` — **nytt.** Delad tema-växlare.
+- `screens.js` — **nytt.** Delat vy-beteende (nav, drawer, filter, composer, type-picker, rad-nav, mobil-nav).
+- `theme.js` — **nytt (2026-07-09).** Delad tema-controller, laddad i `<head>` på alla sidor: hydrerar `data-theme` före paint, minns valet i `localStorage`, OS-tema som fallback.
 - `screens*.html` — sex vyer, navigerbara via toppnav och klickbara rader.
 
 Öppna `screens.html` och klicka runt: nav byter vy, rader och kort leder till detaljvyn.
 
 ---
+
+## Review-fixar (2026-07-09, efter v0.5.0)
+
+Fyra fynd ur reviewen av `db25ca3`, alla i delade lager:
+
+- **Fältens error-state flyttat till delade lagret.** `.input/.select/.textarea` med `.is-error` **och** `aria-invalid="true"` får danger-röd kant + röd fokus-glow, plus `.field-err`-hjälptext, nu i `screens.css` (inte bara i `index.html`). Riktiga vy-formulär kan använda kontraktet. `index.html` behåller sin lokala spegel (den läser bara `tokens.css`).
+- **Tema-state över sidor.** Växlaren flyttad till delad `theme.js`: explicit val sparas i `localStorage`, hydreras i `<head>` före paint, OS-tema som fallback, `aria-pressed` korrekt vid första laddning. Tidigare satte `screens.js` och `index.html` bara `data-theme` på aktuell sida utan att minnas det.
+- **Ikonkontraktet ärligt i `screens.css`.** De hårdkodade `width:16px/18px` på svg-reglerna läser nu `--icon-size` / `--icon-size-lg`. Full Carbon-migrering fortfarande uppskjuten (#21). Kvarvarande outlier: tomt-tillståndets 20px-ikon.
+- **Stale kommentar i `screens.js`** (pekade på att `screens.css` omdefinierar tema-tokens) borttagen — tema bor i `tokens.css`, växling i `theme.js`.
 
 ## P1 — beslut som låser systemet
 
