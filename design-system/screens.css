@@ -26,7 +26,7 @@
 }
 
 * { box-sizing:border-box; }
-html { -webkit-text-size-adjust:100%; overscroll-behavior:none; }  /* studsfri app-känsla — dödar sidans rubber-band */
+html { -webkit-text-size-adjust:100%; overscroll-behavior:none; scrollbar-gutter:stable; }  /* studsfri app-känsla — dödar sidans rubber-band; stable gutter = inget innehållsskift när modal/drawer låser scroll */
 body { margin:0; font-family:var(--p-font); font-size:14px; line-height:18px;
   color:var(--color-text); background:var(--color-surface); -webkit-font-smoothing:antialiased; }
 svg { flex:none; }
