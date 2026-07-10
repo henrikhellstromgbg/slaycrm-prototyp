@@ -47,10 +47,25 @@
       else { el.removeAttribute('inert'); el.removeAttribute('aria-hidden'); }
     });
   }
+  /* Create-drawers ("Ny kontakt/affär/…") bär demo-värden i markupen så de ser ut i
+     designfiler. När de öppnas som skapa-formulär ska de vara tomma — nollställ fält
+     (selects → första valet) så inget läses som redigering av en befintlig post. */
+  function resetCreateForm(panel) {
+    if (!panel.classList.contains('drawer')) return;
+    panel.querySelectorAll('input, textarea').forEach(function (el) {
+      var t = (el.type || '').toLowerCase();
+      if (el.tagName === 'TEXTAREA' ||
+          t === 'text' || t === 'email' || t === 'tel' || t === 'number' || t === 'search' || t === 'url') {
+        el.value = '';
+      }
+    });
+    panel.querySelectorAll('select').forEach(function (sel) { sel.selectedIndex = 0; });
+  }
   function open(id, trigger) {
     var panel = document.getElementById(id);
     if (!panel) return;
     if (!anyOpen()) lastFocused = trigger || document.activeElement;  /* spara bara första öppnaren */
+    resetCreateForm(panel);
     panel.classList.add('is-open');
     if (overlay) overlay.classList.add('is-open');
     document.body.style.overflow = 'hidden';
