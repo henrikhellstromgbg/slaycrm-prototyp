@@ -146,6 +146,25 @@
      drawern in den biten och dess vänsterskugga läcker ut som ett skuggstreck
      längs högerkanten. Skjut helt utanför + släck skuggan när den är stängd. */
   .drawer:not(.is-open) { transform:translateX(calc(100% + 40px)); box-shadow:none; }
+
+  /* global "+ Ny" quick-create i topbaren: en knapp + liten meny som öppnar
+     befintliga create-drawers (data-open). Egen komponent så den inte krockar
+     med screens.js .filter-group/.nav-group-lyssnare. */
+  .quick-create { position:relative; }
+  .qc-menu { position:absolute; top:100%; right:0; margin-top:6px; min-width:180px; max-width:calc(100vw - 24px); z-index:60;
+    display:flex; flex-direction:column; gap:2px; padding:6px;
+    background:var(--color-surface); border:1px solid var(--color-border);
+    border-radius:var(--radius-card); box-shadow:var(--shadow-popover); }
+  .qc-menu[hidden] { display:none; }
+  .qc-item { display:flex; align-items:center; gap:10px; padding:8px 10px; width:100%;
+    border:0; background:transparent; border-radius:var(--radius-control);
+    font:inherit; font-size:14px; color:var(--color-text); text-align:left; cursor:pointer; }
+  .qc-item:hover { background:var(--color-surface-sunken); color:var(--color-brand); }
+  .qc-item svg { flex:none; width:16px; height:16px; color:var(--color-text-muted); }
+  .qc-item:hover svg { color:var(--color-brand); }
+  @media (max-width:800px) {
+    .qc-label { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+  }
 </style>
 </head>
 <body>
@@ -174,6 +193,15 @@
           <a class="nav-item" data-nav="saljtavlan" href="#/saljtavlan">Säljtavlan</a>
         </nav>
         <div class="topbar-right">
+          <div class="quick-create">
+            <button class="btn btn-primary icon-l qc-toggle" type="button" aria-haspopup="menu" aria-expanded="false"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg><span class="qc-label">Ny</span></button>
+            <div class="qc-menu" role="menu" hidden>
+              <button class="qc-item" type="button" role="menuitem" data-open="drawer-aktivitet"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4v8M4 8h8"/></svg>Aktivitet</button>
+              <button class="qc-item" type="button" role="menuitem" data-open="drawer-affar"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 5.5h11v7h-11z"/><path d="M6 5.5V4h4v1.5"/></svg>Affär</button>
+              <button class="qc-item" type="button" role="menuitem" data-open="drawer-foretag"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13.5V3.5h6v10M9 6.5h4v7M5 6h2M5 8.5h2M5 11h2"/></svg>Företag</button>
+              <button class="qc-item" type="button" role="menuitem" data-open="drawer-kontakt"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="2.5"/><path d="M3.5 13a4.5 4.5 0 0 1 9 0"/></svg>Kontakt</button>
+            </div>
+          </div>
           <label class="search">
             <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M11 11l3 3"/></svg>
             <input type="text" placeholder="Sök allt" aria-label="Sök allt">
@@ -194,7 +222,7 @@
       <div class="page-head gutter">
         <h1 class="screen-title">Aktiviteter</h1>
         <div class="page-actions">
-          <button class="btn btn-secondary" type="button">Logga aktivitet</button>
+          <button class="btn btn-secondary" type="button" data-open="drawer-aktivitet">Logga aktivitet</button>
           <button class="btn btn-primary icon-l" type="button" data-open="drawer-aktivitet"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Ny aktivitet</button>
         </div>
       </div>
@@ -380,7 +408,7 @@
     <!-- ═══════════════ VY: AFFÄRER ═══════════════ -->
     <section class="view" id="view-affarer">
       <div class="page-head gutter">
-        <h1 class="screen-title">Affärer <small>5 affärer · 2,36 mkr totalt</small></h1>
+        <h1 class="screen-title">Affärer <small>8 affärer · 3,14 mkr totalt</small></h1>
         <div class="page-actions">
           <button class="btn btn-primary icon-l" type="button" data-open="drawer-affar"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Ny affär</button>
         </div>
@@ -390,7 +418,7 @@
           <div class="filterbar">
             <div class="filter-left">
               <div class="filter-group">
-                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Steg</span><span class="f-val">Alla</span><span class="count">5</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+                <button class="filter" type="button" aria-expanded="false"><span class="f-label">Steg</span><span class="f-val">Alla</span><span class="count">8</span><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
                 <div class="filter-menu">
                   <button class="menu-item is-active" type="button">Alla</button>
                   <button class="menu-item" type="button">Lead</button>
@@ -464,6 +492,27 @@
               <div class="cell col-amount"><span class="amount">95 000 kr</span><div class="secondary">Värde</div></div>
               <div class="cell col-owner"><div class="primary">A. Malmberg</div><div class="secondary">Ansvarig</div></div>
               <div class="col-status"><span class="badge badge--danger">Förlorad</span></div>
+            </a>
+            <a class="row" href="#/affar/AFF-2050">
+              <div class="cell col-title"><div class="primary">Supportavtal drift</div><div class="secondary">AFF-2050 · öppnad 1 juli</div></div>
+              <div class="cell col-company"><div class="primary">Sydfrakt &amp; Co AB</div><div class="secondary">Malmö</div></div>
+              <div class="cell col-amount"><span class="amount">60 000 kr</span><div class="secondary">Värde</div></div>
+              <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
+              <div class="col-status"><span class="badge badge--neutral">Lead</span></div>
+            </a>
+            <a class="row" href="#/affar/AFF-2051">
+              <div class="cell col-title"><div class="primary">Utbyggnad terminal</div><div class="secondary">AFF-2051 · öppnad 24 juni</div></div>
+              <div class="cell col-company"><div class="primary">Kvist Industri AB</div><div class="secondary">Jönköping</div></div>
+              <div class="cell col-amount"><span class="amount">540 000 kr</span><div class="secondary">Värde</div></div>
+              <div class="cell col-owner"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
+              <div class="col-status"><span class="badge badge--info">Kvalificerad</span></div>
+            </a>
+            <a class="row" href="#/affar/AFF-2052">
+              <div class="cell col-title"><div class="primary">Serviceavtal drift</div><div class="secondary">AFF-2052 · öppnad 8 maj</div></div>
+              <div class="cell col-company"><div class="primary">Kvist Industri AB</div><div class="secondary">Jönköping</div></div>
+              <div class="cell col-amount"><span class="amount">180 000 kr</span><div class="secondary">Värde</div></div>
+              <div class="cell col-owner"><div class="primary">P. Steinberger</div><div class="secondary">Ansvarig</div></div>
+              <div class="col-status"><span class="badge badge--success">Vunnen</span></div>
             </a>
           </div>
         </div>
@@ -1478,8 +1527,8 @@
           </div>
         </div>
         <div class="field">
-          <label class="field-label" for="f-notis">Anteckning</label>
-          <textarea class="textarea" id="f-notis" placeholder="Hur ni fick kontakt, vad de behöver?"></textarea>
+          <label class="field-label" for="fo-notis">Anteckning</label>
+          <textarea class="textarea" id="fo-notis" placeholder="Hur ni fick kontakt, vad de behöver?"></textarea>
           <span class="field-hint">Syns i händelseflödet på företaget.</span>
         </div>
       </form>
@@ -1497,7 +1546,7 @@
     <h2 id="modal-confirm-title">Ta bort utkastet?</h2>
     <p>Uppgifterna du fyllt i försvinner. Det går inte att ångra.</p>
     <div class="modal-actions">
-      <button class="btn btn-secondary" type="button" data-close>Avbryt</button>
+      <button class="btn btn-secondary" type="button" id="confirm-cancel" data-autofocus>Avbryt</button>
       <button class="btn btn-danger" type="button" data-close>Ta bort</button>
     </div>
   </div>

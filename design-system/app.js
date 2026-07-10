@@ -532,7 +532,10 @@
   function setTab(scope, name) {
     if (!scope) return;
     scope.querySelectorAll('.tabs .tab').forEach(function (t) {
-      t.classList.toggle('is-active', t.dataset.tab === name);
+      var on = t.dataset.tab === name;
+      t.classList.toggle('is-active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1; /* roving tabindex: bara aktiv flik är i tab-ordningen */
     });
     scope.querySelectorAll('.tab-pane').forEach(function (p) {
       p.classList.toggle('is-active', p.dataset.pane === name);
@@ -544,7 +547,56 @@
     if (!tab) return;
     e.preventDefault();
     setTab(tab.closest('.detail-main'), tab.dataset.tab);
+    tab.focus();
   });
+
+  /* tangentbord: flikar är <a role="tab"> utan href, så gör dem operabla.
+     Enter/Space aktiverar, pil vänster/höger flyttar (wrap) och aktiverar. */
+  document.addEventListener('keydown', function (e) {
+    var tab = e.target.closest && e.target.closest('.tabs .tab[data-tab]');
+    if (!tab) return;
+    var key = e.key;
+    if (key === 'Enter' || key === ' ' || key === 'Spacebar') {
+      e.preventDefault();
+      setTab(tab.closest('.detail-main'), tab.dataset.tab);
+      return;
+    }
+    if (key !== 'ArrowRight' && key !== 'ArrowLeft' && key !== 'Home' && key !== 'End') return;
+    e.preventDefault();
+    var tabs = Array.prototype.slice.call(tab.closest('.tabs').querySelectorAll('.tab[data-tab]'));
+    var i = tabs.indexOf(tab);
+    var next = key === 'Home' ? 0
+      : key === 'End' ? tabs.length - 1
+      : key === 'ArrowRight' ? (i + 1) % tabs.length
+      : (i - 1 + tabs.length) % tabs.length;
+    var target = tabs[next];
+    setTab(target.closest('.detail-main'), target.dataset.tab);
+    target.focus();
+  });
+
+  /* ARIA-wiring för alla fliklistor: role=tablist/tab/tabpanel + koppling.
+     Körs en gång vid init; flikmarkupen är statisk i app.html. */
+  function initTabs() {
+    document.querySelectorAll('.detail-main .tabs').forEach(function (list) {
+      list.setAttribute('role', 'tablist');
+      var main = list.closest('.detail-main');
+      list.querySelectorAll('.tab[data-tab]').forEach(function (tab) {
+        var name = tab.dataset.tab;
+        tab.setAttribute('role', 'tab');
+        if (!tab.id) tab.id = 'tab-' + name;
+        var pane = main.querySelector('.tab-pane[data-pane="' + name + '"]');
+        if (pane) {
+          pane.setAttribute('role', 'tabpanel');
+          if (!pane.id) pane.id = 'pane-' + name;
+          tab.setAttribute('aria-controls', pane.id);
+          pane.setAttribute('aria-labelledby', tab.id);
+        }
+        var on = tab.classList.contains('is-active');
+        tab.setAttribute('aria-selected', on ? 'true' : 'false');
+        tab.tabIndex = on ? 0 : -1;
+      });
+    });
+  }
 
   /* ── inline-kalender (delad av uppföljning + datumintervall) ───── */
 
@@ -571,7 +623,8 @@
     if (!list) return 0;
     var shown = 0, dated = 0;
     list.querySelectorAll(':scope > .row').forEach(function (row) {
-      var cell = row.querySelector('.col-date .primary, .col-opened .primary');
+      /* datumet bor i .col-date (Aktiviteter) eller som suffix i .col-title (Affärer, "…· öppnad 12 juni") */
+      var cell = row.querySelector('.col-date .primary') || row.querySelector('.col-title .secondary');
       if (!cell) return; /* rad utan datum – rör den inte */
       dated++;
       var d = parseRowDate(cell.textContent);
@@ -580,6 +633,7 @@
       if (inRange) shown++;
     });
     /* tom-läge: visa ett meddelande om intervallet gömmer allt */
+    var noun = view.id === 'view-affarer' ? 'affärer' : 'aktiviteter';
     var empty = list.querySelector('.list-empty');
     if (dated && shown === 0) {
       if (!empty) {
@@ -587,7 +641,7 @@
         empty.className = 'list-empty';
         list.appendChild(empty);
       }
-      empty.textContent = 'Inga aktiviteter i valt datumintervall.';
+      empty.textContent = 'Inga ' + noun + ' i valt datumintervall.';
       empty.style.display = '';
     } else if (empty) {
       empty.style.display = 'none';
@@ -710,9 +764,11 @@
 
   var fuCal = null;
 
-  function currentDealCompany() {
+  /* företaget för uppföljningens kontext: affär- eller aktivitet-detalj */
+  function currentContextCompany() {
     var r = parseHash();
     if (r.view === 'affar-detalj' && DEALS[r.id]) return DEALS[r.id].company;
+    if (r.view === 'aktivitet-detalj' && ACTIVITIES[r.id]) return ACTIVITIES[r.id].company;
     return null;
   }
 
@@ -726,7 +782,7 @@
     /* förifyll rubrik + nollställ modalen varje gång "Markera klar" öppnar den */
     document.addEventListener('click', function (e) {
       if (!e.target.closest('[data-open="modal-followup"]')) return;
-      var co = currentDealCompany();
+      var co = currentContextCompany();
       if (subject) subject.value = co ? 'Följ upp ' + co : 'Följ upp';
       if (calHost) { calHost.innerHTML = ''; fuCal = null; }
       if (dealBox) dealBox.classList.remove('is-open');
@@ -751,8 +807,64 @@
     }
   }
 
+  /* ── bekräftelsedialogens "Avbryt" (stänger bara dialogen) ──────────
+     screens.js closeAll() slår igen alla öppna paneler. Bekräftelsen ligger
+     ovanpå en create-drawer, så en delad stängning skulle kasta formuläret.
+     "Ta bort" behåller data-close (bekräfta = stäng allt, avsett); "Avbryt"
+     stänger bara dialogen och gör den underliggande drawern aktiv igen. */
+  (function () {
+    var confirm = document.getElementById('modal-confirm');
+    var cancel = document.getElementById('confirm-cancel');
+    var overlay = document.querySelector('.overlay');
+    if (!confirm || !cancel) return;
+    cancel.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation(); /* hindra screens.js document-lyssnare från closeAll */
+      confirm.classList.remove('is-open');
+      var drawer = document.querySelector('.drawer.is-open');
+      if (!drawer) {
+        if (overlay) overlay.classList.remove('is-open');
+        document.body.style.overflow = '';
+        Array.prototype.forEach.call(document.body.children, function (el) {
+          el.removeAttribute('inert'); el.removeAttribute('aria-hidden');
+        });
+        return;
+      }
+      /* gör drawern aktiv igen: allt utom drawern + overlay blir inert */
+      Array.prototype.forEach.call(document.body.children, function (el) {
+        if (el === drawer || el === overlay) { el.removeAttribute('inert'); el.removeAttribute('aria-hidden'); }
+        else { el.setAttribute('inert', ''); el.setAttribute('aria-hidden', 'true'); }
+      });
+      var f = drawer.querySelector('input, select, textarea, [data-autofocus]');
+      if (f) f.focus();
+    });
+  })();
+
+  /* ── global "+ Ny" quick-create ─────────────────────────────────
+     Öppnar/stänger menyn; menyvalen bär data-open så screens.js öppnar
+     rätt drawer. Vi stänger bara menyn (drawern sköts av screens.js). */
+  (function () {
+    var qc = document.querySelector('.quick-create');
+    if (!qc) return;
+    var toggle = qc.querySelector('.qc-toggle');
+    var menu = qc.querySelector('.qc-menu');
+    if (!toggle || !menu) return;
+    function open() { menu.hidden = false; toggle.setAttribute('aria-expanded', 'true'); }
+    function close() { menu.hidden = true; toggle.setAttribute('aria-expanded', 'false'); }
+    toggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (menu.hidden) open(); else close();
+    });
+    menu.addEventListener('click', function () { close(); }); /* val → stäng menyn, drawern öppnas av screens.js */
+    document.addEventListener('click', function (e) {
+      if (!menu.hidden && !e.target.closest('.quick-create')) close();
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+  })();
+
   /* ── init ──────────────────────────────────────────────────────── */
 
+  initTabs();
   mountRangeFilters();
   initFollowup();
   window.addEventListener('hashchange', route);
