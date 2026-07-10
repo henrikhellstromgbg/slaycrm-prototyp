@@ -1,15 +1,21 @@
-# SlayCRM, prototyp aktivitetsflöde
+# SlayCRM prototyper
 
-Interaktiv wireframe för ett aktivitetscentrerat CRM-flöde. Fristående, ingen del av det skarpa SlayCRM-repot.
+Det här repot innehåller två spår:
 
-- **En fil:** `index.html`. Ren HTML, CSS och vanilla-JS. Inget byggsteg, inga beroenden.
-- **Redigera:** öppna `index.html` direkt, eller ändra i GitHub-webben. Ingen installation krävs.
-- **Kör lokalt:** dubbelklicka `index.html`, eller öppna filen i webbläsaren.
-- **Live-länk:** GitHub Pages, se repots About-fält.
+- **Aktuell DS-implementerad prototyp:** `design-system/app.html`
+- **Äldre wireframe i repo-roten:** `index.html`
+
+Direktlänkar:
+
+- **DS-prototyp:** `https://henrikhellstromgbg.github.io/slaycrm-prototyp/design-system/app.html`
+- **Designsystem / referensyta:** `https://henrikhellstromgbg.github.io/slaycrm-prototyp/design-system/`
+- **Äldre wireframe:** `https://henrikhellstromgbg.github.io/slaycrm-prototyp/`
+
+Om du vill se den version där designsystemet faktiskt är implementerat, börja i `design-system/app.html`.
 
 ## Syfte
 
-Rikta in intressenter (Lule på Upgrader, William) kring flödet innan något byggs skarpt. Det här är en skiss för att tänka och tycka kring, inte produktionskod.
+Rikta in intressenter kring flöde, struktur och visuell riktning innan något byggs skarpt. Den äldre wireframen i roten finns kvar som historik, men den aktuella prototypen ligger under `design-system/`.
 
 ## Anteckningar
 
