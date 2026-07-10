@@ -81,6 +81,130 @@
   .mini-row .link { color:var(--color-brand); text-decoration:none; }
   .mini-row .link:hover { text-decoration:underline; }
 
+  /* ═══ offert-detalj (oqd) — trogen mot routes/offerter/$quoteId.tsx, omskinnad i DS ═══
+     Ordning: brödsmula → header → formulär → offertrader → kund-snapshot. */
+  .oqd { max-width:960px; margin:0 auto; display:flex; flex-direction:column; gap:24px; }
+
+  /* Åtgärder-dropdown i top-baren. Egen toggle i app.js; screens.js filter-meny är bunden
+     till .filter-group och rör inte den här. Statusövergångarna byggs av status. */
+  .oqd-menu-wrap { position:relative; }
+  /* DS:s .btn sätter display:inline-flex som slår ut UA:ns [hidden]; tvinga dölj */
+  #oqd-cta[hidden] { display:none; }
+  .oqd-menu { position:absolute; top:calc(100% + 6px); right:0; z-index:60; min-width:230px;
+    background:var(--color-surface); border:1px solid var(--color-border);
+    border-radius:var(--radius-card); box-shadow:var(--shadow-popover); padding:6px; display:none; }
+  .oqd-menu.is-open { display:block; }
+  .oqd-menu button { display:flex; width:100%; align-items:center; gap:8px; text-align:left;
+    padding:9px 10px; border:0; background:transparent; border-radius:var(--radius-control);
+    font:inherit; font-size:15px; line-height:20px; color:var(--color-text); cursor:pointer; white-space:nowrap; }
+  .oqd-menu button:hover { background:var(--color-surface-sunken); }
+  .oqd-menu button.danger { color:var(--tone-danger-fg); }
+  .oqd-menu button.danger:hover { background:var(--tone-danger-tint); }
+  .oqd-menu-sep { height:1px; background:var(--color-border); margin:6px 4px; border:0; }
+
+  /* status-meddelande under meta-raden */
+  .oqd-status-msg { margin:0 0 4px; }
+
+  /* vit canvas: platta kort och full bredd åt radeditorn (top-baren skiljs av ground-linjen) */
+  #view-offert-detalj .ground { background:var(--color-surface); }
+
+  /* platta sektioner på vit canvas (inga boxar); hårlinje skiljer form från rader */
+  .oqd-card { padding:0; }
+  .oqd-card + .oqd-card { border-top:1px solid var(--color-border); padding-top:24px; margin-top:8px; }
+  .oqd-section-title { margin:0 0 14px; font-weight:600; font-size:18px; line-height:24px; color:var(--color-text); }
+
+  /* formulär: Titel, Giltig till (halva), Följebrev + Villkor (fulla) */
+  .oqd-form { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .oqd-form .full { grid-column:1 / -1; }
+  .oqd-form-foot { grid-column:1 / -1; display:flex; justify-content:flex-end; }
+
+  /* ── offertrader ──
+       REDIGERBAR rad = självmärkande kort (DS .field-mönster som "Lägg till rad"): Produkt på
+       egen rad, fältband under, summa nere till höger.
+       LÅST rad = kompakt tabell med EN delad rubrikremsa (läsvänligare för read-only).
+       --oqd-line-pad kopplar radindrag till totalernas högerkant i båda lägena. */
+  #view-offert-detalj { --oqd-line-pad:20px;
+    --oqd-line-cols:minmax(120px,1fr) 72px 120px 80px 88px 132px;
+    font-size:16px; line-height:24px; }
+  .oqd-line { position:relative; padding:var(--oqd-line-pad); background:var(--color-surface-sunken); }
+  .oqd-line + .oqd-line { border-top:3px solid var(--color-surface); }
+  /* spinner-pilar bort så smala nummerfält visar värdet */
+  #view-offert-detalj input[type=number] { appearance:textfield; -moz-appearance:textfield; }
+  #view-offert-detalj input[type=number]::-webkit-outer-spin-button,
+  #view-offert-detalj input[type=number]::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  /* summa nere till höger, i linje med totalernas högerkant */
+  .oqd-line-foot { display:flex; align-items:center; justify-content:flex-end; margin-top:16px; }
+  .oqd-line-sum { font-weight:700; font-size:16px; font-variant-numeric:tabular-nums; color:var(--color-text); }
+
+  /* redigerbar: Produkt egen rad (full bredd), fältband under */
+  .oqd-line-product { margin-bottom:16px; }
+  .oqd-line-product .input { width:100%; }
+  .oqd-line-grid { display:grid; grid-template-columns:minmax(120px,1fr) 76px 132px 88px 100px;
+    gap:16px; align-items:start; }
+  .oqd-line-grid .input, .oqd-line-grid .select-wrap { width:100%; }
+  /* soptunna uppe till höger (bara redigerbar) */
+  .dt-remove { position:absolute; top:14px; right:16px; width:32px; height:32px; border:0; background:transparent;
+    border-radius:var(--radius-control); color:var(--color-text-faint); cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center; }
+  .dt-remove:hover { background:var(--tone-danger-tint); color:var(--tone-danger-fg); }
+  .dt-remove svg { width:16px; height:16px; }
+
+  /* låst: kompakt tabell + delad rubrikremsa, alla värden högerlinjerade utom Moms */
+  .oqd-lines-head { display:grid; grid-template-columns:var(--oqd-line-cols); gap:12px;
+    padding:0 var(--oqd-line-pad) 10px; border-bottom:1px solid var(--color-border);
+    font-size:14px; font-weight:500; color:var(--color-text-muted); }
+  .oqd-lines-head[hidden] { display:none; }
+  .oqd-lines-head .num { text-align:right; }
+  .oqd-line-locked { display:grid; grid-template-columns:var(--oqd-line-cols); gap:12px; align-items:center; }
+  .oqd-line-locked .num { text-align:right; font-variant-numeric:tabular-nums; }
+  .oqd-line-locked .oqd-line-sum { text-align:right; }
+  .oqd-name-cell { display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .oqd-locked-val { color:var(--color-text); }
+  .oqd-locked-desc { font-size:14px; color:var(--color-text-muted); }
+
+  .oqd-lines-empty { padding:24px 12px; text-align:center; font-size:16px; color:var(--color-text-muted); }
+  @media (max-width:720px) {
+    .oqd-line-grid { grid-template-columns:1fr 1fr; }
+    .oqd-line-grid .oqd-line-benamning { grid-column:1 / -1; }
+    .oqd-lines-head { display:none; }
+    .oqd-line-locked { grid-template-columns:1fr auto; }
+    .oqd-line-locked .oqd-name-cell { grid-column:1 / -1; }
+    .oqd-line-locked .oqd-line-sum { grid-column:1 / -1; }
+  }
+
+  /* lägg-till-rad: vertikal, labelmärkt form (DS .field-mönster), tydliga labels inkl. Moms */
+  .oqd-add-row { margin-top:24px; padding-top:24px; border-top:1px solid var(--color-border); }
+  .oqd-add-row[hidden] { display:none; }
+  .oqd-add-title { margin:0 0 14px; font-weight:600; font-size:16px; line-height:22px; color:var(--color-text); }
+  .oqd-add-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .oqd-add-grid .full { grid-column:1 / -1; }
+  .oqd-add-foot { grid-column:1 / -1; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+  .oqd-add-total { font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--color-text-muted); }
+  .oqd-add-total strong { color:var(--color-text); font-weight:600; }
+  @media (max-width:640px) { .oqd-add-grid { grid-template-columns:1fr; } }
+
+  /* summering: Netto / Moms / Totalt inkl. moms — alla belopp i samma högerlinjerade kolumn */
+  .oqd-totals { margin:24px 0 0 auto; width:min(340px,100%); padding-right:var(--oqd-line-pad); }
+  .oqd-tot-row { display:grid; grid-template-columns:1fr auto; gap:0 24px; align-items:baseline; padding:4px 0; }
+  .oqd-tot-key { font-size:16px; color:var(--color-text-muted); }
+  .oqd-tot-val { font-size:16px; text-align:right; font-variant-numeric:tabular-nums; color:var(--color-text); }
+  .oqd-tot-total { margin-top:8px; padding-top:12px; border-top:1px solid var(--color-border); }
+  .oqd-tot-total .oqd-tot-key { font-weight:700; color:var(--color-text); }
+  .oqd-tot-total .oqd-tot-val { font-size:18px; font-weight:700; }
+
+  /* kund-snapshot i högerspalten: nyckel över värde, stackat (rail är smal) */
+  .oqd-snap-caption { margin:-6px 0 4px; font-size:14px; color:var(--color-text-muted); }
+  .oqd-snap-grid { display:grid; grid-template-columns:1fr; gap:2px 0; }
+  .oqd-snap-key { font-size:14px; color:var(--color-text-muted); }
+  .oqd-snap-key:not(:first-child) { margin-top:12px; }
+  .oqd-snap-val { font-size:16px; line-height:24px; color:var(--color-text); }
+  @media (max-width: 640px) {
+    .oqd-form { grid-template-columns:1fr; }
+  }
+
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+
   /* sidokolumn */
   .side-block { display:flex; flex-direction:column; gap:16px; }
   .side-block h3 { margin:0; font-weight:600; font-size:18px; line-height:24px; color:var(--color-text); }
@@ -110,28 +234,21 @@
   .deal-box-head { display:flex; align-items:center; justify-content:space-between;
     margin-bottom:14px; font-weight:600; }
 
-  /* ── inline-kalender (delad av uppföljning + datumintervall-filter) ── */
-  .cal { border:1px solid var(--color-border-strong); border-radius:var(--radius-control);
-    padding:12px; background:var(--color-surface); width:308px; max-width:100%; }
-  .cal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-  .cal-head .mlbl { font-weight:600; font-size:15px; }
-  .cal-nav { width:30px; height:30px; border:1px solid var(--color-border-strong);
-    border-radius:var(--radius-control); background:var(--color-surface); cursor:pointer;
-    font-size:18px; line-height:1; color:var(--color-text-muted); }
-  .cal-nav:hover { background:var(--color-surface-sunken); color:var(--color-text); }
-  .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
-  .cal-dow { font-size:14px; color:var(--color-text-faint); text-align:center; padding:4px 0; font-weight:600; }
-  .cal-day { aspect-ratio:1; border:1px solid transparent; border-radius:var(--radius-control);
-    background:transparent; font:inherit; font-size:14px; color:var(--color-text); cursor:pointer; }
-  .cal-day:not([disabled]):hover { background:var(--color-surface-sunken); }
-  .cal-day[disabled] { color:var(--color-text-faint); opacity:.4; cursor:default; }
-  .cal-day.today { border-color:var(--color-border-strong); font-weight:600; }
-  .cal-day.sel { background:var(--color-brand); color:var(--color-on-brand); border-color:var(--color-brand); }
-  .cal-day.in-range { background:var(--color-surface-sunken); border-radius:0; }
-  .cal-time { margin-top:10px; display:flex; align-items:center; gap:10px;
-    border-top:1px solid var(--color-border); padding-top:10px; }
-  .cal-time label { font-size:14px; font-weight:500; color:var(--color-text-muted); }
-  .cal-time input { width:130px; }
+  /* designat datumfält (ersätter native <input type=date>): knapp + popover-kalender */
+  .oqd-datefield { position:relative; }
+  .oqd-date-btn { display:flex; align-items:center; justify-content:space-between; gap:8px;
+    width:100%; text-align:left; cursor:pointer; }
+  .oqd-date-btn .placeholder { color:var(--color-text-faint); }
+  .oqd-date-btn svg { width:16px; height:16px; color:var(--color-text-muted); flex-shrink:0; }
+  .oqd-cal-pop { position:absolute; top:calc(100% + 6px); left:0; z-index:60;
+    background:var(--color-surface); border:1px solid var(--color-border);
+    border-radius:var(--radius-card); box-shadow:var(--shadow-popover); padding:12px; }
+  .oqd-cal-pop[hidden] { display:none; }
+  .oqd-cal-pop .cal { border:0; padding:0; background:none; width:280px; }
+  .oqd-cal-foot { display:flex; justify-content:space-between; gap:12px; margin-top:10px; }
+  .oqd-cal-foot button { border:0; background:none; padding:4px 2px; font:inherit; font-size:14px;
+    color:var(--color-brand); cursor:pointer; }
+  .oqd-cal-foot button:hover { text-decoration:underline; }
 
   /* datumintervall-filtrets meny: bredare än en vanlig filter-menu */
   .filter-menu.range-menu { width:auto; padding:12px; }
@@ -828,14 +945,20 @@
       </div>
     </section>
 
-    <!-- ═══════════════ VY: OFFERT-DETALJ ═══════════════ -->
+    <!-- ═══════════════ VY: OFFERT-DETALJ ═══════════════
+         Trogen mot routes/offerter/$quoteId.tsx: brödsmula → header (nummer +
+         statuschip + status-drivna åtgärder) → formulär → offertrader → kund-snapshot.
+         Åtgärdsknappar och rader byggs i app.js utifrån status/låst läge. -->
     <section class="view" id="view-offert-detalj">
       <div class="page-head gutter">
-        <h1 class="screen-title" id="of-title">Offert</h1>
+        <h1 class="screen-title" id="oqd-title-head">Offert</h1>
         <div class="page-actions">
           <a class="detail-back" href="#/offerter"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4l-4 4 4 4"/></svg>Offerter</a>
-          <button class="btn btn-secondary" type="button">Åtgärder<svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
-          <button class="btn btn-primary icon-l" type="button" data-open="drawer-aktivitet"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Logga aktivitet</button>
+          <div class="oqd-menu-wrap">
+            <button class="btn btn-secondary" type="button" id="oqd-actions-btn" aria-haspopup="true" aria-expanded="false">Åtgärder<svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+            <div class="oqd-menu" id="oqd-actions-menu" role="menu"></div>
+          </div>
+          <button class="btn btn-primary" type="button" id="oqd-cta"></button>
         </div>
       </div>
       <div class="ground">
@@ -843,66 +966,154 @@
           <div class="detail">
 
             <div class="detail-main">
-              <div class="meta-row">
-                <div class="meta-item"><div class="primary" id="of-value">—</div><div class="secondary">Belopp</div></div>
-                <div class="meta-item"><div class="primary"><span class="badge" id="of-status">—</span></div><div class="secondary">Status</div></div>
-                <div class="meta-item"><div class="primary" id="of-company">—</div><div class="secondary">Företag</div></div>
-                <div class="meta-item"><div class="primary" id="of-owner">—</div><div class="secondary">Ansvarig</div></div>
-              </div>
+              <p class="notice-inline oqd-status-msg" id="oqd-status-msg" data-tone="info" role="status" aria-live="polite" hidden>
+                <span class="notice-inline__icon" aria-hidden="true">
+                  <svg class="notice-inline__icon-success" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3.5 8.5l3 3 6-7"></path>
+                  </svg>
+                  <svg class="notice-inline__icon-info" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="8" cy="8" r="5.5"></circle>
+                    <path d="M8 7v3"></path>
+                    <path d="M8 4.75h.01"></path>
+                  </svg>
+                  <svg class="notice-inline__icon-warning" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 2.5l5.5 10H2.5L8 2.5z"></path>
+                    <path d="M8 6v2.75"></path>
+                    <path d="M8 11h.01"></path>
+                  </svg>
+                  <svg class="notice-inline__icon-danger" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="8" cy="8" r="5.5"></circle>
+                    <path d="M5.75 5.75l4.5 4.5"></path>
+                    <path d="M10.25 5.75l-4.5 4.5"></path>
+                  </svg>
+                </span>
+                <span class="notice-inline__text"></span>
+              </p>
 
-              <div class="composer">
-                <textarea class="composer-input" placeholder="Lägg till kommentar, logga ett samtal, skriv en anteckning…"></textarea>
-                <div class="composer-foot">
-                  <button class="btn btn-primary" type="button" disabled>Lägg till</button>
+            <!-- formulär: Titel, Giltig till, Följebrev, Villkor -->
+            <div class="oqd-card">
+              <form class="oqd-form" id="oqd-form" novalidate>
+                <div class="field full">
+                  <label class="field-label" for="oqd-title">Titel</label>
+                  <input class="input" id="oqd-title" type="text" placeholder="Offerttitel">
                 </div>
-              </div>
-
-              <div class="tabs" role="tablist">
-                <a class="tab is-active" role="tab" data-tab="of-oversikt">Översikt</a>
-                <a class="tab" role="tab" data-tab="of-detaljer">Detaljer</a>
-              </div>
-
-              <!-- Översikt -->
-              <div class="tab-pane is-active" data-pane="of-oversikt">
-                <div class="kv-grid">
-                  <div class="kv-item"><div class="primary" id="of-ov-company">—</div><div class="secondary">Företag</div></div>
-                  <div class="kv-item"><div class="primary" id="of-ov-value">—</div><div class="secondary">Belopp</div></div>
-                  <div class="kv-item"><div class="primary" id="of-ov-status">—</div><div class="secondary">Status</div></div>
-                  <div class="kv-item"><div class="primary" id="of-ov-owner">—</div><div class="secondary">Ansvarig</div></div>
-                  <div class="kv-item"><div class="primary" id="of-ov-date">—</div><div class="secondary">Datum</div></div>
-                  <div class="kv-item"><div class="primary" id="of-ov-valid">—</div><div class="secondary">Giltig till</div></div>
-                  <div class="kv-item"><div class="primary" id="of-ov-deal">—</div><div class="secondary">Kopplad affär</div></div>
+                <div class="field">
+                  <label class="field-label" for="oqd-valid-btn">Giltig till</label>
+                  <div class="oqd-datefield">
+                    <button class="input oqd-date-btn" type="button" id="oqd-valid-btn" aria-haspopup="dialog" aria-expanded="false">
+                      <span id="oqd-valid-label" class="placeholder">Välj datum</span>
+                      <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/></svg>
+                    </button>
+                    <div class="oqd-cal-pop" id="oqd-valid-pop" hidden></div>
+                    <input type="hidden" id="oqd-valid">
+                  </div>
                 </div>
+                <div class="field full">
+                  <label class="field-label" for="oqd-cover">Följebrev</label>
+                  <textarea class="textarea" id="oqd-cover" rows="4" placeholder="Inledande text till kunden…"></textarea>
+                </div>
+                <div class="field full">
+                  <label class="field-label" for="oqd-terms">Villkor</label>
+                  <textarea class="textarea" id="oqd-terms" rows="3" placeholder="Betalnings- och leveransvillkor…"></textarea>
+                </div>
+                <div class="oqd-form-foot">
+                  <button class="btn btn-primary" type="button" id="oqd-save">Spara ändringar</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- offertrader -->
+            <div class="oqd-card">
+              <h2 class="oqd-section-title">Offertrader</h2>
+              <!-- rubrikremsa visas bara i låst (kompakt) läge; JS togglar hidden -->
+              <div class="oqd-lines-head" id="oqd-lines-head" hidden>
+                <span>Produkt / beskrivning</span>
+                <span class="num">Antal</span>
+                <span class="num">À-pris (SEK)</span>
+                <span class="num">Rabatt %</span>
+                <span>Moms</span>
+                <span class="num">Summa</span>
+              </div>
+              <div id="oqd-lines-body"></div>
+
+              <!-- summering -->
+              <div class="oqd-totals">
+                <div class="oqd-tot-row"><span class="oqd-tot-key">Netto</span><span class="oqd-tot-val" id="oqd-net">0 SEK</span></div>
+                <div class="oqd-tot-row"><span class="oqd-tot-key">Moms</span><span class="oqd-tot-val" id="oqd-vat">0 SEK</span></div>
+                <div class="oqd-tot-row oqd-tot-total"><span class="oqd-tot-key">Totalt inkl. moms</span><span class="oqd-tot-val" id="oqd-gross">0 SEK</span></div>
               </div>
 
-              <!-- Detaljer -->
-              <div class="tab-pane" data-pane="of-detaljer">
-                <div class="kv-grid">
-                  <div class="kv-item"><div class="primary" id="of-de-id">—</div><div class="secondary">Offertnr</div></div>
-                  <div class="kv-item"><div class="primary" id="of-de-value">—</div><div class="secondary">Belopp</div></div>
-                  <div class="kv-item"><div class="primary" id="of-de-status">—</div><div class="secondary">Status</div></div>
-                  <div class="kv-item"><div class="primary" id="of-de-owner">—</div><div class="secondary">Ansvarig</div></div>
-                  <div class="kv-item"><div class="primary" id="of-de-valid">—</div><div class="secondary">Giltig till</div></div>
-                  <div class="kv-item"><div class="primary">Skapad i SlayCRM</div><div class="secondary">Källa</div></div>
+              <!-- lägg till rad (döljs i låst läge): vertikal, labelmärkt form -->
+              <div class="oqd-add-row" id="oqd-add-row">
+                <h3 class="oqd-add-title">Lägg till rad</h3>
+                <div class="oqd-add-grid">
+                  <div class="field full">
+                    <label class="field-label" for="oqd-add-product">Produkt</label>
+                    <div class="select-wrap">
+                      <select class="select" id="oqd-add-product">
+                        <option value="">Välj produkt (valfritt)</option>
+                      </select>
+                      <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="oqd-add-name">Produktnamn</label>
+                    <input class="input" id="oqd-add-name" type="text" placeholder="t.ex. Konsulttimme">
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="oqd-add-desc">Benämning</label>
+                    <input class="input" id="oqd-add-desc" type="text" placeholder="Valfri beskrivning">
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="oqd-add-qty">Antal</label>
+                    <input class="input" id="oqd-add-qty" type="number" min="0" step="1" placeholder="0">
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="oqd-add-price">À-pris (SEK)</label>
+                    <input class="input" id="oqd-add-price" type="number" min="0" step="100" placeholder="0">
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="oqd-add-disc">Rabatt %</label>
+                    <input class="input" id="oqd-add-disc" type="number" min="0" max="100" step="1" placeholder="0">
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="oqd-add-moms">Moms</label>
+                    <div class="select-wrap">
+                      <select class="select" id="oqd-add-moms">
+                        <option value="25">25%</option><option value="12">12%</option><option value="6">6%</option><option value="0">0%</option>
+                      </select>
+                      <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+                    </div>
+                  </div>
+                  <div class="oqd-add-foot">
+                    <span class="oqd-add-total">Radsumma: <strong id="oqd-add-total">0 SEK</strong></span>
+                    <button class="btn btn-primary" type="button" id="oqd-add-btn" disabled>+ Lägg till</button>
+                  </div>
                 </div>
               </div>
             </div>
+            </div><!-- /.detail-main -->
 
             <aside class="detail-side">
               <div class="side-block">
-                <h3>Företag</h3>
-                <div class="side-entity">
-                  <div class="primary" id="of-side-company">—</div>
-                  <div class="secondary" id="of-side-addr1"></div>
-                  <div class="secondary" id="of-side-addr2"></div>
+                <h3>Offert</h3>
+                <div class="oqd-snap-grid">
+                  <span class="oqd-snap-key">Offertnummer</span><span class="oqd-snap-val" id="oqd-number">—</span>
+                  <span class="oqd-snap-key">Status</span><span class="oqd-snap-val"><span class="badge" id="oqd-status">—</span></span>
+                  <span class="oqd-snap-key">Skickad</span><span class="oqd-snap-val" id="oqd-sent">—</span>
+                  <span class="oqd-snap-key">Giltig till</span><span class="oqd-snap-val" id="oqd-valid-meta">—</span>
                 </div>
               </div>
               <hr class="side-divider">
               <div class="side-block">
-                <h3>Kopplad affär</h3>
-                <div class="side-entity">
-                  <div class="primary" id="of-side-deal">—</div>
-                </div>
+                <h3>Kunduppgifter</h3>
+                <div class="oqd-snap-caption">Fruset vid offertdatum</div>
+                <div class="oqd-snap-grid" id="oqd-snap-grid"></div>
+              </div>
+              <hr class="side-divider">
+              <div class="side-block">
+                <h3>Affär</h3>
+                <div class="side-entity" id="oqd-side-deal"></div>
               </div>
             </aside>
 

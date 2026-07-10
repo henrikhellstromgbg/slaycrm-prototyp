@@ -104,12 +104,12 @@
   .btn-danger { background:var(--tone-danger); color:#fff; }
   .btn[disabled] { opacity:.45; cursor:not-allowed; box-shadow:none; }
 
-  .field { display:flex; flex-direction:column; gap:6px; }
-  .field label { font-weight:500; }
-  .input { font:inherit; padding:9px 13px; border:1px solid var(--color-border-strong); border-radius:var(--radius-control);
+  .field { display:flex; flex-direction:column; gap:6px; min-width:0; }
+  .field label { font-weight:500; color:var(--color-text-muted); }
+  .input { font:inherit; padding:9px 13px; border:1px solid var(--color-border); border-radius:var(--radius-control);
     background:var(--color-surface); color:var(--color-text); min-width:220px; }
   .input::placeholder { color:var(--color-text-placeholder); }
-  .input:focus { outline:none; border-color:var(--color-brand); box-shadow:0 0 0 3px rgba(226,106,0,.18); }
+  .input:focus { outline:none; border-color:var(--color-brand); }
 
   .card { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-card);
     box-shadow:var(--shadow-card); padding:var(--card-padding); max-width:280px; }
@@ -119,12 +119,12 @@
   /* field kit (mirrors screens.css) */
   .select-wrap { position:relative; display:inline-flex; }
   .sel { font:inherit; appearance:none; -webkit-appearance:none; height:var(--field-height); min-width:220px;
-    padding:0 36px 0 13px; border:1px solid var(--color-border-strong); border-radius:var(--radius-control);
+    padding:0 36px 0 13px; border:1px solid var(--color-border); border-radius:var(--radius-control);
     background:var(--color-surface); color:var(--color-text); cursor:pointer; }
   .select-wrap svg { position:absolute; right:12px; top:50%; transform:translateY(-50%); width:16px; height:16px;
     color:var(--color-text-muted); pointer-events:none; }
-  .sel:focus, .ta:focus { outline:none; border-color:var(--color-brand); box-shadow:var(--shadow-focus); }
-  .ta { font:inherit; min-width:220px; min-height:64px; padding:10px 13px; border:1px solid var(--color-border-strong);
+  .sel:focus, .ta:focus { outline:none; border-color:var(--color-brand); }
+  .ta { font:inherit; min-width:220px; min-height:64px; padding:10px 13px; border:1px solid var(--color-border);
     border-radius:var(--radius-control); background:var(--color-surface); color:var(--color-text); resize:vertical; }
   .av { width:var(--avatar-size); height:var(--avatar-size); border-radius:var(--radius-pill);
     display:inline-flex; align-items:center; justify-content:center; background:var(--color-surface-sunken);
@@ -159,9 +159,8 @@
     letter-spacing:.04em; margin:0 0 2px; width:100%; }
   .btn:active { transform:scale(.96); }
   .btn.is-focus { outline:2px solid var(--color-focus-ring); outline-offset:2px; }
-  .input.is-focus { outline:none; border-color:var(--color-brand); box-shadow:var(--shadow-focus); }
+  .input.is-focus { outline:none; border-color:var(--color-brand); }
   .input.is-error { border-color:var(--tone-danger); }
-  .input.is-error.is-focus { box-shadow:0 0 0 3px color-mix(in srgb, var(--tone-danger) 20%, transparent); }
   .input:disabled { background:var(--color-surface-sunken); color:var(--color-text-faint); cursor:not-allowed; }
   .field-err { font-size:14px; color:var(--tone-danger); }
 
@@ -396,7 +395,7 @@
     </div>
     <div class="specimen">
       <div class="field"><label for="f1">Sök företag</label><input class="input" id="f1" type="text" placeholder="Namn, org.nr eller ansvarig"></div>
-      <div class="field"><label for="f2">Fokusläge</label><input class="input" id="f2" type="text" value="Aktivt fält" style="border-color:var(--color-brand);box-shadow:var(--shadow-focus)"></div>
+      <div class="field"><label for="f2">Fokusläge</label><input class="input" id="f2" type="text" value="Aktivt fält" style="border-color:var(--color-brand)"></div>
     </div>
     <div class="specimen">
       <div class="field"><label for="f3">Ansvarig</label>
@@ -418,7 +417,7 @@
 
   <section>
     <p class="eyebrow">Komponent-states · kontraktet per läge</p>
-    <p style="color:var(--color-text-muted);margin:-4px 0 20px;max-width:64ch">Varje komponent har ett definierat läge. Fokus är alltid en 2px orange ring (utanför) eller glow (fält); disabled tappar skugga och sänks till <span class="mono">sunken</span>; fel markeras med danger-röd, aldrig med brand-orange.</p>
+    <p style="color:var(--color-text-muted);margin:-4px 0 20px;max-width:64ch">Varje komponent har ett definierat läge. Fokus markeras med orange kant, disabled sänks till <span class="mono">sunken</span>, och fel markeras med danger-röd, aldrig med brand-orange.</p>
     <div class="states">
 
       <div class="state-set">
@@ -433,10 +432,35 @@
 
       <div class="state-set">
         <p class="state-cap">FÄLT</p>
-        <div class="state-cell" style="align-items:stretch"><input class="input" type="text" value="Nordvik AB" aria-label="Fält, default"><span class="n">default</span></div>
-        <div class="state-cell" style="align-items:stretch"><input class="input is-focus" type="text" value="Nordvik AB" aria-label="Fält, fokus"><span class="n">focus</span></div>
-        <div class="state-cell" style="align-items:stretch"><input class="input" type="text" value="Låst värde" disabled aria-label="Fält, låst"><span class="n">disabled</span></div>
-        <div class="state-cell" style="align-items:stretch"><input class="input is-error is-focus" type="text" value="ogiltig@" aria-label="Fält, fel" aria-invalid="true"><span class="field-err">Ange en giltig e-post</span><span class="n">error</span></div>
+        <div class="state-cell" style="align-items:stretch">
+          <div class="field">
+            <label for="state-input-default">Label</label>
+            <input class="input" id="state-input-default" type="text" value="Nordvik AB" aria-label="Fält, default">
+          </div>
+          <span class="n">default</span>
+        </div>
+        <div class="state-cell" style="align-items:stretch">
+          <div class="field">
+            <label for="state-input-focus">Label</label>
+            <input class="input is-focus" id="state-input-focus" type="text" value="Nordvik AB" aria-label="Fält, fokus">
+          </div>
+          <span class="n">focus</span>
+        </div>
+        <div class="state-cell" style="align-items:stretch">
+          <div class="field">
+            <label for="state-input-disabled">Label</label>
+            <input class="input" id="state-input-disabled" type="text" value="Låst värde" disabled aria-label="Fält, låst">
+          </div>
+          <span class="n">disabled</span>
+        </div>
+        <div class="state-cell" style="align-items:stretch">
+          <div class="field">
+            <label for="state-input-error">Label</label>
+            <input class="input is-error is-focus" id="state-input-error" type="text" value="ogiltig@" aria-label="Fält, fel" aria-invalid="true">
+            <span class="field-err">Ange en giltig e-post</span>
+          </div>
+          <span class="n">error</span>
+        </div>
       </div>
 
       <div class="state-set">
@@ -446,6 +470,60 @@
         <div class="state-cell"><span class="badge badge--warning">Partner</span><span class="n">warning</span></div>
         <div class="state-cell"><span class="badge badge--danger">Förlorad</span><span class="n">danger</span></div>
         <div class="state-cell"><span class="badge badge--neutral">Utkast</span><span class="n">neutral</span></div>
+      </div>
+
+      <div class="state-set" style="align-items:flex-start">
+        <p class="state-cap">INLINE-NOTIS</p>
+        <div class="state-cell" style="align-items:stretch; min-width:320px">
+          <div class="notice-inline" data-tone="danger" role="status" aria-live="polite">
+            <span class="notice-inline__icon" aria-hidden="true">
+              <svg class="notice-inline__icon-danger" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="8" cy="8" r="5.5"></circle>
+                <path d="M5.75 5.75l4.5 4.5"></path>
+                <path d="M10.25 5.75l-4.5 4.5"></path>
+              </svg>
+            </span>
+            <span class="notice-inline__text">Kan inte skicka en offert utan rader — lägg till minst en rad först.</span>
+          </div>
+          <span class="n">danger</span>
+        </div>
+        <div class="state-cell" style="align-items:stretch; min-width:320px">
+          <div class="notice-inline" data-tone="success" role="status" aria-live="polite">
+            <span class="notice-inline__icon" aria-hidden="true">
+              <svg class="notice-inline__icon-success" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3.5 8.5l3 3 6-7"></path>
+              </svg>
+            </span>
+            <span class="notice-inline__text">Sparat! Offerten är uppdaterad.</span>
+          </div>
+          <span class="n">success</span>
+        </div>
+        <div class="state-cell" style="align-items:stretch; min-width:320px">
+          <div class="notice-inline" data-tone="info" role="status" aria-live="polite">
+            <span class="notice-inline__icon" aria-hidden="true">
+              <svg class="notice-inline__icon-info" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="8" cy="8" r="5.5"></circle>
+                <path d="M8 7v3"></path>
+                <path d="M8 4.75h.01"></path>
+              </svg>
+            </span>
+            <span class="notice-inline__text">Status uppdaterad: Skickad.</span>
+          </div>
+          <span class="n">info</span>
+        </div>
+        <div class="state-cell" style="align-items:stretch; min-width:320px">
+          <div class="notice-inline" data-tone="warning" role="status" aria-live="polite">
+            <span class="notice-inline__icon" aria-hidden="true">
+              <svg class="notice-inline__icon-warning" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 2.5l5.5 10H2.5L8 2.5z"></path>
+                <path d="M8 6v2.75"></path>
+                <path d="M8 11h.01"></path>
+              </svg>
+            </span>
+            <span class="notice-inline__text">Offerten saknar förfallodatum innan du skickar den.</span>
+          </div>
+          <span class="n">warning</span>
+        </div>
       </div>
 
       <div class="state-set" style="align-items:flex-start">

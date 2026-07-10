@@ -251,16 +251,12 @@ a { color:inherit; }
   border-radius:var(--radius-control); height:var(--field-height); padding:0 12px; outline:none; }
 .input::placeholder, .textarea::placeholder { color:var(--color-text-placeholder); }
 .textarea { height:auto; min-height:88px; padding:10px 12px; line-height:18px; resize:vertical; }
-.input:focus, .textarea:focus, .select:focus { border-color:var(--color-brand);
-  box-shadow:var(--shadow-focus); }
+.input:focus, .textarea:focus, .select:focus { border-color:var(--color-brand); }
 .input:disabled, .select:disabled, .textarea:disabled { background:var(--color-surface-sunken); color:var(--color-text-faint); cursor:not-allowed; }
 
 /* error — danger-röd kant (aldrig brand-orange), stöder .is-error och aria-invalid="true" */
 .input.is-error, .select.is-error, .textarea.is-error,
 .input[aria-invalid="true"], .select[aria-invalid="true"], .textarea[aria-invalid="true"] { border-color:var(--tone-danger); }
-.input.is-error:focus, .select.is-error:focus, .textarea.is-error:focus,
-.input[aria-invalid="true"]:focus, .select[aria-invalid="true"]:focus, .textarea[aria-invalid="true"]:focus {
-  box-shadow:0 0 0 3px color-mix(in srgb, var(--tone-danger) 20%, transparent); }
 .field-err { font-size:14px; line-height:18px; color:var(--tone-danger); }
 
 /* select — chevron via wrapper svg so it themes with currentColor */

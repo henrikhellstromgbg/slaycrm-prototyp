@@ -238,3 +238,199 @@ svg[stroke]:not([stroke="none"]) { stroke-width:var(--icon-stroke); }
 .badge--warning { background: var(--tone-warning-tint); color: var(--tone-warning-fg); }
 .badge--danger  { background: var(--tone-danger-tint);  color: var(--tone-danger-fg); }
 .badge--neutral { background: var(--tone-neutral-tint); color: var(--tone-neutral-fg); }
+
+/* ───────── inline notice / feedback band ─────────
+   För blockerande fel och tydliga kvittenser inne i formulärflöden.
+   Samma komponent, driven av data-tone. Skarpa hörn, tonad yta, tydlig vänsterkant. */
+.notice-inline {
+  --notice-tone: var(--tone-neutral);
+  --notice-tint: var(--tone-neutral-tint);
+  --notice-fg: var(--tone-neutral-fg);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 14px 12px 12px;
+  border-left: 3px solid var(--notice-tone);
+  border-radius: 0;
+  background: var(--notice-tint);
+  color: var(--notice-fg);
+  font-family: var(--p-font);
+  font-size: 14px;
+  line-height: 18px;
+}
+.notice-inline[hidden] { display: none; }
+.notice-inline[data-tone="success"] {
+  --notice-tone: var(--tone-success);
+  --notice-tint: var(--tone-success-tint);
+  --notice-fg: var(--tone-success-fg);
+}
+.notice-inline[data-tone="info"] {
+  --notice-tone: var(--tone-info);
+  --notice-tint: var(--tone-info-tint);
+  --notice-fg: var(--tone-info-fg);
+}
+.notice-inline[data-tone="warning"] {
+  --notice-tone: var(--tone-warning);
+  --notice-tint: var(--tone-warning-tint);
+  --notice-fg: var(--tone-warning-fg);
+}
+.notice-inline[data-tone="danger"] {
+  --notice-tone: var(--tone-danger);
+  --notice-tint: var(--tone-danger-tint);
+  --notice-fg: var(--tone-danger-fg);
+}
+.notice-inline__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--notice-tone);
+}
+.notice-inline__icon svg {
+  display: none;
+  width: 18px;
+  height: 18px;
+}
+.notice-inline__text {
+  flex: 1;
+  min-width: 0;
+  font-weight: 500;
+}
+.notice-inline[data-tone="success"] .notice-inline__icon-success,
+.notice-inline[data-tone="info"] .notice-inline__icon-info,
+.notice-inline[data-tone="warning"] .notice-inline__icon-warning,
+.notice-inline[data-tone="danger"] .notice-inline__icon-danger,
+.notice-inline:not([data-tone]) .notice-inline__icon-info {
+  display: block;
+}
+
+/* ───────── inline calendar / date picker ─────────
+   Delad av datumfält, intervallfilter och uppföljningsflöden. */
+.cal {
+  --cal-cell-size: 38px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-control);
+  padding: 12px;
+  background: var(--color-surface);
+  width: 308px;
+  max-width: 100%;
+}
+.cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.cal-head .mlbl {
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 20px;
+  color: var(--color-text);
+}
+.cal-nav {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  cursor: pointer;
+  font: inherit;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--color-text-muted);
+}
+.cal-nav:hover {
+  background: var(--color-surface-sunken);
+  color: var(--color-text);
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, var(--cal-cell-size));
+  column-gap: 0;
+  row-gap: 2px;
+  width: fit-content;
+  max-width: 100%;
+}
+.cal-dow {
+  display: grid;
+  place-items: center;
+  width: var(--cal-cell-size);
+  height: 26px;
+  padding: 4px 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--color-text-faint);
+}
+.cal-day {
+  appearance: none;
+  -webkit-appearance: none;
+  display: grid;
+  place-items: center;
+  width: var(--cal-cell-size);
+  height: var(--cal-cell-size);
+  min-width: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  line-height: 18px;
+  color: var(--color-text);
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  padding: 0;
+  margin: 0;
+}
+.cal-day:not([disabled]):hover {
+  background: var(--color-surface-sunken);
+}
+.cal-day[disabled] {
+  color: var(--color-text-faint);
+  opacity: .4;
+  cursor: default;
+}
+.cal-day.today {
+  border-color: var(--color-border-strong);
+  font-weight: 600;
+}
+.cal-day.sel {
+  background: var(--color-brand);
+  color: var(--color-on-brand);
+  border-color: var(--color-brand);
+  font-weight: 600;
+}
+.cal-day.in-range {
+  background: color-mix(in srgb, var(--color-brand) 12%, var(--color-surface));
+  color: var(--color-brand);
+  border-radius: 0;
+}
+.cal-day.range-start {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.cal-day.range-end {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.cal-time {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border);
+}
+.cal-time label {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  color: var(--color-text-muted);
+}
+.cal-time input {
+  width: 130px;
+}

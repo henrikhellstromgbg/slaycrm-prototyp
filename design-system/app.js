@@ -84,12 +84,61 @@
     'lars-sydfrakt':   { name: 'Lars Sydfrakt',   role: 'VD',        company: 'Sydfrakt & Co AB',        email: 'lars@sydfrakt.se',     tel: '070 555 66 77', owner: 'W. Bernting',    status: 'Inaktiv', tone: 'neutral' }
   };
 
+  /* produktkatalog för "Välj produkt (valfritt)" i lägg-till-raden (motsvarar DBProduct) */
+  var PRODUCTS = [
+    { id: 'p-crm-start', name: 'Demo CRM Start', price: 4800, moms: 25 },
+    { id: 'p-crm-pro', name: 'Demo CRM Pro', price: 7200, moms: 25 },
+    { id: 'p-crm-ent', name: 'Demo CRM Enterprise', price: 12000, moms: 25 },
+    { id: 'p-integr', name: 'Integrationspaket', price: 35000, moms: 25 },
+    { id: 'p-support', name: 'Support Premium', price: 18000, moms: 25 },
+    { id: 'p-utb', name: 'Utbildningsdag', price: 12000, moms: 25 }
+  ];
+
+  /* offerter — trogen mot routes/offerter/$quoteId.tsx: offertnummer + statusnyckel
+     (draft/sent/accepted/rejected/expired), följebrev, villkor, momsade rader och
+     ett fruset kund-snapshot. Rad = { product, benamning, qty, unit, discount, moms }. */
   var OFFERS = {
-    'OFF-3041': { name: 'Q3-leverans automation', company: 'Bergström Automation AB', value: '1 250 000 kr', status: 'Skickad',    tone: 'info',    owner: 'P. Steinberger', date: 'Skickad 4 juli 2026',    valid: '15 aug 2026',  deal: 'AFF-2041' },
-    'OFF-3038': { name: 'Ramavtal transport 2026', company: 'Nordvik Logistik AB',    value: '480 000 kr',   status: 'Utkast',     tone: 'neutral', owner: 'W. Bernting',    date: 'Utkast',                valid: '—',            deal: 'AFF-2038' },
-    'OFF-3044': { name: 'Servicekontrakt 3 år',    company: 'Op & Partners AB',        value: '320 000 kr',   status: 'Accepterad', tone: 'success', owner: 'A. Malmberg',    date: 'Accepterad 6 juli 2026', valid: '—',            deal: 'AFF-2044' },
-    'OFF-3029': { name: 'Utökning lagersystem',    company: 'Nordvik Logistik AB',    value: '210 000 kr',   status: 'Förfallen',  tone: 'warning', owner: 'W. Bernting',    date: 'Förfallen 30 juni 2026', valid: '30 juni 2026', deal: 'AFF-2029' },
-    'OFF-3015': { name: 'Pilotprojekt sensorer',   company: 'Bergström Automation AB', value: '95 000 kr',    status: 'Avböjd',     tone: 'danger',  owner: 'A. Malmberg',    date: 'Avböjd 24 juni 2026',    valid: '—',            deal: 'AFF-2015' }
+    'OFF-3041': { number: '2026-0041', title: 'Q3-leverans automation — Bergström Automation', company: 'Bergström Automation AB', orgnr: '556021-0041',
+      status: 'sent', sentISO: '2026-07-04', validISO: '2026-08-15', deal: 'AFF-2041',
+      coverNote: 'Offert på automationsleverans för Q3 med installation och utbildning på plats.',
+      terms: 'Betalningsvillkor: 30 dagar netto. Leverans enligt överenskommen tidplan.',
+      lines: [
+        { product: 'Automationsmodul X3', benamning: 'Grundpaket', qty: 5, unit: 180000, discount: 0, moms: 25 },
+        { product: 'Installation och driftsättning', benamning: '', qty: 1, unit: 250000, discount: 0, moms: 25 },
+        { product: 'Utbildning på plats', benamning: '2 dagar', qty: 2, unit: 50000, discount: 0, moms: 25 }
+      ] },
+    'OFF-3038': { number: '2026-0038', title: 'Ramavtal transport 2026 — Nordvik Logistik', company: 'Nordvik Logistik AB', orgnr: '556021-0038',
+      status: 'draft', sentISO: '', validISO: '', deal: 'AFF-2038',
+      coverNote: '',
+      terms: '',
+      lines: [
+        { product: 'Transportslinga Göteborg–Stockholm', benamning: 'Månadsavgift', qty: 12, unit: 30000, discount: 0, moms: 25 },
+        { product: 'Expressleverans, tillägg', benamning: '', qty: 1, unit: 120000, discount: 0, moms: 25 }
+      ] },
+    'OFF-3044': { number: '2026-0044', title: 'Servicekontrakt 3 år — Op & Partners', company: 'Op & Partners AB', orgnr: '556021-0044',
+      status: 'accepted', sentISO: '2026-06-28', validISO: '', deal: 'AFF-2044',
+      coverNote: 'Serviceavtal med årlig revision under 36 månader.',
+      terms: 'Betalningsvillkor: 30 dagar netto.',
+      lines: [
+        { product: 'Serviceavtal drift', benamning: 'Månadsavgift', qty: 36, unit: 8000, discount: 0, moms: 25 },
+        { product: 'Årlig revision', benamning: '', qty: 2, unit: 16000, discount: 0, moms: 25 }
+      ] },
+    'OFF-3029': { number: '2026-0029', title: 'Utökning lagersystem — Nordvik Logistik', company: 'Nordvik Logistik AB', orgnr: '556021-0038',
+      status: 'expired', sentISO: '2026-06-02', validISO: '2026-06-30', deal: 'AFF-2029',
+      coverNote: 'Utbyggnad av WMS med integrationsarbete.',
+      terms: 'Betalningsvillkor: 30 dagar netto.',
+      lines: [
+        { product: 'Lagermodul WMS', benamning: '', qty: 1, unit: 150000, discount: 0, moms: 25 },
+        { product: 'Integrationsarbete', benamning: 'Löpande timmar', qty: 40, unit: 1500, discount: 0, moms: 25 }
+      ] },
+    'OFF-3015': { number: '2026-0015', title: 'Pilotprojekt sensorer — Bergström Automation', company: 'Bergström Automation AB', orgnr: '556021-0041',
+      status: 'rejected', sentISO: '2026-06-18', validISO: '', deal: 'AFF-2015',
+      coverNote: 'Pilot med sensorpaket och analysrapport.',
+      terms: 'Betalningsvillkor: 30 dagar netto.',
+      lines: [
+        { product: 'Sensorpaket pilot', benamning: '', qty: 10, unit: 6500, discount: 0, moms: 25 },
+        { product: 'Analys och rapport', benamning: '', qty: 1, unit: 30000, discount: 0, moms: 25 }
+      ] }
   };
 
   var ACTIVITIES = {
@@ -406,48 +455,430 @@
     return d ? '<a href="#/affar/' + dealId + '">' + d.name + '</a>' : '—';
   }
 
+  /* Offert-detalj — trogen re-implementation av routes/offerter/$quoteId.tsx,
+     omskinnad i vårt designsystem. Ordning och beteende speglar den skarpa vyn:
+     brödsmula → header (nummer + statuschip + status-drivna åtgärder) → formulär
+     → offertrader (moms, rabatt, låst läge) → fruset kund-snapshot. */
+
+  /* status → { label, ton } (lib/crm.ts QUOTE_STATUS) */
+  var QSTATUS = {
+    draft:    { label: 'Utkast',     tone: 'neutral' },
+    sent:     { label: 'Skickad',    tone: 'info' },
+    accepted: { label: 'Accepterad', tone: 'success' },
+    rejected: { label: 'Avböjd',     tone: 'danger' },
+    expired:  { label: 'Förfallen',  tone: 'warning' }
+  };
+  /* tillåtna statusövergångar (support-filens TRANSITIONS) */
+  var QTRANSITIONS = { sent: ['accepted', 'rejected', 'expired'] };
+  var QACTION_LABEL = { accepted: 'Accepterad', rejected: 'Avböjd', expired: 'Markera förfallen' };
+
+  /* momsmatematik, identisk med lib/vat.ts */
+  function clampPct(v) { return Math.max(0, Math.min(100, v || 0)); }
+  function lineNet(l)   { return (l.qty || 0) * (l.unit || 0) * (1 - clampPct(l.discount) / 100); }
+  function lineVat(l)   { return lineNet(l) * (l.moms || 0) / 100; }
+  function lineGross(l) { return lineNet(l) * (1 + (l.moms || 0) / 100); }
+  function orderTotals(lines) {
+    return lines.reduce(function (t, l) {
+      t.net += lineNet(l); t.vat += lineVat(l); t.gross += lineGross(l); return t;
+    }, { net: 0, vat: 0, gross: 0 });
+  }
+  function fmtNum(v) { return Math.round(v).toLocaleString('sv-SE').replace(/[  ]/g, ' '); }
+  function fmtSEK(v) { return fmtNum(v) + ' SEK'; }
+
+  function isoToSv(iso) {
+    if (!iso) return '—';
+    var d = new Date(iso + 'T00:00:00');
+    if (isNaN(d)) return '—';
+    return d.getDate() + ' ' + MONTHS_SHORT[d.getMonth()] + ' ' + d.getFullYear();
+  }
+  function escHtml(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function escAttr(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+  function setVal(id, value) { var el = document.getElementById(id); if (el) el.value = value; }
+  function flashButton(btn, label) {
+    if (!btn) return;
+    if (!btn._orig) btn._orig = btn.textContent;
+    if (btn._t) clearTimeout(btn._t);
+    btn.textContent = label;
+    btn.disabled = true;
+    btn._t = setTimeout(function () { btn.textContent = btn._orig; btn.disabled = false; btn._t = null; }, 1200);
+  }
+
+  var CHEV_SVG = '<svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>';
+  var TRASH_SVG = '<svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5h11M6 4.5V3h4v1.5M4 4.5l.6 8.5a1 1 0 0 0 1 .9h4.8a1 1 0 0 0 1-.9l.6-8.5M6.5 7v4M9.5 7v4"/></svg>';
+
+  /* arbetskopia: { id, status, lines:[{product,benamning,qty,unit,discount,moms}] } */
+  var ofCurrent = null;
+
+  function quoteLocked(status) { return status === 'accepted' || status === 'rejected'; }
+
+  function momsOptions(sel) {
+    return [25, 12, 6, 0].map(function (r) {
+      return '<option value="' + r + '"' + (r === (sel || 0) ? ' selected' : '') + '>' + r + '%</option>';
+    }).join('');
+  }
+
+  /* en offertrad.
+     REDIGERBAR → självmärkande kort (DS .field-mönster som "Lägg till rad"): Produkt på egen
+       rad, fältband under, summa nere till höger.
+     LÅST → kompakt tabellrad under den delade rubrikremsan, alla värden högerlinjerade. */
+  function lineRowHtml(l, i, locked) {
+    var sum = fmtSEK(lineGross(l));
+    if (locked) {
+      return '<div class="oqd-line oqd-line-locked" data-row data-i="' + i + '">' +
+        '<div class="oqd-name-cell"><span class="oqd-locked-val">' + escHtml(l.product) + '</span>' +
+          (l.benamning ? '<span class="oqd-locked-desc">' + escHtml(l.benamning) + '</span>' : '') + '</div>' +
+        '<span class="oqd-locked-val num">' + escHtml(l.qty) + '</span>' +
+        '<span class="oqd-locked-val num">' + fmtNum(l.unit) + '</span>' +
+        '<span class="oqd-locked-val num">' + (l.discount || 0) + '%</span>' +
+        '<span class="oqd-locked-val">' + (l.moms || 0) + '%</span>' +
+        '<span class="oqd-line-sum num">' + sum + '</span>' +
+      '</div>';
+    }
+    return '<div class="oqd-line" data-row data-i="' + i + '">' +
+      '<button class="dt-remove" type="button" aria-label="Ta bort rad">' + TRASH_SVG + '</button>' +
+      '<div class="field oqd-line-product"><label class="field-label">Produkt</label>' +
+        '<input class="input l-name" type="text" value="' + escAttr(l.product) + '" aria-label="Produktnamn"></div>' +
+      '<div class="oqd-line-grid">' +
+        '<div class="field oqd-line-benamning"><label class="field-label">Benämning</label>' +
+          '<input class="input l-desc" type="text" value="' + escAttr(l.benamning || '') + '" placeholder="Valfri beskrivning" aria-label="Benämning"></div>' +
+        '<div class="field"><label class="field-label">Antal</label>' +
+          '<input class="input l-qty" type="number" min="0" step="1" value="' + l.qty + '" aria-label="Antal"></div>' +
+        '<div class="field"><label class="field-label">À-pris (SEK)</label>' +
+          '<input class="input l-unit" type="number" min="0" step="100" value="' + l.unit + '" aria-label="À-pris"></div>' +
+        '<div class="field"><label class="field-label">Rabatt %</label>' +
+          '<input class="input l-disc" type="number" min="0" max="100" step="1" value="' + (l.discount || 0) + '" aria-label="Rabatt"></div>' +
+        '<div class="field"><label class="field-label">Moms</label>' +
+          '<div class="select-wrap"><select class="select l-moms" aria-label="Moms">' + momsOptions(l.moms) + '</select>' + CHEV_SVG + '</div></div>' +
+      '</div>' +
+      '<div class="oqd-line-foot"><span class="oqd-line-sum" data-linesum>' + sum + '</span></div>' +
+    '</div>';
+  }
+
+  function readLineFromRow(tr) {
+    return {
+      product: tr.querySelector('.l-name').value,
+      benamning: tr.querySelector('.l-desc').value,
+      qty: parseFloat(tr.querySelector('.l-qty').value) || 0,
+      unit: parseFloat(tr.querySelector('.l-unit').value) || 0,
+      discount: parseFloat(tr.querySelector('.l-disc').value) || 0,
+      moms: parseFloat(tr.querySelector('.l-moms').value) || 0
+    };
+  }
+
+  function renderTotals() {
+    var t = orderTotals(ofCurrent.lines);
+    txt('oqd-net', fmtSEK(t.net));
+    txt('oqd-vat', fmtSEK(t.vat));
+    txt('oqd-gross', fmtSEK(t.gross));
+  }
+
+  function renderLines() {
+    var body = document.getElementById('oqd-lines-body');
+    if (!body || !ofCurrent) return;
+    var locked = quoteLocked(ofCurrent.status);
+    var head = document.getElementById('oqd-lines-head');
+    if (head) head.hidden = !(locked && ofCurrent.lines.length);
+    if (!ofCurrent.lines.length) {
+      body.innerHTML = '<div class="oqd-lines-empty">Inga rader ännu.</div>';
+    } else {
+      body.innerHTML = ofCurrent.lines.map(function (l, i) { return lineRowHtml(l, i, locked); }).join('');
+    }
+    renderTotals();
+  }
+
+  /* top-bar: primär CTA = statusens nästa steg, Åtgärder-meny = resten */
+  function renderHeadActions() {
+    var cta = document.getElementById('oqd-cta');
+    var menu = document.getElementById('oqd-actions-menu');
+    if (!cta || !menu || !ofCurrent) return;
+    var s = ofCurrent.status;
+
+    /* orange primär endast vid äkta framåtsteg (skicka utkast). statusregistrering
+       (accepterad/avböjd/förfallen) bor i Åtgärder. låst läge: bara sekundär PDF. */
+    var items = [];
+    if (s === 'draft') {
+      cta.hidden = false; cta.className = 'btn btn-primary';
+      cta.textContent = 'Markera som skickad';
+      cta.dataset.act = 'sent'; delete cta.dataset.setstatus;
+      items.push('<button type="button" role="menuitem" data-act="pdf">↓ Ladda ned PDF</button>');
+      items.push('<hr class="oqd-menu-sep">');
+      items.push('<button type="button" role="menuitem" class="danger" data-act="delete">Radera offert</button>');
+    } else if (s === 'sent') {
+      cta.hidden = true; delete cta.dataset.act; delete cta.dataset.setstatus;
+      items.push('<button type="button" role="menuitem" data-setstatus="accepted">Markera accepterad</button>');
+      items.push('<button type="button" role="menuitem" data-setstatus="rejected">Avböjd</button>');
+      items.push('<button type="button" role="menuitem" data-setstatus="expired">Markera förfallen</button>');
+      items.push('<hr class="oqd-menu-sep">');
+      items.push('<button type="button" role="menuitem" data-act="pdf">↓ Ladda ned PDF</button>');
+    } else {
+      cta.hidden = false; cta.className = 'btn btn-secondary';
+      cta.textContent = '↓ Ladda ned PDF';
+      cta.dataset.act = 'pdf'; delete cta.dataset.setstatus;
+    }
+    menu.innerHTML = items.join('');
+    var wrap = menu.closest('.oqd-menu-wrap');
+    if (wrap) wrap.hidden = !items.length;
+  }
+
+  function renderQuoteHeader() {
+    if (!ofCurrent) return;
+    var o = OFFERS[ofCurrent.id];
+    var meta = QSTATUS[ofCurrent.status] || { label: ofCurrent.status, tone: 'neutral' };
+    txt('oqd-title-head', o.title || o.number);
+    txt('oqd-number', o.number);
+    var chip = document.getElementById('oqd-status');
+    if (chip) { chip.className = 'badge badge--' + meta.tone; chip.textContent = meta.label; }
+    txt('oqd-sent', o.sentISO ? isoToSv(o.sentISO) : '—');
+    txt('oqd-valid-meta', o.validISO ? isoToSv(o.validISO) : '—');
+    renderHeadActions();
+  }
+
+  function renderSnapshot() {
+    if (!ofCurrent) return;
+    var o = OFFERS[ofCurrent.id];
+    var co = COMPANIES[o.company] || {};
+    var rows = [['Företagsnamn', o.company], ['Organisationsnummer', o.orgnr], ['Adress', co.addr1]];
+    if (co.addr2) {
+      var m = String(co.addr2).match(/^(\d{3}\s?\d{2})\s+(.+)$/);
+      if (m) { rows.push(['Postnummer', m[1]]); rows.push(['Stad', m[2]]); }
+      else rows.push(['Ort', co.addr2]);
+    }
+    rows.push(['Land', 'Sverige']);
+    var grid = document.getElementById('oqd-snap-grid');
+    if (grid) grid.innerHTML = rows.filter(function (r) { return r[1]; }).map(function (r) {
+      return '<span class="oqd-snap-key">' + escHtml(r[0]) + '</span><span class="oqd-snap-val">' + escHtml(r[1]) + '</span>';
+    }).join('');
+
+    var dealBox = document.getElementById('oqd-side-deal');
+    if (dealBox) {
+      var d = o.deal && DEALS[o.deal];
+      dealBox.innerHTML = d
+        ? '<div class="primary">' + escHtml(d.name) + '</div><div class="secondary"><a href="#/affar/' + escAttr(o.deal) + '">Öppna affären</a></div>'
+        : '<div class="secondary">Ingen kopplad affär</div>';
+    }
+  }
+
+  function showStatusMsg(msg, tone) {
+    var el = document.getElementById('oqd-status-msg');
+    if (!el) return;
+    var txt = el.querySelector('.notice-inline__text');
+    if (!txt) return;
+    txt.textContent = msg;
+    el.dataset.tone = tone || 'info';
+    el.hidden = false;
+    if (el._t) clearTimeout(el._t);
+    el._t = setTimeout(function () { el.hidden = true; }, 3200);
+  }
+
+  function ofSetStatus(ns) {
+    ofCurrent.status = ns;
+    OFFERS[ofCurrent.id].status = ns;
+    var addRow = document.getElementById('oqd-add-row');
+    if (addRow) addRow.hidden = quoteLocked(ns);
+    renderQuoteHeader();
+    renderLines();
+  }
+
+  /* lägg-till-raden */
+  function readAddRow() {
+    return {
+      product: (document.getElementById('oqd-add-name').value || ''),
+      benamning: (document.getElementById('oqd-add-desc').value || ''),
+      qty: parseFloat(document.getElementById('oqd-add-qty').value) || 0,
+      unit: parseFloat(document.getElementById('oqd-add-price').value) || 0,
+      discount: parseFloat(document.getElementById('oqd-add-disc').value) || 0,
+      moms: parseFloat(document.getElementById('oqd-add-moms').value) || 0
+    };
+  }
+  function updateAddState() {
+    var l = readAddRow();
+    txt('oqd-add-total', fmtSEK(lineGross(l)));
+    var btn = document.getElementById('oqd-add-btn');
+    if (btn) btn.disabled = !(l.product.trim() && l.qty && l.unit);
+  }
+  function clearAddRow() {
+    ['oqd-add-product', 'oqd-add-name', 'oqd-add-desc', 'oqd-add-qty', 'oqd-add-price', 'oqd-add-disc'].forEach(function (id) { setVal(id, ''); });
+    setVal('oqd-add-moms', '25');
+    updateAddState();
+  }
+
+  /* designat datumfält för "Giltig till": ISO i dolt fält, sv-datum på knappen */
+  function setValidValue(iso) {
+    var hid = document.getElementById('oqd-valid');
+    var lbl = document.getElementById('oqd-valid-label');
+    if (hid) hid.value = iso || '';
+    if (lbl) {
+      if (iso) { lbl.textContent = isoToSv(iso); lbl.classList.remove('placeholder'); }
+      else { lbl.textContent = 'Välj datum'; lbl.classList.add('placeholder'); }
+    }
+  }
+
+  function initValidDatePicker() {
+    var btn = document.getElementById('oqd-valid-btn');
+    var pop = document.getElementById('oqd-valid-pop');
+    if (!btn || !pop) return;
+    function toISO(d) {
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+    function close() { pop.hidden = true; pop.innerHTML = ''; btn.setAttribute('aria-expanded', 'false'); }
+    function open() {
+      var cur = document.getElementById('oqd-valid').value;
+      var cal = createCalendar({ initial: cur || null, onSelect: function (s) { if (s) { setValidValue(toISO(s)); close(); } } });
+      pop.innerHTML = '';
+      pop.appendChild(cal.el);
+      var foot = document.createElement('div');
+      foot.className = 'oqd-cal-foot';
+      foot.innerHTML = '<button type="button" data-cal="clear">Rensa</button><button type="button" data-cal="today">Idag</button>';
+      pop.appendChild(foot);
+      pop.hidden = false;
+      btn.setAttribute('aria-expanded', 'true');
+    }
+    btn.addEventListener('click', function (e) { e.stopPropagation(); if (pop.hidden) open(); else close(); });
+    pop.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var b = e.target.closest('[data-cal]');
+      if (!b) return;
+      if (b.dataset.cal === 'clear') { setValidValue(''); close(); }
+      else if (b.dataset.cal === 'today') { setValidValue(toISO(new Date())); close(); }
+    });
+    document.addEventListener('click', function (e) { if (!pop.hidden && !e.target.closest('.oqd-datefield')) close(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !pop.hidden) close(); });
+  }
+
+  function initOfferEditor() {
+    var body = document.getElementById('oqd-lines-body');
+    if (!body) return;
+    initValidDatePicker();
+
+    /* redigera befintlig rad (text/nummer via input, moms-select via change) */
+    function syncRow(tr) {
+      if (!tr || !tr.querySelector('.l-name')) return;
+      var i = parseInt(tr.getAttribute('data-i'), 10);
+      ofCurrent.lines[i] = readLineFromRow(tr);
+      var cell = tr.querySelector('[data-linesum]');
+      if (cell) cell.textContent = fmtSEK(lineGross(ofCurrent.lines[i]));
+      renderTotals();
+    }
+    body.addEventListener('input', function (e) { syncRow(e.target.closest('.oqd-line[data-row]')); });
+    body.addEventListener('change', function (e) {
+      if (e.target.classList.contains('l-moms')) syncRow(e.target.closest('.oqd-line[data-row]'));
+    });
+    body.addEventListener('click', function (e) {
+      var btn = e.target.closest('.dt-remove');
+      if (!btn) return;
+      var i = parseInt(btn.closest('.oqd-line[data-row]').getAttribute('data-i'), 10);
+      ofCurrent.lines.splice(i, 1);
+      renderLines();
+    });
+
+    /* produktväljare: fyll katalog + förifyll namn/pris/moms vid val */
+    var prodSel = document.getElementById('oqd-add-product');
+    if (prodSel) {
+      prodSel.insertAdjacentHTML('beforeend', PRODUCTS.map(function (p) {
+        return '<option value="' + p.id + '">' + escHtml(p.name) + '</option>';
+      }).join(''));
+    }
+    if (prodSel) prodSel.addEventListener('change', function () {
+      var p = PRODUCTS.filter(function (x) { return x.id === prodSel.value; })[0];
+      if (p) { setVal('oqd-add-name', p.name); setVal('oqd-add-price', p.price); setVal('oqd-add-moms', String(p.moms)); }
+      updateAddState();
+    });
+    ['oqd-add-name', 'oqd-add-desc', 'oqd-add-qty', 'oqd-add-price', 'oqd-add-disc', 'oqd-add-moms'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) { el.addEventListener('input', updateAddState); el.addEventListener('change', updateAddState); }
+    });
+    var addBtn = document.getElementById('oqd-add-btn');
+    if (addBtn) addBtn.addEventListener('click', function () {
+      var l = readAddRow();
+      if (!l.product.trim() || !l.qty || !l.unit) return;
+      ofCurrent.lines.push(l);
+      renderLines();
+      clearAddRow();
+      var nm = document.getElementById('oqd-add-name'); if (nm) nm.focus();
+    });
+
+    /* spara formulär (titel/giltig/följebrev/villkor + rader) */
+    var saveBtn = document.getElementById('oqd-save');
+    if (saveBtn) saveBtn.addEventListener('click', function () {
+      if (!ofCurrent) return;
+      var o = OFFERS[ofCurrent.id];
+      o.title = document.getElementById('oqd-title').value.trim() || o.title;
+      o.validISO = document.getElementById('oqd-valid').value;
+      o.coverNote = document.getElementById('oqd-cover').value;
+      o.terms = document.getElementById('oqd-terms').value;
+      o.lines = ofCurrent.lines.slice();
+      flashButton(saveBtn, 'Sparar…');
+      showStatusMsg('Sparat!', 'success');
+    });
+
+    /* status-drivna åtgärder: CTA + Åtgärder-meny delar samma handler */
+    function runOfferAction(ds) {
+      if (ds.act === 'pdf') { window.print(); return; }
+      if (ds.act === 'delete') {
+        if (window.confirm('Radera offerten? I prototypen tas den inte bort på riktigt, du skickas bara tillbaka till listan.')) location.hash = '#/offerter';
+        return;
+      }
+      if (ds.act === 'sent') {
+        if (!ofCurrent.lines.length) { showStatusMsg('Kan inte skicka en offert utan rader — lägg till minst en rad först.', 'danger'); return; }
+        ofSetStatus('sent'); showStatusMsg('Offerten är markerad som skickad.', 'success'); return;
+      }
+      if (ds.setstatus) {
+        ofSetStatus(ds.setstatus);
+        showStatusMsg('Status uppdaterad: ' + (QSTATUS[ds.setstatus] || {}).label, 'info');
+      }
+    }
+
+    var cta = document.getElementById('oqd-cta');
+    if (cta) cta.addEventListener('click', function () { runOfferAction(cta.dataset); });
+
+    /* Åtgärder-dropdown: egen toggle (screens.js rör bara .filter-group) */
+    var actBtn = document.getElementById('oqd-actions-btn');
+    var actMenu = document.getElementById('oqd-actions-menu');
+    function closeActMenu() {
+      if (actMenu) actMenu.classList.remove('is-open');
+      if (actBtn) actBtn.setAttribute('aria-expanded', 'false');
+    }
+    if (actBtn && actMenu) {
+      actBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var open = actMenu.classList.toggle('is-open');
+        actBtn.setAttribute('aria-expanded', String(open));
+      });
+      actMenu.addEventListener('click', function (e) {
+        var b = e.target.closest('button');
+        if (!b) return;
+        runOfferAction(b.dataset);
+        closeActMenu();
+      });
+      document.addEventListener('click', function (e) { if (!e.target.closest('.oqd-menu-wrap')) closeActMenu(); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeActMenu(); });
+    }
+  }
+
   function fillOfferDetail(oid) {
     var o = OFFERS[oid];
     if (!o) return;
-    var co = COMPANIES[o.company];
-
-    txt('of-title', o.name);
-    txt('of-value', o.value);
-    txt('of-owner', o.owner);
-
-    var st = document.getElementById('of-status');
-    if (st) { st.className = 'badge badge--' + o.tone; st.textContent = o.status; }
-
-    var mCompany = document.getElementById('of-company');
-    if (mCompany) mCompany.innerHTML = companyLink(o.company);
-
-    /* Översikt */
-    var ovCompany = document.getElementById('of-ov-company');
-    if (ovCompany) ovCompany.innerHTML = companyLink(o.company);
-    txt('of-ov-value', o.value);
-    txt('of-ov-status', o.status);
-    txt('of-ov-owner', o.owner);
-    txt('of-ov-date', o.date);
-    txt('of-ov-valid', o.valid);
-    var ovDeal = document.getElementById('of-ov-deal');
-    if (ovDeal) ovDeal.innerHTML = dealLink(o.deal);
-
-    /* Detaljer */
-    txt('of-de-id', oid);
-    txt('of-de-value', o.value);
-    txt('of-de-status', o.status);
-    txt('of-de-owner', o.owner);
-    txt('of-de-valid', o.valid);
-
-    /* sidorail: företag + kopplad affär */
-    var sideCo = document.getElementById('of-side-company');
-    if (sideCo) sideCo.innerHTML = companyLink(o.company);
-    txt('of-side-addr1', co ? co.addr1 : '');
-    txt('of-side-addr2', co ? co.addr2 : '');
-    var sideDeal = document.getElementById('of-side-deal');
-    if (sideDeal) sideDeal.innerHTML = dealLink(o.deal);
-
-    setTab(document.querySelector('#view-offert-detalj .detail-main'), 'of-oversikt');
+    ofCurrent = {
+      id: oid, status: o.status,
+      lines: o.lines.map(function (l) {
+        return { product: l.product, benamning: l.benamning, qty: l.qty, unit: l.unit, discount: l.discount, moms: l.moms };
+      })
+    };
+    setVal('oqd-title', o.title);
+    setValidValue(o.validISO || '');
+    setVal('oqd-cover', o.coverNote || '');
+    setVal('oqd-terms', o.terms || '');
+    var addRow = document.getElementById('oqd-add-row');
+    if (addRow) addRow.hidden = quoteLocked(o.status);
+    var msg = document.getElementById('oqd-status-msg'); if (msg) msg.hidden = true;
+    clearAddRow();
+    renderQuoteHeader();
+    renderLines();
+    renderSnapshot();
   }
 
   /* ── Aktivitet-detalj: fyll från ACTIVITIES ────────────────────── */
@@ -655,6 +1086,10 @@
     var view = new Date(); view.setDate(1); view.setHours(0, 0, 0, 0);
     var today = new Date(); today.setHours(0, 0, 0, 0);
     var start = null, end = null;
+    if (opts.initial) {
+      var init = new Date(opts.initial);
+      if (!isNaN(init)) { init.setHours(0, 0, 0, 0); start = init; view = new Date(init.getFullYear(), init.getMonth(), 1); }
+    }
 
     var el = document.createElement('div');
     el.className = 'cal';
@@ -674,9 +1109,15 @@
       for (var day = 1; day <= days; day++) {
         var cur = new Date(y, m, day);
         var cls = 'cal-day';
-        if (sameDay(cur, today)) cls += ' today';
-        if (sameDay(cur, start) || sameDay(cur, end)) cls += ' sel';
+        var isToday = sameDay(cur, today);
+        var isStart = sameDay(cur, start);
+        var isEnd = sameDay(cur, end);
+        var hasRange = range && start && end && !sameDay(start, end);
+        if (isToday) cls += ' today';
+        if (isStart || isEnd) cls += ' sel';
         else if (range && start && end && cur > start && cur < end) cls += ' in-range';
+        if (hasRange && isStart) cls += ' range-start';
+        if (hasRange && isEnd) cls += ' range-end';
         html += '<button class="' + cls + '" type="button" data-day="' + day + '">' + day + '</button>';
       }
       html += '</div>';
@@ -867,6 +1308,7 @@
   initTabs();
   mountRangeFilters();
   initFollowup();
+  initOfferEditor();
   window.addEventListener('hashchange', route);
   route();
 })();
