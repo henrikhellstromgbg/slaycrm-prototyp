@@ -121,6 +121,21 @@
   .feed-list .col-owner { align-items:flex-end; text-align:right; }
   .feed-list .cell .primary { white-space:normal; overflow:visible; text-overflow:clip; line-height:21px; }
 
+  /* postad kommentar under composern — meddelandeformat (avatar + namn · tid + text).
+     Listan injiceras av app.js efter varje .composer; luft bara när det finns kommentarer. */
+  .comment-list { display:flex; flex-direction:column; gap:16px; }
+  .comment-list:not(:empty) { margin-top:20px; }
+  .comment-item { display:flex; gap:12px; align-items:flex-start; }
+  .comment-avatar { flex:none; width:var(--avatar-sm-size); height:var(--avatar-sm-size);
+    border-radius:var(--radius-pill); background:var(--color-brand); color:var(--color-on-brand);
+    display:grid; place-items:center; font-size:14px; font-weight:600; line-height:1; }
+  .comment-main { flex:1; min-width:0; }
+  .comment-head { display:flex; align-items:baseline; gap:8px; margin-bottom:2px; }
+  .comment-author { font-weight:600; font-size:14px; line-height:18px; color:var(--color-text); }
+  .comment-time { font-size:14px; line-height:18px; color:var(--color-text-faint); }
+  .comment-body { font-size:14px; line-height:20px; color:var(--color-text);
+    white-space:pre-wrap; overflow-wrap:anywhere; }
+
   /* Översikt + Detaljer: värdet är huvudinfo (16px), etiketten under (14px) –
      samma mönster som meta-row och listceller genom hela appen. */
   .kv-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:20px 40px; }

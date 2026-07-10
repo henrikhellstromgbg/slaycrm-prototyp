@@ -1617,6 +1617,48 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(null); });
   })();
 
+  /* Kommentar-composer: posta en kommentar → renderas som ett kort under composern och
+     fältet töms. Samma mönster på alla detaljvyer; en .comment-list injiceras efter varje
+     .composer. Cmd/Ctrl+Enter postar också. (Prototypen persisterar inte — korten lever i DOM.) */
+  (function () {
+    var composers = Array.prototype.slice.call(document.querySelectorAll('.composer'));
+    composers.forEach(function (composer) {
+      var input = composer.querySelector('.composer-input');
+      var btn = composer.querySelector('.composer-foot .btn');
+      if (!input || !btn) return;
+
+      var list = document.createElement('div');
+      list.className = 'comment-list';
+      composer.parentNode.insertBefore(list, composer.nextSibling);
+
+      function post() {
+        var text = input.value.trim();
+        if (!text) return;
+        var item = document.createElement('div');
+        item.className = 'comment-item';
+        item.innerHTML =
+          '<div class="comment-avatar">D</div>' +
+          '<div class="comment-main">' +
+            '<div class="comment-head">' +
+              '<span class="comment-author">Demo User</span>' +
+              '<span class="comment-time">Just nu</span>' +
+            '</div>' +
+            '<div class="comment-body"></div>' +
+          '</div>';
+        item.querySelector('.comment-body').textContent = text;  /* textContent = ingen HTML-injektion */
+        list.insertBefore(item, list.firstChild);
+        input.value = '';
+        btn.disabled = true;
+        input.focus();
+      }
+
+      btn.addEventListener('click', post);
+      input.addEventListener('keydown', function (e) {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); post(); }
+      });
+    });
+  })();
+
   /* ── init ──────────────────────────────────────────────────────── */
 
   initTabs();
