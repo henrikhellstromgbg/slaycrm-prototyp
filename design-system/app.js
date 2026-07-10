@@ -663,7 +663,7 @@
 
   /* Offert-detalj — trogen re-implementation av routes/offerter/$quoteId.tsx,
      omskinnad i vårt designsystem. Ordning och beteende speglar den skarpa vyn:
-     brödsmula → header (nummer + statuschip + status-drivna åtgärder) → formulär
+     header (nummer + statuschip + status-drivna åtgärder) → formulär
      → offertrader (moms, rabatt, låst läge) → fruset kund-snapshot. */
 
   /* status → { label, ton } (lib/crm.ts QUOTE_STATUS) */
@@ -1158,15 +1158,6 @@
         '<div class="cell col-owner"><div class="primary">' + a.owner + '</div><div class="secondary">Ansvarig</div></div></div>';
     }
     setCount('ak-handelser-count', a.count);
-
-    /* Detaljer */
-    txt('ak-de-id', aid);
-    txt('ak-de-type', a.type);
-    txt('ak-de-owner', a.owner);
-    txt('ak-de-status', a.status);
-    var deCompany = document.getElementById('ak-de-company');
-    if (deCompany) deCompany.innerHTML = companyLink(a.company);
-    txt('ak-de-source', a.source);
 
     /* sidorail: företag + kontakt + kopplad affär */
     var sideCo = document.getElementById('ak-side-company');

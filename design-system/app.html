@@ -136,15 +136,6 @@
   .comment-body { font-size:14px; line-height:20px; color:var(--color-text);
     white-space:pre-wrap; overflow-wrap:anywhere; }
 
-  /* Översikt + Detaljer: värdet är huvudinfo (16px), etiketten under (14px) –
-     samma mönster som meta-row och listceller genom hela appen. */
-  .kv-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:20px 40px; }
-  .kv-item { display:flex; flex-direction:column; gap:2px; min-width:0; }
-  .kv-item .primary { font-weight:500; font-size:16px; line-height:21px; color:var(--color-text); }
-  .kv-item .primary a { color:var(--color-brand); text-decoration:none; }
-  .kv-item .primary a:hover { text-decoration:underline; }
-  .kv-item .secondary { font-size:14px; line-height:18px; color:var(--color-text-muted); }
-
   /* liten lista för offert-panelen (utan grid-krock mot list-vyerna) */
   .mini-list { display:flex; flex-direction:column; gap:8px; }
   .mini-row { display:flex; align-items:center; justify-content:space-between; gap:16px;
@@ -183,7 +174,7 @@
   #af-reconcile:not([hidden]) { margin-bottom:20px; }
 
   /* ═══ offert-detalj (oqd) — trogen mot routes/offerter/$quoteId.tsx, omskinnad i DS ═══
-     Ordning: brödsmula → header → formulär → offertrader → kund-snapshot. */
+     Ordning: header → formulär → offertrader → kund-snapshot. */
   .oqd { max-width:960px; margin:0 auto; display:flex; flex-direction:column; gap:24px; }
 
   /* Åtgärder-dropdown i top-baren. Egen toggle i app.js; screens.js filter-meny är bunden
@@ -619,7 +610,6 @@
               <div class="tabs" role="tablist">
                 <a class="tab is-active" role="tab" data-tab="ak-oversikt">Översikt</a>
                 <a class="tab" role="tab" data-tab="ak-handelser">Händelser <span class="count" id="ak-handelser-count">0</span></a>
-                <a class="tab" role="tab" data-tab="ak-detaljer">Detaljer</a>
               </div>
 
               <!-- Översikt: kommentarer/logg -->
@@ -638,18 +628,6 @@
               <!-- Händelser -->
               <div class="tab-pane" data-pane="ak-handelser">
                 <div class="list feed-list" id="ak-handelser"></div>
-              </div>
-
-              <!-- Detaljer -->
-              <div class="tab-pane" data-pane="ak-detaljer">
-                <div class="kv-grid">
-                  <div class="kv-item"><div class="primary" id="ak-de-id">—</div><div class="secondary">Aktivitets-ID</div></div>
-                  <div class="kv-item"><div class="primary" id="ak-de-type">—</div><div class="secondary">Typ</div></div>
-                  <div class="kv-item"><div class="primary" id="ak-de-owner">—</div><div class="secondary">Ansvarig</div></div>
-                  <div class="kv-item"><div class="primary" id="ak-de-status">—</div><div class="secondary">Status</div></div>
-                  <div class="kv-item"><div class="primary" id="ak-de-company">—</div><div class="secondary">Företag</div></div>
-                  <div class="kv-item"><div class="primary" id="ak-de-source">—</div><div class="secondary">Källa</div></div>
-                </div>
               </div>
             </div>
 
@@ -832,7 +810,7 @@
                 <a class="tab" role="tab" data-tab="dokument">Dokument</a>
               </div>
 
-              <!-- Översikt: avstämningsvarning (dold) + faktagrid + beskrivning + kommentarer -->
+              <!-- Översikt: avstämningsvarning (dold) + beskrivning + kommentarer -->
               <div class="tab-pane is-active" data-pane="oversikt">
                 <p class="notice-inline" id="af-reconcile" data-tone="warning" role="status" hidden>
                   <span class="notice-inline__icon" aria-hidden="true">
@@ -1156,7 +1134,7 @@
     </section>
 
     <!-- ═══════════════ VY: OFFERT-DETALJ ═══════════════
-         Trogen mot routes/offerter/$quoteId.tsx: brödsmula → header (nummer +
+         Trogen mot routes/offerter/$quoteId.tsx: header (nummer +
          statuschip + status-drivna åtgärder) → formulär → offertrader → kund-snapshot.
          Åtgärdsknappar och rader byggs i app.js utifrån status/låst läge. -->
     <section class="view" id="view-offert-detalj">
