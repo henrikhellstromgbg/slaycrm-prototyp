@@ -65,15 +65,73 @@
       .map(function (id) { return { id: id, deal: DEALS[id] }; });
   }
 
+  /* affärer — trogen mot routes/deals/$dealId.tsx: pipeline-fas (stage) + tone för listbadge,
+     härledd status (öppen/vunnen/förlorad), sannolikhet, kontaktperson (→ CONTACTS), beskrivning
+     och ett händelseflöde. Affärsvärdet stäms av mot ev. accepterad offert (reconcile). */
   var DEALS = {
-    'AFF-2041': { name: 'Q3-leverans automation', company: 'Bergström Automation AB', value: '1 250 000 kr', stage: 'Offert', tone: 'warning', owner: 'P. Steinberger', close: '31 aug 2026' },
-    'AFF-2038': { name: 'Ramavtal transport 2026', company: 'Nordvik Logistik AB', value: '480 000 kr', stage: 'Kvalificerad', tone: 'info', owner: 'W. Bernting', close: '31 aug 2026' },
-    'AFF-2044': { name: 'Servicekontrakt 3 år', company: 'Op & Partners AB', value: '320 000 kr', stage: 'Lead', tone: 'neutral', owner: 'A. Malmberg', close: '30 sep 2026' },
-    'AFF-2029': { name: 'Utökning lagersystem', company: 'Nordvik Logistik AB', value: '210 000 kr', stage: 'Vunnen', tone: 'success', owner: 'W. Bernting', close: '20 maj 2026' },
-    'AFF-2015': { name: 'Pilotprojekt sensorer', company: 'Bergström Automation AB', value: '95 000 kr', stage: 'Förlorad', tone: 'danger', owner: 'A. Malmberg', close: '—' },
-    'AFF-2050': { name: 'Supportavtal drift', company: 'Sydfrakt & Co AB', value: '60 000 kr', stage: 'Lead', tone: 'neutral', owner: 'W. Bernting', close: '31 okt 2026' },
-    'AFF-2051': { name: 'Utbyggnad terminal', company: 'Kvist Industri AB', value: '540 000 kr', stage: 'Kvalificerad', tone: 'info', owner: 'P. Steinberger', close: '30 nov 2026' },
-    'AFF-2052': { name: 'Serviceavtal drift', company: 'Kvist Industri AB', value: '180 000 kr', stage: 'Vunnen', tone: 'success', owner: 'P. Steinberger', close: '15 jun 2026' }
+    'AFF-2041': { name: 'Q3-leverans automation', company: 'Bergström Automation AB', value: '1 250 000 kr', stage: 'Offert', tone: 'warning', owner: 'P. Steinberger', close: '31 aug 2026',
+      prob: 60, created: '18 juni 2026', contact: 'petra-bergstrom',
+      desc: 'Leverans av automationslinje för Q3 med installation och utbildning på plats. Kunden vill förankra pris internt före beslut.',
+      orderLines: [
+        { product: 'Automationslinje AL-500', qty: 1, unit: 780000, moms: 25 },
+        { product: 'Installation på plats', qty: 1, unit: 180000, moms: 25 },
+        { product: 'Utbildning', benamning: '2 dagar', qty: 2, unit: 50000, moms: 25 }
+      ],
+      events: [
+        { date: '10 juli, 14:00', type: 'Samtal', text: 'Prisdiskussion 3-årsavtal. Ville ha 5% rabatt, kollar med chef.', owner: 'W. Bernting' },
+        { date: '5 juli, 14:00', type: 'E-post', text: 'Skickade prisunderlag för Q3 till Petra.', owner: 'W. Bernting' },
+        { date: '2 juli, 09:15', type: 'Samtal', text: 'Samtal med Petra, positiv ton. Vill förankra internt.', owner: 'W. Bernting' },
+        { date: '18 juni, 11:00', type: 'Möte', text: 'Uppstartsmöte, gick igenom behov och tidplan.', owner: 'P. Steinberger' }
+      ] },
+    'AFF-2038': { name: 'Ramavtal transport 2026', company: 'Nordvik Logistik AB', value: '480 000 kr', stage: 'Kvalificerad', tone: 'info', owner: 'W. Bernting', close: '31 aug 2026',
+      prob: 40, created: '2 juni 2026', contact: 'ola-nordvik',
+      desc: 'Ramavtal för transportslinga Göteborg–Stockholm under 2026, med option på expressleverans.',
+      orderLines: [
+        { product: 'Transportslinga Gbg–Sthlm', benamning: 'per månad', qty: 12, unit: 32000, moms: 25 },
+        { product: 'Expressoption', qty: 1, unit: 80000, moms: 25 }
+      ],
+      events: [
+        { date: '7 juli, 09:00', type: 'Samtal', text: 'Väntar på styrelsebeslut, hör av dig efter v.28.', owner: 'W. Bernting' },
+        { date: '20 juni, 13:30', type: 'Möte', text: 'Genomgång av ramavtalets omfattning.', owner: 'W. Bernting' }
+      ] },
+    'AFF-2044': { name: 'Servicekontrakt 3 år', company: 'Op & Partners AB', value: '320 000 kr', stage: 'Lead', tone: 'neutral', owner: 'A. Malmberg', close: '30 sep 2026',
+      prob: 20, created: '24 juni 2026', contact: 'johan-op',
+      desc: 'Serviceavtal med årlig revision under 36 månader. Offert accepterad, väntar på signering.',
+      events: [
+        { date: '9 juli, 09:00', type: 'Möte', text: 'Uppföljningsmöte inför 3-årsavtal, båda delägarna med.', owner: 'P. Steinberger' }
+      ] },
+    'AFF-2029': { name: 'Utökning lagersystem', company: 'Nordvik Logistik AB', value: '210 000 kr', stage: 'Vunnen', tone: 'success', owner: 'W. Bernting', close: '20 maj 2026',
+      prob: 100, created: '4 april 2026', contact: 'ola-nordvik',
+      desc: 'Utbyggnad av WMS med integrationsarbete mot befintligt affärssystem.',
+      orderLines: [
+        { product: 'WMS-utökning', qty: 1, unit: 150000, moms: 25 },
+        { product: 'Integrationsarbete', qty: 1, unit: 40000, moms: 25 }
+      ],
+      events: [
+        { date: '20 maj, 16:00', type: 'Anteckning', text: 'Affär vunnen. Order lagd på utökning av WMS.', owner: 'W. Bernting' }
+      ] },
+    'AFF-2015': { name: 'Pilotprojekt sensorer', company: 'Bergström Automation AB', value: '95 000 kr', stage: 'Förlorad', tone: 'danger', owner: 'A. Malmberg', close: '—',
+      prob: 0, created: '2 maj 2026', contact: 'petra-bergstrom',
+      desc: 'Pilot med sensorpaket och analysrapport inför breddad utrullning.',
+      events: [
+        { date: '18 juni, 10:00', type: 'Anteckning', text: 'Affär förlorad. Kunden valde konkurrent på pris.', owner: 'A. Malmberg' }
+      ] },
+    'AFF-2050': { name: 'Supportavtal drift', company: 'Sydfrakt & Co AB', value: '60 000 kr', stage: 'Lead', tone: 'neutral', owner: 'W. Bernting', close: '31 okt 2026',
+      prob: 20, created: '1 juli 2026', contact: 'lars-sydfrakt',
+      desc: 'Löpande supportavtal för drift, första kontakt taget.',
+      events: [] },
+    'AFF-2051': { name: 'Utbyggnad terminal', company: 'Kvist Industri AB', value: '540 000 kr', stage: 'Kvalificerad', tone: 'info', owner: 'P. Steinberger', close: '30 nov 2026',
+      prob: 40, created: '12 juni 2026', contact: 'mia-kvist',
+      desc: 'Utbyggnad av terminal med ny hanteringsutrustning.',
+      events: [
+        { date: '27 juni, 10:30', type: 'Möte', text: 'Platsbesök på terminalen, kartlade behov.', owner: 'P. Steinberger' }
+      ] },
+    'AFF-2052': { name: 'Serviceavtal drift', company: 'Kvist Industri AB', value: '180 000 kr', stage: 'Vunnen', tone: 'success', owner: 'P. Steinberger', close: '15 jun 2026',
+      prob: 100, created: '20 april 2026', contact: 'mia-kvist',
+      desc: 'Serviceavtal för drift av befintlig anläggning.',
+      events: [
+        { date: '15 juni, 14:00', type: 'Anteckning', text: 'Affär vunnen, avtal signerat.', owner: 'P. Steinberger' }
+      ] }
   };
 
   var CONTACTS = {
@@ -235,30 +293,209 @@
 
   function txt(id, value) { var el = document.getElementById(id); if (el) el.textContent = value; }
 
+  /* pipeline-faser (klickbara chips när affären är öppen); Vunnen/Förlorad = stängda lägen */
+  var DEAL_STAGES = ['Lead', 'Kvalificerad', 'Offert', 'Förhandling'];
+  var STAGE_TONE = { Lead: 'neutral', Kvalificerad: 'info', Offert: 'warning', 'Förhandling': 'info' };
+  var STAGE_PROB = { Lead: 20, Kvalificerad: 40, Offert: 60, 'Förhandling': 80 };
+
+  var afCurrent = null;
+
+  function dealStatus(d) { return d.stage === 'Vunnen' ? 'won' : d.stage === 'Förlorad' ? 'lost' : 'open'; }
+  function offersForDeal(id) {
+    return Object.keys(OFFERS).filter(function (o) { return OFFERS[o].deal === id; });
+  }
+  function parseSEK(s) { return parseFloat(String(s == null ? '' : s).replace(/[^\d]/g, '')) || 0; }
+  function acceptedNetForDeal(id) {
+    var acc = offersForDeal(id).filter(function (o) { return OFFERS[o].status === 'accepted'; })[0];
+    return acc ? orderTotals(OFFERS[acc].lines).net : null;
+  }
+
+  /* Åtgärder-meny — allt som ändrar affären bor här: fasflytt + stäng (öppen), återöppna (stängd).
+     Speglar DealDetailHeader men samlat i en dropdown (samma mönster som offert-detaljens Åtgärder). */
+  function renderDealMenu(id) {
+    var d = DEALS[id];
+    var menu = document.getElementById('af-actions-menu');
+    if (!menu || !d) return;
+    var st = dealStatus(d), items = [];
+    if (st === 'open') {
+      DEAL_STAGES.forEach(function (s) {
+        items.push('<button type="button" role="menuitem" data-stage="' + s + '"' + (s === d.stage ? ' aria-current="true"' : '') + '>' + s +
+          (s === d.stage ? '<span class="af-menu-now">nuvarande</span>' : '') + '</button>');
+      });
+      items.push('<hr class="oqd-menu-sep">');
+      items.push('<button type="button" role="menuitem" data-dealstatus="won">Stäng som vunnen</button>');
+      items.push('<button type="button" role="menuitem" class="danger" data-dealstatus="lost">Stäng som förlorad</button>');
+    } else {
+      items.push('<button type="button" role="menuitem" data-dealstatus="reopen">Återöppna affären</button>');
+    }
+    menu.innerHTML = items.join('');
+  }
+
+  /* affärsfakta bor i höger-railen (som offert-detaljens snapshot): sannolikhet + skapad
+     (värde/fas/avslut/ansvarig sätts i fillDetail/reRenderDeal). Här även avstämningsvarningen. */
+  function renderDealFacts(id) {
+    var d = DEALS[id];
+    txt('af-prob', d.prob + ' %');
+    txt('af-created', d.created);
+
+    /* avstämning: accepterad offert vs affärsvärde (dormant när de stämmer) */
+    var rec = document.getElementById('af-reconcile');
+    if (rec) {
+      var net = acceptedNetForDeal(id);
+      if (net != null && Math.round(net) !== parseSEK(d.value)) {
+        rec.querySelector('.notice-inline__text').textContent =
+          'Affärsvärdet stämmer inte med accepterad offert (' + fmtSEK(net) + ').';
+        rec.hidden = false;
+      } else {
+        rec.hidden = true;
+      }
+    }
+  }
+
+  function renderDealActivities(id) {
+    var d = DEALS[id];
+    setCount('af-akt-count', d.events.length);
+    var feed = document.getElementById('af-akt-feed');
+    if (!feed) return;
+    if (!d.events.length) {
+      feed.innerHTML = '<div class="empty"><div class="empty-title">Inga aktiviteter ännu</div>' +
+        '<p>Logga ett samtal, ett möte eller en anteckning så byggs flödet här.</p></div>';
+      return;
+    }
+    feed.innerHTML = d.events.map(function (e) {
+      return '<div class="row">' +
+        '<div class="cell"><div class="primary">' + e.date + '</div><div class="secondary">' + e.type + '</div></div>' +
+        '<div class="cell"><div class="primary">' + e.text + '</div></div>' +
+        '<div class="cell col-owner"><div class="primary">' + e.owner + '</div><div class="secondary">Ansvarig</div></div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function renderDealOffers(id) {
+    var ids = offersForDeal(id);
+    setCount('af-off-count', ids.length);
+    var list = document.getElementById('af-off-list');
+    if (!list) return;
+    if (!ids.length) {
+      list.innerHTML = '<div class="empty"><div class="empty-title">Inga offerter ännu</div>' +
+        '<p>Skapa en offert från affären så visas den här.</p></div>';
+      return;
+    }
+    /* samma radformat som offertlistan (col-title/col-amount/col-status); företag utelämnas
+       eftersom hela listan hör till en och samma affär (och därmed ett företag). */
+    list.innerHTML = ids.map(function (oid) {
+      var o = OFFERS[oid];
+      var meta = QSTATUS[o.status] || { label: o.status, tone: 'neutral' };
+      var gross = orderTotals(o.lines).gross;
+      var title = String(o.title).split(' — ')[0];
+      var sub = oid + ' · ' + meta.label.toLowerCase() + (o.sentISO ? ' ' + isoToSv(o.sentISO) : '');
+      return '<a class="row" href="#/offert/' + oid + '">' +
+        '<div class="cell col-title"><div class="primary">' + title + '</div><div class="secondary">' + sub + '</div></div>' +
+        '<div class="cell col-amount"><span class="amount">' + fmtSEK(gross) + '</span><div class="secondary">Värde</div></div>' +
+        '<div class="col-status"><span class="badge badge--' + meta.tone + '">' + meta.label + '</span></div></a>';
+    }).join('');
+  }
+
+  /* omritning efter en status-/fasändring i minnet (utan att byta vy) */
+  function reRenderDeal(id) {
+    var d = DEALS[id];
+    txt('af-value', d.value);
+    var stage = document.getElementById('af-stage');
+    if (stage) { stage.className = 'badge badge--' + d.tone; stage.textContent = d.stage; }
+    txt('af-owner', d.owner);
+    txt('af-close', d.close);
+    renderDealMenu(id);
+    renderDealFacts(id);
+    renderDealActivities(id);
+    if (afOrderEditor) afOrderEditor.render();
+  }
+  function setDealStage(id, s) {
+    var d = DEALS[id];
+    d.stage = s; d.tone = STAGE_TONE[s] || 'neutral';
+    if (STAGE_PROB[s] != null) d.prob = STAGE_PROB[s];
+    reRenderDeal(id);
+  }
+  function closeDeal(id, won) {
+    var d = DEALS[id];
+    if (dealStatus(d) === 'open') d._prevStage = d.stage;
+    d.stage = won ? 'Vunnen' : 'Förlorad';
+    d.tone = won ? 'success' : 'danger';
+    d.prob = won ? 100 : 0;
+    reRenderDeal(id);
+  }
+  function reopenDeal(id) {
+    var d = DEALS[id];
+    var s = d._prevStage || 'Kvalificerad';
+    d.stage = s; d.tone = STAGE_TONE[s] || 'info';
+    d.prob = STAGE_PROB[s] != null ? STAGE_PROB[s] : 40;
+    reRenderDeal(id);
+  }
+
+  /* delegerade lyssnare (kopplas en gång): Åtgärder-meny (toggle + fasflytt/stäng/återöppna), skapa offert */
+  function initDealDetail() {
+    var view = document.getElementById('view-affar-detalj');
+    if (!view) return;
+
+    /* Åtgärder-dropdown: egen toggle (screens.js rör bara .filter-group) — mönster ur offert-detaljen */
+    var actBtn = document.getElementById('af-actions-btn');
+    var actMenu = document.getElementById('af-actions-menu');
+    function closeActMenu() {
+      if (actMenu) actMenu.classList.remove('is-open');
+      if (actBtn) actBtn.setAttribute('aria-expanded', 'false');
+    }
+    if (actBtn && actMenu) {
+      actBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var open = actMenu.classList.toggle('is-open');
+        actBtn.setAttribute('aria-expanded', String(open));
+      });
+      document.addEventListener('click', function (e) { if (!e.target.closest('.af-menu-wrap')) closeActMenu(); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeActMenu(); });
+    }
+
+    view.addEventListener('click', function (e) {
+      if (!afCurrent) return;
+      var mi = e.target.closest('#af-actions-menu button');
+      if (mi) {
+        if (mi.dataset.stage) setDealStage(afCurrent, mi.dataset.stage);
+        else if (mi.dataset.dealstatus === 'won') closeDeal(afCurrent, true);
+        else if (mi.dataset.dealstatus === 'lost') closeDeal(afCurrent, false);
+        else if (mi.dataset.dealstatus === 'reopen') reopenDeal(afCurrent);
+        closeActMenu();
+        return;
+      }
+      if (e.target.closest('#af-new-offer')) {
+        /* prototypen persisterar inte nya offerter; öppna affärens offert-arbetsyta
+           (draft om sådan finns) — det är där raderna redigeras, precis som i skarpa flödet */
+        var ids = offersForDeal(afCurrent);
+        var draft = ids.filter(function (o) { return OFFERS[o].status === 'draft'; })[0];
+        var target = draft || ids[0];
+        if (target) location.hash = '#/offert/' + target;
+        else setTab(document.querySelector('#view-affar-detalj .detail-main'), 'offerter');
+        return;
+      }
+    });
+  }
+
   function fillDetail(id) {
     var d = DEALS[id];
     if (!d) return;
+    afCurrent = id;
     var co = COMPANIES[d.company] || { city: '', addr1: '', addr2: '', contacts: [] };
 
     txt('af-title', d.name);
     txt('af-value', d.value);
     txt('af-owner', d.owner);
     txt('af-close', d.close);
-
     var stage = document.getElementById('af-stage');
     if (stage) { stage.className = 'badge badge--' + d.tone; stage.textContent = d.stage; }
+    txt('af-ov-desc', d.desc || '—');
 
-    txt('af-ov-company', d.company);
-    txt('af-ov-city', co.city);
-    txt('af-ov-stage', d.stage);
-    txt('af-ov-value', d.value);
-    txt('af-ov-owner', d.owner);
-
-    txt('af-de-id', id);
-    txt('af-de-stage', d.stage);
-    txt('af-de-value', d.value);
-    txt('af-de-owner', d.owner);
-    txt('af-de-close', d.close);
+    renderDealMenu(id);
+    renderDealFacts(id);
+    renderDealActivities(id);
+    renderDealOffers(id);
+    if (afOrderEditor) { afOrderEditor.clearAdd(); afOrderEditor.render(); }
 
     var sideCo = document.getElementById('af-side-company');
     if (sideCo) sideCo.innerHTML = co.id
@@ -270,7 +507,7 @@
     var wrap = document.getElementById('af-side-contacts');
     if (wrap) {
       wrap.innerHTML = '';
-      co.contacts.forEach(function (c) {
+      (co.contacts || []).forEach(function (c) {
         var box = document.createElement('div');
         box.className = 'side-entity';
         box.innerHTML =
@@ -301,12 +538,9 @@
     var rel = document.getElementById('fo-relation');
     if (rel) { rel.className = 'badge badge--' + co.tone; rel.textContent = co.relation; }
 
-    txt('fo-ov-city', co.city);
-    txt('fo-ov-relation', co.relation);
-    txt('fo-ov-kategori', co.kategori);
-    txt('fo-ov-tel', co.tel);
-    txt('fo-ov-owner', co.owner);
-    txt('fo-ov-senaste', co.senaste);
+    /* rail-fakta (Kategori/Telefon nya i railen; övriga id:n återanvänds från gamla meta-row) */
+    txt('fo-kategori', co.kategori);
+    txt('fo-tel', co.tel);
 
     txt('fo-de-relation', co.relation);
     txt('fo-de-kategori', co.kategori);
@@ -407,21 +641,6 @@
     var st = document.getElementById('ko-status');
     if (st) { st.className = 'badge badge--' + c.tone; st.textContent = c.status; }
 
-    var mCompany = document.getElementById('ko-company');
-    if (mCompany) mCompany.innerHTML = companyLink(c.company);
-
-    /* Översikt */
-    var ovCompany = document.getElementById('ko-ov-company');
-    if (ovCompany) ovCompany.innerHTML = companyLink(c.company);
-    txt('ko-ov-role', c.role);
-    txt('ko-ov-owner', c.owner);
-    txt('ko-ov-status', c.status);
-
-    var ovMail = document.getElementById('ko-ov-email');
-    if (ovMail) ovMail.innerHTML = '<a href="mailto:' + c.email + '">' + c.email + '</a>';
-    var ovTel = document.getElementById('ko-ov-tel');
-    if (ovTel) ovTel.innerHTML = '<a href="tel:' + c.tel.replace(/\s/g, '') + '">' + c.tel + '</a>';
-
     /* Detaljer */
     txt('ko-de-role', c.role);
     txt('ko-de-owner', c.owner);
@@ -512,6 +731,8 @@
 
   /* arbetskopia: { id, status, lines:[{product,benamning,qty,unit,discount,moms}] } */
   var ofCurrent = null;
+  var ofEditor = null;        // offertens instans av den delade radeditorn
+  var afOrderEditor = null;   // affärens orderrad-instans (samma editor, samma vy)
 
   function quoteLocked(status) { return status === 'accepted' || status === 'rejected'; }
 
@@ -569,26 +790,9 @@
     };
   }
 
-  function renderTotals() {
-    var t = orderTotals(ofCurrent.lines);
-    txt('oqd-net', fmtSEK(t.net));
-    txt('oqd-vat', fmtSEK(t.vat));
-    txt('oqd-gross', fmtSEK(t.gross));
-  }
-
-  function renderLines() {
-    var body = document.getElementById('oqd-lines-body');
-    if (!body || !ofCurrent) return;
-    var locked = quoteLocked(ofCurrent.status);
-    var head = document.getElementById('oqd-lines-head');
-    if (head) head.hidden = !(locked && ofCurrent.lines.length);
-    if (!ofCurrent.lines.length) {
-      body.innerHTML = '<div class="oqd-lines-empty">Inga rader ännu.</div>';
-    } else {
-      body.innerHTML = ofCurrent.lines.map(function (l, i) { return lineRowHtml(l, i, locked); }).join('');
-    }
-    renderTotals();
-  }
+  /* offertens render/totals delegeras till den delade radeditorn (createLineEditor) */
+  function renderTotals() { if (ofEditor) ofEditor.renderTotals(); }
+  function renderLines() { if (ofEditor) ofEditor.render(); }
 
   /* top-bar: primär CTA = statusens nästa steg, Åtgärder-meny = resten */
   function renderHeadActions() {
@@ -683,27 +887,114 @@
     renderLines();
   }
 
-  /* lägg-till-raden */
-  function readAddRow() {
-    return {
-      product: (document.getElementById('oqd-add-name').value || ''),
-      benamning: (document.getElementById('oqd-add-desc').value || ''),
-      qty: parseFloat(document.getElementById('oqd-add-qty').value) || 0,
-      unit: parseFloat(document.getElementById('oqd-add-price').value) || 0,
-      discount: parseFloat(document.getElementById('oqd-add-disc').value) || 0,
-      moms: parseFloat(document.getElementById('oqd-add-moms').value) || 0
-    };
-  }
-  function updateAddState() {
-    var l = readAddRow();
-    txt('oqd-add-total', fmtSEK(lineGross(l)));
-    var btn = document.getElementById('oqd-add-btn');
-    if (btn) btn.disabled = !(l.product.trim() && l.qty && l.unit);
-  }
-  function clearAddRow() {
-    ['oqd-add-product', 'oqd-add-name', 'oqd-add-desc', 'oqd-add-qty', 'oqd-add-price', 'oqd-add-disc'].forEach(function (id) { setVal(id, ''); });
-    setVal('oqd-add-moms', '25');
-    updateAddState();
+  /* offertens lägg-till-rad delegeras till den delade radeditorn */
+  function clearAddRow() { if (ofEditor) ofEditor.clearAdd(); }
+
+  /* ── delad radeditor ────────────────────────────────────────────────
+     Offertens radvy (oqd-*) och affärens orderrader (afr-*) är samma vy och
+     samma motor. Skillnaden är bara vilka fält-id:n den binder mot och var
+     raderna bor: getLines() pekar på arbetskopian (offert) eller affärens
+     egna rader (affär). isLocked() styr om raderna renderas läsbara/redigerbara.
+     onChange() valfri notis efter mutation (t.ex. skriv-igenom). */
+  function createLineEditor(cfg) {
+    var body = document.getElementById(cfg.bodyId);
+    if (!body) return null;
+    var head = cfg.headId ? document.getElementById(cfg.headId) : null;
+
+    function lines() { return cfg.getLines() || []; }
+    function locked() { return cfg.isLocked ? !!cfg.isLocked() : false; }
+    function changed() { if (cfg.onChange) cfg.onChange(); }
+
+    function renderTotals() {
+      var t = orderTotals(lines());
+      txt(cfg.netId, fmtSEK(t.net));
+      txt(cfg.vatId, fmtSEK(t.vat));
+      txt(cfg.grossId, fmtSEK(t.gross));
+    }
+    function render() {
+      var ls = lines(), lk = locked();
+      if (head) head.hidden = !(lk && ls.length);
+      if (!ls.length) {
+        body.innerHTML = '<div class="oqd-lines-empty">Inga rader ännu.</div>';
+      } else {
+        body.innerHTML = ls.map(function (l, i) { return lineRowHtml(l, i, lk); }).join('');
+      }
+      renderTotals();
+    }
+
+    /* redigera befintlig rad (text/nummer via input, moms-select via change) */
+    function syncRow(row) {
+      if (!row || !row.querySelector('.l-name')) return;
+      var i = parseInt(row.getAttribute('data-i'), 10);
+      lines()[i] = readLineFromRow(row);
+      var cell = row.querySelector('[data-linesum]');
+      if (cell) cell.textContent = fmtSEK(lineGross(lines()[i]));
+      renderTotals();
+      changed();
+    }
+    body.addEventListener('input', function (e) { syncRow(e.target.closest('.oqd-line[data-row]')); });
+    body.addEventListener('change', function (e) {
+      if (e.target.classList.contains('l-moms')) syncRow(e.target.closest('.oqd-line[data-row]'));
+    });
+    body.addEventListener('click', function (e) {
+      var btn = e.target.closest('.dt-remove');
+      if (!btn) return;
+      var i = parseInt(btn.closest('.oqd-line[data-row]').getAttribute('data-i'), 10);
+      lines().splice(i, 1);
+      render();
+      changed();
+    });
+
+    /* lägg-till-raden */
+    function readAdd() {
+      return {
+        product: (document.getElementById(cfg.addNameId).value || ''),
+        benamning: (document.getElementById(cfg.addDescId).value || ''),
+        qty: parseFloat(document.getElementById(cfg.addQtyId).value) || 0,
+        unit: parseFloat(document.getElementById(cfg.addPriceId).value) || 0,
+        discount: parseFloat(document.getElementById(cfg.addDiscId).value) || 0,
+        moms: parseFloat(document.getElementById(cfg.addMomsId).value) || 0
+      };
+    }
+    function updateAdd() {
+      var l = readAdd();
+      txt(cfg.addTotalId, fmtSEK(lineGross(l)));
+      var btn = document.getElementById(cfg.addBtnId);
+      if (btn) btn.disabled = !(l.product.trim() && l.qty && l.unit);
+    }
+    function clearAdd() {
+      [cfg.addProductId, cfg.addNameId, cfg.addDescId, cfg.addQtyId, cfg.addPriceId, cfg.addDiscId].forEach(function (id) { setVal(id, ''); });
+      setVal(cfg.addMomsId, '25');
+      updateAdd();
+    }
+
+    var prodSel = document.getElementById(cfg.addProductId);
+    if (prodSel) {
+      prodSel.insertAdjacentHTML('beforeend', PRODUCTS.map(function (p) {
+        return '<option value="' + p.id + '">' + escHtml(p.name) + '</option>';
+      }).join(''));
+      prodSel.addEventListener('change', function () {
+        var p = PRODUCTS.filter(function (x) { return x.id === prodSel.value; })[0];
+        if (p) { setVal(cfg.addNameId, p.name); setVal(cfg.addPriceId, p.price); setVal(cfg.addMomsId, String(p.moms)); }
+        updateAdd();
+      });
+    }
+    [cfg.addNameId, cfg.addDescId, cfg.addQtyId, cfg.addPriceId, cfg.addDiscId, cfg.addMomsId].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) { el.addEventListener('input', updateAdd); el.addEventListener('change', updateAdd); }
+    });
+    var addBtn = document.getElementById(cfg.addBtnId);
+    if (addBtn) addBtn.addEventListener('click', function () {
+      var l = readAdd();
+      if (!l.product.trim() || !l.qty || !l.unit) return;
+      lines().push(l);
+      render();
+      clearAdd();
+      changed();
+      var nm = document.getElementById(cfg.addNameId); if (nm) nm.focus();
+    });
+
+    return { render: render, renderTotals: renderTotals, clearAdd: clearAdd };
   }
 
   /* designat datumfält för "Giltig till": ISO i dolt fält, sv-datum på knappen */
@@ -750,55 +1041,18 @@
   }
 
   function initOfferEditor() {
-    var body = document.getElementById('oqd-lines-body');
-    if (!body) return;
+    if (!document.getElementById('oqd-lines-body')) return;
     initValidDatePicker();
 
-    /* redigera befintlig rad (text/nummer via input, moms-select via change) */
-    function syncRow(tr) {
-      if (!tr || !tr.querySelector('.l-name')) return;
-      var i = parseInt(tr.getAttribute('data-i'), 10);
-      ofCurrent.lines[i] = readLineFromRow(tr);
-      var cell = tr.querySelector('[data-linesum]');
-      if (cell) cell.textContent = fmtSEK(lineGross(ofCurrent.lines[i]));
-      renderTotals();
-    }
-    body.addEventListener('input', function (e) { syncRow(e.target.closest('.oqd-line[data-row]')); });
-    body.addEventListener('change', function (e) {
-      if (e.target.classList.contains('l-moms')) syncRow(e.target.closest('.oqd-line[data-row]'));
-    });
-    body.addEventListener('click', function (e) {
-      var btn = e.target.closest('.dt-remove');
-      if (!btn) return;
-      var i = parseInt(btn.closest('.oqd-line[data-row]').getAttribute('data-i'), 10);
-      ofCurrent.lines.splice(i, 1);
-      renderLines();
-    });
-
-    /* produktväljare: fyll katalog + förifyll namn/pris/moms vid val */
-    var prodSel = document.getElementById('oqd-add-product');
-    if (prodSel) {
-      prodSel.insertAdjacentHTML('beforeend', PRODUCTS.map(function (p) {
-        return '<option value="' + p.id + '">' + escHtml(p.name) + '</option>';
-      }).join(''));
-    }
-    if (prodSel) prodSel.addEventListener('change', function () {
-      var p = PRODUCTS.filter(function (x) { return x.id === prodSel.value; })[0];
-      if (p) { setVal('oqd-add-name', p.name); setVal('oqd-add-price', p.price); setVal('oqd-add-moms', String(p.moms)); }
-      updateAddState();
-    });
-    ['oqd-add-name', 'oqd-add-desc', 'oqd-add-qty', 'oqd-add-price', 'oqd-add-disc', 'oqd-add-moms'].forEach(function (id) {
-      var el = document.getElementById(id);
-      if (el) { el.addEventListener('input', updateAddState); el.addEventListener('change', updateAddState); }
-    });
-    var addBtn = document.getElementById('oqd-add-btn');
-    if (addBtn) addBtn.addEventListener('click', function () {
-      var l = readAddRow();
-      if (!l.product.trim() || !l.qty || !l.unit) return;
-      ofCurrent.lines.push(l);
-      renderLines();
-      clearAddRow();
-      var nm = document.getElementById('oqd-add-name'); if (nm) nm.focus();
+    /* offertens radvy = delade editorn, bunden mot arbetskopian ofCurrent.lines */
+    ofEditor = createLineEditor({
+      bodyId: 'oqd-lines-body', headId: 'oqd-lines-head',
+      netId: 'oqd-net', vatId: 'oqd-vat', grossId: 'oqd-gross',
+      addProductId: 'oqd-add-product', addNameId: 'oqd-add-name', addDescId: 'oqd-add-desc',
+      addQtyId: 'oqd-add-qty', addPriceId: 'oqd-add-price', addDiscId: 'oqd-add-disc',
+      addMomsId: 'oqd-add-moms', addTotalId: 'oqd-add-total', addBtnId: 'oqd-add-btn',
+      getLines: function () { return ofCurrent ? ofCurrent.lines : []; },
+      isLocked: function () { return !!(ofCurrent && quoteLocked(ofCurrent.status)); }
     });
 
     /* spara formulär (titel/giltig/följebrev/villkor + rader) */
@@ -823,12 +1077,12 @@
         return;
       }
       if (ds.act === 'sent') {
-        if (!ofCurrent.lines.length) { showStatusMsg('Kan inte skicka en offert utan rader — lägg till minst en rad först.', 'danger'); return; }
+        if (!ofCurrent.lines.length) { showStatusMsg('Kan inte skicka en offert utan rader, lägg till minst en rad först.', 'danger'); return; }
         ofSetStatus('sent'); showStatusMsg('Offerten är markerad som skickad.', 'success'); return;
       }
       if (ds.setstatus) {
         ofSetStatus(ds.setstatus);
-        showStatusMsg('Status uppdaterad: ' + (QSTATUS[ds.setstatus] || {}).label, 'info');
+        showStatusMsg('Status uppdaterad: ' + (QSTATUS[ds.setstatus] || {}).label, (QSTATUS[ds.setstatus] || {}).tone || 'info');
       }
     }
 
@@ -902,15 +1156,8 @@
     var st = document.getElementById('ak-status');
     if (st) { st.className = 'badge badge--' + a.tone; st.textContent = a.status; }
 
-    /* Översikt */
-    var ovCompany = document.getElementById('ak-ov-company');
-    if (ovCompany) ovCompany.innerHTML = companyLink(a.company);
-    txt('ak-ov-type', a.type);
-    txt('ak-ov-date', a.date);
-    txt('ak-ov-owner', a.owner);
-    txt('ak-ov-status', a.status);
-    var ovContact = document.getElementById('ak-ov-contact');
-    if (ovContact) ovContact.innerHTML = contactLink(a.contact);
+    /* rail-fakta: Källa ny i railen; Typ/Datum/Ansvarig/Status återanvänder gamla meta-row-id:n */
+    txt('ak-source', a.source);
 
     /* Händelser-fliken — not + skapad-post */
     var hWrap = document.getElementById('ak-handelser');
@@ -1203,6 +1450,32 @@
 
   /* ── uppföljnings-modalens innandöme ───────────────────────────── */
 
+  /* ── affärens orderrader ────────────────────────────────────────────
+     Samma inline-radvy som offerten (createLineEditor), men bunden mot
+     affärens EGNA rader DEALS[id].orderLines (skilt från offerternas).
+     Live-redigering: ändringar skrivs direkt till affären, ingen separat
+     Spara, eftersom bara radkortet återanvänds (inte offertens formulär).
+     Avstämningen (renderDealFacts) rör inte dessa rader. */
+  function initDealOrderEditor() {
+    if (!document.getElementById('afr-lines-body')) return;
+    afOrderEditor = createLineEditor({
+      bodyId: 'afr-lines-body', headId: 'afr-lines-head',
+      netId: 'afr-net', vatId: 'afr-vat', grossId: 'afr-gross',
+      addProductId: 'afr-add-product', addNameId: 'afr-add-name', addDescId: 'afr-add-desc',
+      addQtyId: 'afr-add-qty', addPriceId: 'afr-add-price', addDiscId: 'afr-add-disc',
+      addMomsId: 'afr-add-moms', addTotalId: 'afr-add-total', addBtnId: 'afr-add-btn',
+      getLines: function () {
+        var d = afCurrent && DEALS[afCurrent];
+        if (!d) return [];
+        if (!d.orderLines) d.orderLines = [];
+        return d.orderLines;
+      },
+      /* samma redigerbara radvy som offerten; affärens rader är live-bundna
+         så ändringar sparas direkt (ingen separat Spara som i offertformuläret) */
+      isLocked: function () { return false; }
+    });
+  }
+
   var fuCal = null;
 
   /* företaget för uppföljningens kontext: affär- eller aktivitet-detalj */
@@ -1281,26 +1554,45 @@
     });
   })();
 
-  /* ── global "+ Ny" quick-create ─────────────────────────────────
-     Öppnar/stänger menyn; menyvalen bär data-open så screens.js öppnar
-     rätt drawer. Vi stänger bara menyn (drawern sköts av screens.js). */
+  /* ── topbar-popovers (notiser + konto) ──────────────────────────────
+     Egen liten controller i samma anda som nav-gruppernas i screens.js:
+     en öppen i taget, stängs på utsideklick och Escape. Klick inuti panelen
+     bubblar inte vidare (tema-växlaren ska kunna klickas utan att stänga). */
   (function () {
-    var qc = document.querySelector('.quick-create');
-    if (!qc) return;
-    var toggle = qc.querySelector('.qc-toggle');
-    var menu = qc.querySelector('.qc-menu');
-    if (!toggle || !menu) return;
-    function open() { menu.hidden = false; toggle.setAttribute('aria-expanded', 'true'); }
-    function close() { menu.hidden = true; toggle.setAttribute('aria-expanded', 'false'); }
-    toggle.addEventListener('click', function (e) {
-      e.stopPropagation();
-      if (menu.hidden) open(); else close();
+    var menus = Array.prototype.slice.call(document.querySelectorAll('.topbar-menu'));
+    if (!menus.length) return;
+    function closeAll(except) {
+      menus.forEach(function (m) {
+        if (m === except) return;
+        m.classList.remove('is-open');
+        var b = m.querySelector('.topbar-menu-btn');
+        if (b) b.setAttribute('aria-expanded', 'false');
+      });
+    }
+    menus.forEach(function (m) {
+      var btn = m.querySelector('.topbar-menu-btn');
+      var pop = m.querySelector('.topbar-pop');
+      if (!btn || !pop) return;
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var willOpen = !m.classList.contains('is-open');
+        closeAll(m);
+        m.classList.toggle('is-open', willOpen);
+        btn.setAttribute('aria-expanded', String(willOpen));
+      });
+      pop.addEventListener('click', function (e) { e.stopPropagation(); });
     });
-    menu.addEventListener('click', function () { close(); }); /* val → stäng menyn, drawern öppnas av screens.js */
-    document.addEventListener('click', function (e) {
-      if (!menu.hidden && !e.target.closest('.quick-create')) close();
+    document.addEventListener('click', function () { closeAll(null); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(null); });
+
+    /* "Markera alla som lästa": nollar oläst-prickarna + badgen (prototypgest) */
+    var readBtn = document.querySelector('[data-notis-read]');
+    if (readBtn) readBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      document.querySelectorAll('.notis-item.is-unread').forEach(function (n) { n.classList.remove('is-unread'); });
+      var badge = document.querySelector('.notis-badge');
+      if (badge) badge.remove();
     });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
   })();
 
   /* ── init ──────────────────────────────────────────────────────── */
@@ -1309,6 +1601,8 @@
   mountRangeFilters();
   initFollowup();
   initOfferEditor();
+  initDealDetail();
+  initDealOrderEditor();
   window.addEventListener('hashchange', route);
   route();
 })();

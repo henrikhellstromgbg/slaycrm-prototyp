@@ -30,9 +30,73 @@
   #view-foretag .row { grid-template-columns:minmax(160px,1.4fr) minmax(0,120px) minmax(0,150px) minmax(0,110px) minmax(0,150px) minmax(0,150px) minmax(0,120px); }
   #view-kontakter .row { grid-template-columns:minmax(160px,1.2fr) minmax(0,200px) minmax(0,150px) minmax(160px,1fr) minmax(0,150px) minmax(0,110px); }
 
-  /* topbar-tema-växlaren: samma .toggle-komponent, placerad i appen
-     (refbaren är borta, det här är en riktig app-yta) */
-  .topbar .toggle { flex:none; }
+  /* topbar-tema-växlaren: samma .toggle-komponent, nu flyttad in i kontomenyn */
+  .konto-theme .toggle { flex:none; }
+
+  /* ── varumärkeslogga (inlinead SVG, ärver textfärg → funkar i mörkt tema) ── */
+  .brand { display:inline-flex; align-items:center; }
+  .brand-logo { height:24px; width:auto; display:block; }
+  .brand-logo__slash { fill:var(--color-brand); }
+
+  /* ── initial-avatar (fylld cirkel med första bokstaven) ── */
+  .avatar--initial { background:var(--color-brand); border-color:var(--color-brand);
+    color:var(--color-on-brand); font-weight:600; font-size:14px; line-height:1; }
+  .avatar--lg { width:36px; height:36px; flex:none; }
+
+  /* ── topbar-popovers (notiser + konto), delad struktur ── */
+  .topbar-menu { position:relative; display:inline-flex; }
+  .topbar-menu-btn.icon-btn { position:relative; }
+  .notis-badge { position:absolute; top:2px; right:2px; min-width:16px; height:16px; padding:0 4px;
+    display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;
+    border-radius:var(--radius-pill); background:var(--tone-danger); color:var(--color-on-brand);
+    font-size:11px; font-weight:600; line-height:1; border:2px solid var(--color-surface); }
+  .topbar-pop { position:absolute; top:calc(100% + 8px); right:0; z-index:70;
+    background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-card);
+    box-shadow:var(--shadow-popover); padding:6px; display:none;
+    opacity:0; transform:translateY(-4px); transition:opacity .14s ease, transform .14s ease; }
+  .topbar-menu.is-open > .topbar-pop { display:block; opacity:1; transform:translateY(0); }
+  .notiser-pop { width:340px; max-width:calc(100vw - 32px); }
+  .konto-pop { width:264px; max-width:calc(100vw - 32px); }
+  .pop-sep { height:1px; background:var(--color-border); margin:6px 4px; }
+
+  .pop-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 8px 6px; }
+  .pop-title { font-size:15px; font-weight:600; color:var(--color-text); }
+  .pop-link { background:transparent; border:0; padding:0; font:inherit; font-size:13px; font-weight:500;
+    color:var(--color-text-muted); cursor:pointer; text-decoration:none; white-space:nowrap; }
+  .pop-link:hover { color:var(--color-brand); }
+  .pop-foot { padding:8px 8px 4px; margin-top:2px; border-top:1px solid var(--color-border); text-align:center; }
+
+  .notis-list { display:flex; flex-direction:column; max-height:360px; overflow-y:auto; }
+  .notis-item { display:flex; gap:10px; padding:10px 8px; border-radius:var(--radius-control);
+    text-decoration:none; color:var(--color-text); }
+  .notis-item:hover { background:var(--color-surface-sunken); }
+  .notis-icon { width:28px; height:28px; flex:none; border-radius:var(--radius-pill);
+    display:inline-flex; align-items:center; justify-content:center; }
+  .notis-icon svg { width:15px; height:15px; }
+  .notis-icon--info { background:var(--tone-info-tint); color:var(--tone-info-fg); }
+  .notis-icon--success { background:var(--tone-success-tint); color:var(--tone-success-fg); }
+  .notis-icon--warning { background:var(--tone-warning-tint); color:var(--tone-warning-fg); }
+  .notis-icon--neutral { background:var(--color-surface-sunken); color:var(--color-text-muted); }
+  .notis-body { display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .notis-item.is-unread .notis-body { padding-right:14px; }
+  .notis-text { font-size:14px; line-height:19px; color:var(--color-text); }
+  .notis-text strong { font-weight:600; }
+  .notis-time { font-size:12px; color:var(--color-text-faint); }
+  .notis-item.is-unread { position:relative; }
+  .notis-item.is-unread::after { content:""; position:absolute; top:14px; right:8px;
+    width:7px; height:7px; border-radius:var(--radius-pill); background:var(--color-brand); }
+
+  .konto-id { display:flex; align-items:center; gap:10px; padding:8px; }
+  .konto-id-text { display:flex; flex-direction:column; min-width:0; }
+  .konto-name { font-size:14px; font-weight:600; color:var(--color-text); }
+  .konto-mail { font-size:13px; color:var(--color-text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .konto-theme { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:6px 8px; }
+  .konto-theme-label { font-size:14px; font-weight:500; color:var(--color-text); }
+  .konto-pop .menu-item { width:100%; }
+  .menu-item--danger { color:var(--tone-danger-fg); }
+  .menu-item--danger:hover { background:var(--tone-danger-tint); color:var(--tone-danger-fg); }
+  .menu-item--danger svg { width:16px; height:16px; }
+  .menu-item svg { width:16px; height:16px; flex:none; }
 
   /* ── detaljvyns extradelar (lyfta ur screens-detalj, DS-tokens) ── */
   .detail-back { display:inline-flex; align-items:center; gap:4px; color:var(--color-brand);
@@ -81,6 +145,28 @@
   .mini-row .link { color:var(--color-brand); text-decoration:none; }
   .mini-row .link:hover { text-decoration:underline; }
 
+  /* ═══ affär-detalj (af) — trogen mot routes/deals/$dealId.tsx, omskinnad i DS ═══ */
+  /* grön "vunnen"-knapp finns inte i DS-setet; scoped variant på success-tonen (matchar DS .btn-danger-mönstret) */
+  .btn-success { background:var(--tone-success); color:var(--color-on-brand); }
+  .btn-success:hover { background:color-mix(in srgb, var(--tone-success) 88%, #000); }
+
+  /* sektionshuvud i paneler: titel till vänster, åtgärd till höger */
+  .pane-head { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px; }
+  .pane-title { margin:0; font-weight:600; font-size:18px; line-height:24px; color:var(--color-text); }
+
+  /* Affär-detalj: Åtgärder-meny sitter i top-baren, egen relativ wrap (mönster ur oqd) */
+  .af-menu-wrap { position:relative; }
+
+  /* beskrivnings- och kommentarsblock */
+  .detail-field { margin-top:24px; }
+  .detail-field .field-label { display:block; margin-bottom:6px; }
+  .field-text { font-size:16px; line-height:24px; color:var(--color-text); white-space:pre-wrap; }
+
+  /* Affär-detalj Offerter-flik: samma radformat som offertlistan, minus företagskolumn (redundant på affären) */
+  #af-off-list .row { grid-template-columns:minmax(180px,1fr) minmax(0,150px) minmax(0,190px); }
+  /* avstämningsvarningen ligger överst i Översikt; luft under den bara när den syns */
+  #af-reconcile:not([hidden]) { margin-bottom:20px; }
+
   /* ═══ offert-detalj (oqd) — trogen mot routes/offerter/$quoteId.tsx, omskinnad i DS ═══
      Ordning: brödsmula → header → formulär → offertrader → kund-snapshot. */
   .oqd { max-width:960px; margin:0 auto; display:flex; flex-direction:column; gap:24px; }
@@ -101,11 +187,26 @@
   .oqd-menu button.danger { color:var(--tone-danger-fg); }
   .oqd-menu button.danger:hover { background:var(--tone-danger-tint); }
   .oqd-menu-sep { height:1px; background:var(--color-border); margin:6px 4px; border:0; }
+  .oqd-menu .af-menu-now { margin-left:auto; font-weight:400; color:var(--color-text-faint); }
 
-  /* status-meddelande under meta-raden */
-  .oqd-status-msg { margin:0 0 4px; }
+  /* filter-popover (kalender/dropdown) klipptes vid tomt/kort resultat: .ground-scroll har
+     overflow-x:auto vilket per spec tvingar overflow-y till auto, och boxen krympte till
+     filterrad + tomtext. Reservera höjd så popovern alltid får plats att falla ut. */
+  .ground-scroll { min-height:480px; }
+
+  /* datumintervall-filtret: popovern (.range-menu) är redan kortet, så nolla kalenderns egen
+     ram/padding — annars dubbel ram (inre #999-kant). Samma grepp som offertens .oqd-cal-pop. */
+  .range-menu .cal { border:0; padding:0; background:none; }
+
+  /* status-meddelande: DS notice-inline, tonad. Marginal bara när den syns. */
+  #oqd-status-msg:not([hidden]) { margin-bottom:20px; }
 
   /* vit canvas: platta kort och full bredd åt radeditorn (top-baren skiljs av ground-linjen) */
+  /* detaljvyer ligger på vit yta (inte grå ground) */
+  #view-affar-detalj .ground,
+  #view-aktivitet-detalj .ground,
+  #view-foretag-detalj .ground,
+  #view-kontakt-detalj .ground,
   #view-offert-detalj .ground { background:var(--color-surface); }
 
   /* platta sektioner på vit canvas (inga boxar); hårlinje skiljer form från rader */
@@ -123,7 +224,8 @@
        egen rad, fältband under, summa nere till höger.
        LÅST rad = kompakt tabell med EN delad rubrikremsa (läsvänligare för read-only).
        --oqd-line-pad kopplar radindrag till totalernas högerkant i båda lägena. */
-  #view-offert-detalj { --oqd-line-pad:20px;
+  #view-offert-detalj,
+  #view-affar-detalj [data-pane="af-orderrader"] { --oqd-line-pad:20px;
     --oqd-line-cols:minmax(120px,1fr) 72px 120px 80px 88px 132px;
     font-size:16px; line-height:24px; }
   .oqd-line { position:relative; padding:var(--oqd-line-pad); background:var(--color-surface-sunken); }
@@ -211,7 +313,7 @@
   .side-divider { height:1px; background:var(--color-border); border:0; margin:0; }
   .side-entity { display:flex; flex-direction:column; gap:2px; min-width:0; }
   .side-entity + .side-entity { margin-top:16px; }
-  .side-entity .primary { font-weight:600; font-size:16px; line-height:24px; color:var(--color-text); }
+  .side-entity .primary { font-weight:500; font-size:16px; line-height:24px; color:var(--color-text); }
   .side-entity .secondary { font-size:16px; line-height:24px; color:var(--color-text-muted); }
   .side-entity .secondary:has(a) { margin-top:10px; }
   .side-entity a { color:var(--color-brand); text-decoration:none; }
@@ -264,24 +366,6 @@
      längs högerkanten. Skjut helt utanför + släck skuggan när den är stängd. */
   .drawer:not(.is-open) { transform:translateX(calc(100% + 40px)); box-shadow:none; }
 
-  /* global "+ Ny" quick-create i topbaren: en knapp + liten meny som öppnar
-     befintliga create-drawers (data-open). Egen komponent så den inte krockar
-     med screens.js .filter-group/.nav-group-lyssnare. */
-  .quick-create { position:relative; }
-  .qc-menu { position:absolute; top:100%; right:0; margin-top:6px; min-width:180px; max-width:calc(100vw - 24px); z-index:60;
-    display:flex; flex-direction:column; gap:2px; padding:6px;
-    background:var(--color-surface); border:1px solid var(--color-border);
-    border-radius:var(--radius-card); box-shadow:var(--shadow-popover); }
-  .qc-menu[hidden] { display:none; }
-  .qc-item { display:flex; align-items:center; gap:10px; padding:8px 10px; width:100%;
-    border:0; background:transparent; border-radius:var(--radius-control);
-    font:inherit; font-size:14px; color:var(--color-text); text-align:left; cursor:pointer; }
-  .qc-item:hover { background:var(--color-surface-sunken); color:var(--color-brand); }
-  .qc-item svg { flex:none; width:16px; height:16px; color:var(--color-text-muted); }
-  .qc-item:hover svg { color:var(--color-brand); }
-  @media (max-width:800px) {
-    .qc-label { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
-  }
 </style>
 </head>
 <body>
@@ -290,7 +374,14 @@
 
     <header class="topbar">
       <div class="topbar-inner gutter">
-        <a class="brand" href="#/aktiviteter">s<span class="slash">/</span>ay</a>
+        <a class="brand" href="#/aktiviteter" aria-label="SlayCRM">
+          <svg class="brand-logo" width="59" height="24" viewBox="0 0 59 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <path class="brand-logo__slash" d="M15.6875 23.9875L22.8001 0H25.6559L18.5352 23.9875H15.6875Z" fill="#f47300"/>
+            <path d="M5.15619 19.4783C3.52433 19.4783 2.25685 19.1107 1.35415 18.3755C0.451452 17.6404 0 16.6078 0 15.2773H2.55205C2.55205 15.9074 2.77768 16.4063 3.22913 16.7739C3.69788 17.1241 4.34016 17.299 5.15619 17.299H6.30201C7.15263 17.299 7.80367 17.1152 8.25512 16.7477C8.72386 16.3801 8.95823 15.8638 8.95823 15.1985C8.95823 14.0258 8.38532 13.3694 7.2395 13.2293L3.38538 12.6779C2.36102 12.5204 1.57123 12.1003 1.01561 11.4176C0.459997 10.7175 0.18229 9.81596 0.18229 8.71319C0.18229 7.41801 0.616245 6.41144 1.48436 5.6937C2.35247 4.97616 3.56767 4.61719 5.13015 4.61719H6.27597C7.73429 4.61719 8.9149 4.96734 9.8176 5.66744C10.7203 6.36775 11.1978 7.29534 11.2499 8.45062H8.64574C8.61095 7.96057 8.38532 7.55791 7.96866 7.24283C7.552 6.91032 6.98784 6.74396 6.27597 6.74396H5.13015C4.34891 6.74396 3.74121 6.91914 3.30726 7.26909C2.89059 7.61924 2.68226 8.09185 2.68226 8.68693C2.68226 9.6498 3.15976 10.1924 4.11454 10.3148L7.73429 10.84C10.217 11.1727 11.4582 12.6254 11.4582 15.1985C11.4582 16.5639 11.0068 17.6229 10.1041 18.3755C9.21865 19.1107 7.95137 19.4783 6.30201 19.4783H5.15619Z" fill="currentColor"/>
+            <path d="M34.5104 19.5326C33.0348 19.5326 31.8629 19.1213 30.9948 18.2985C30.1442 17.4583 29.7188 16.3644 29.7188 15.0165C29.7188 13.6688 30.1615 12.5834 31.0469 11.7607C31.9496 10.9381 33.1302 10.5266 34.5885 10.5266H38.7811V9.42384C38.7811 7.65605 37.8089 6.77194 35.8645 6.77194C34.9964 6.77194 34.2933 6.9383 33.7552 7.27082C33.2343 7.58589 32.9566 8.03225 32.9218 8.60989H30.3698C30.4567 7.43718 30.986 6.47451 31.9583 5.72169C32.9306 4.95164 34.2327 4.56641 35.8645 4.56641C37.618 4.56641 38.9722 4.98651 39.927 5.82671C40.8818 6.66692 41.3592 7.84846 41.3592 9.37133V19.27H38.8332V16.6181H38.7811C38.6597 17.5108 38.217 18.2197 37.453 18.7449C36.7066 19.27 35.7256 19.5326 34.5104 19.5326ZM35.1874 17.3533C36.2812 17.3533 37.1493 17.0907 37.7916 16.5656C38.4514 16.023 38.7811 15.2878 38.7811 14.36V12.4433H34.8229C34.0764 12.4433 33.4687 12.671 33 13.126C32.5485 13.5637 32.3229 14.15 32.3229 14.8852C32.3229 15.638 32.5746 16.2419 33.0781 16.6969C33.5816 17.1346 34.2847 17.3533 35.1874 17.3533Z" fill="currentColor"/>
+            <path d="M49.0599 23.9953L51.1432 18.4027L45.8047 4.82812H48.539L51.7682 13.3615C51.9071 13.729 52.0459 14.1229 52.1848 14.543C52.3238 14.9631 52.4192 15.3307 52.4713 15.6458C52.5234 15.3307 52.6102 14.9631 52.7317 14.543C52.8532 14.1229 52.9834 13.729 53.1223 13.3615L56.1171 4.82812H58.8514L51.7421 23.9953H49.0599Z" fill="currentColor"/>
+          </svg>
+        </a>
         <nav class="nav">
           <a class="nav-item" data-nav="aktiviteter" href="#/aktiviteter">Aktiviteter</a>
           <div class="nav-group" data-group="affar">
@@ -310,25 +401,83 @@
           <a class="nav-item" data-nav="saljtavlan" href="#/saljtavlan">Säljtavlan</a>
         </nav>
         <div class="topbar-right">
-          <div class="quick-create">
-            <button class="btn btn-primary icon-l qc-toggle" type="button" aria-haspopup="menu" aria-expanded="false"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg><span class="qc-label">Ny</span></button>
-            <div class="qc-menu" role="menu" hidden>
-              <button class="qc-item" type="button" role="menuitem" data-open="drawer-aktivitet"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4v8M4 8h8"/></svg>Aktivitet</button>
-              <button class="qc-item" type="button" role="menuitem" data-open="drawer-affar"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 5.5h11v7h-11z"/><path d="M6 5.5V4h4v1.5"/></svg>Affär</button>
-              <button class="qc-item" type="button" role="menuitem" data-open="drawer-foretag"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13.5V3.5h6v10M9 6.5h4v7M5 6h2M5 8.5h2M5 11h2"/></svg>Företag</button>
-              <button class="qc-item" type="button" role="menuitem" data-open="drawer-kontakt"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="2.5"/><path d="M3.5 13a4.5 4.5 0 0 1 9 0"/></svg>Kontakt</button>
-            </div>
-          </div>
           <label class="search">
             <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M11 11l3 3"/></svg>
             <input type="text" placeholder="Sök allt" aria-label="Sök allt">
           </label>
-          <div class="toggle" role="group" aria-label="Tema">
-            <button type="button" data-set="light" aria-pressed="false">Ljust</button>
-            <button type="button" data-set="dark" aria-pressed="false">Mörkt</button>
+          <div class="topbar-menu" data-menu="notiser">
+            <button class="icon-btn topbar-menu-btn" type="button" aria-label="Notiser" aria-haspopup="dialog" aria-expanded="false">
+              <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2a4 4 0 0 0-4 4v3l-1.5 2h11L12 9V6a4 4 0 0 0-4-4z"/><path d="M6.5 13a1.5 1.5 0 0 0 3 0"/></svg>
+              <span class="notis-badge" aria-hidden="true">3</span>
+            </button>
+            <div class="topbar-pop notiser-pop" role="dialog" aria-label="Notiser">
+              <div class="pop-head">
+                <span class="pop-title">Notiser</span>
+                <button type="button" class="pop-link" data-notis-read>Markera alla som lästa</button>
+              </div>
+              <div class="notis-list">
+                <a class="notis-item is-unread" href="#/offerter">
+                  <span class="notis-icon notis-icon--info" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4.5h12v8H2z"/><path d="M2 5l6 4 6-4"/></svg></span>
+                  <span class="notis-body">
+                    <span class="notis-text"><strong>Ola Nordvik</strong> öppnade offerten Ramavtal transport 2026</span>
+                    <span class="notis-time">10 min sedan</span>
+                  </span>
+                </a>
+                <a class="notis-item is-unread" href="#/affarer">
+                  <span class="notis-icon notis-icon--success" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3 3 7-7"/></svg></span>
+                  <span class="notis-body">
+                    <span class="notis-text">Affären <strong>Q3-leverans automation</strong> flyttades till steget Offert</span>
+                    <span class="notis-time">1 tim sedan</span>
+                  </span>
+                </a>
+                <a class="notis-item is-unread" href="#/aktiviteter">
+                  <span class="notis-icon notis-icon--warning" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M8 5v3.5l2 1.5"/></svg></span>
+                  <span class="notis-body">
+                    <span class="notis-text">Påminnelse: <strong>Följ upp leveransfråga</strong> idag 16:00</span>
+                    <span class="notis-time">2 tim sedan</span>
+                  </span>
+                </a>
+                <a class="notis-item" href="#/aktiviteter">
+                  <span class="notis-icon notis-icon--neutral" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="2.5"/><path d="M3.5 13a4.5 4.5 0 0 1 9 0"/></svg></span>
+                  <span class="notis-body">
+                    <span class="notis-text"><strong>P. Steinberger</strong> tilldelade dig aktiviteten Uppföljningsmöte inför Q3-avtal</span>
+                    <span class="notis-time">Igår</span>
+                  </span>
+                </a>
+              </div>
+              <div class="pop-foot"><a class="pop-link" href="#/aktiviteter">Visa alla notiser</a></div>
+            </div>
           </div>
-          <button class="icon-btn" aria-label="Notiser"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2a4 4 0 0 0-4 4v3l-1.5 2h11L12 9V6a4 4 0 0 0-4-4z"/><path d="M6.5 13a1.5 1.5 0 0 0 3 0"/></svg></button>
-          <button class="avatar" aria-label="Konto"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="5.5" r="2.5"/><path d="M3.5 13.5a4.5 4.5 0 0 1 9 0"/></svg></button>
+          <div class="topbar-menu" data-menu="konto">
+            <button class="avatar avatar--initial topbar-menu-btn" type="button" aria-label="Konto" aria-haspopup="menu" aria-expanded="false">D</button>
+            <div class="topbar-pop konto-pop" role="menu" aria-label="Konto">
+              <div class="konto-id">
+                <span class="avatar avatar--initial avatar--lg" aria-hidden="true">D</span>
+                <span class="konto-id-text">
+                  <span class="konto-name">Demo User</span>
+                  <span class="konto-mail">demo@slay-demo.local</span>
+                </span>
+              </div>
+              <div class="pop-sep"></div>
+              <a class="menu-item" href="#/aktiviteter" role="menuitem">
+                <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"/></svg>
+                Admin
+              </a>
+              <div class="pop-sep"></div>
+              <div class="konto-theme">
+                <span class="konto-theme-label">Tema</span>
+                <div class="toggle" role="group" aria-label="Tema">
+                  <button type="button" data-set="light" aria-pressed="false">Ljust</button>
+                  <button type="button" data-set="dark" aria-pressed="false">Mörkt</button>
+                </div>
+              </div>
+              <div class="pop-sep"></div>
+              <button type="button" class="menu-item menu-item--danger" role="menuitem">
+                <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.5H3.5A1.5 1.5 0 0 0 2 4v8a1.5 1.5 0 0 0 1.5 1.5H6"/><path d="M10.5 11l3-3-3-3"/><path d="M13.5 8H6"/></svg>
+                Logga ut
+              </button>
+            </div>
+          </div>
           <button class="icon-btn nav-toggle" type="button" aria-label="Meny" aria-expanded="false"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/></svg></button>
         </div>
       </div>
@@ -444,35 +593,22 @@
           <div class="detail">
 
             <div class="detail-main">
-              <div class="meta-row">
-                <div class="meta-item"><div class="primary" id="ak-type">—</div><div class="secondary">Typ</div></div>
-                <div class="meta-item"><div class="primary" id="ak-date">—</div><div class="secondary">Datum</div></div>
-                <div class="meta-item"><div class="primary" id="ak-owner">—</div><div class="secondary">Ansvarig</div></div>
-                <div class="meta-item"><div class="primary"><span class="badge" id="ak-status">—</span></div><div class="secondary">Status</div></div>
-              </div>
-
-              <div class="composer">
-                <textarea class="composer-input" placeholder="Lägg till kommentar, logga ett samtal, skriv en anteckning…"></textarea>
-                <div class="composer-foot">
-                  <button class="btn btn-primary" type="button" disabled>Lägg till</button>
-                </div>
-              </div>
-
               <div class="tabs" role="tablist">
                 <a class="tab is-active" role="tab" data-tab="ak-oversikt">Översikt</a>
                 <a class="tab" role="tab" data-tab="ak-handelser">Händelser <span class="count" id="ak-handelser-count">0</span></a>
                 <a class="tab" role="tab" data-tab="ak-detaljer">Detaljer</a>
               </div>
 
-              <!-- Översikt -->
+              <!-- Översikt: kommentarer/logg -->
               <div class="tab-pane is-active" data-pane="ak-oversikt">
-                <div class="kv-grid">
-                  <div class="kv-item"><div class="primary" id="ak-ov-company">—</div><div class="secondary">Företag</div></div>
-                  <div class="kv-item"><div class="primary" id="ak-ov-type">—</div><div class="secondary">Typ</div></div>
-                  <div class="kv-item"><div class="primary" id="ak-ov-date">—</div><div class="secondary">Datum</div></div>
-                  <div class="kv-item"><div class="primary" id="ak-ov-owner">—</div><div class="secondary">Ansvarig</div></div>
-                  <div class="kv-item"><div class="primary" id="ak-ov-status">—</div><div class="secondary">Status</div></div>
-                  <div class="kv-item"><div class="primary" id="ak-ov-contact">—</div><div class="secondary">Kontakt</div></div>
+                <div class="detail-field" style="margin-top:0">
+                  <span class="field-label">Kommentarer</span>
+                  <div class="composer">
+                    <textarea class="composer-input" placeholder="Lägg till kommentar, logga ett samtal, skriv en anteckning…"></textarea>
+                    <div class="composer-foot">
+                      <button class="btn btn-primary" type="button" disabled>Lägg till</button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -495,6 +631,17 @@
             </div>
 
             <aside class="detail-side">
+              <div class="side-block">
+                <h3>Aktivitet</h3>
+                <div class="oqd-snap-grid">
+                  <span class="oqd-snap-key">Typ</span><span class="oqd-snap-val" id="ak-type">—</span>
+                  <span class="oqd-snap-key">Datum</span><span class="oqd-snap-val" id="ak-date">—</span>
+                  <span class="oqd-snap-key">Status</span><span class="oqd-snap-val"><span class="badge" id="ak-status">—</span></span>
+                  <span class="oqd-snap-key">Ansvarig</span><span class="oqd-snap-val" id="ak-owner">—</span>
+                  <span class="oqd-snap-key">Källa</span><span class="oqd-snap-val" id="ak-source">—</span>
+                </div>
+              </div>
+              <hr class="side-divider">
               <div class="side-block">
                 <h3>Företag</h3>
                 <div class="side-entity">
@@ -636,14 +783,17 @@
       </div>
     </section>
 
-    <!-- ═══════════════ VY: AFFÄR (detalj) ═══════════════ -->
+    <!-- ═══════════════ VY: AFFÄR (detalj) — trogen mot routes/deals/$dealId.tsx ═══════════════ -->
     <section class="view" id="view-affar-detalj">
       <div class="page-head gutter">
         <h1 class="screen-title" id="af-title">Affär</h1>
         <div class="page-actions">
           <a class="detail-back" href="#/affarer"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4l-4 4 4 4"/></svg>Affärer</a>
-          <button class="btn btn-secondary" type="button">Åtgärder<svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
-          <button class="btn btn-primary icon-l" type="button" data-open="modal-followup"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.5 3.5L13 5"/></svg>Markera klar</button>
+          <!-- Åtgärder: fasflytt + stäng vunnen/förlorad (öppen) · återöppna (stängd) — meny byggs av app.js -->
+          <div class="af-menu-wrap">
+            <button class="btn btn-secondary" type="button" id="af-actions-btn" aria-haspopup="true" aria-expanded="false">Åtgärder<svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button>
+            <div class="oqd-menu" id="af-actions-menu" role="menu"></div>
+          </div>
         </div>
       </div>
       <div class="ground">
@@ -651,104 +801,156 @@
           <div class="detail">
 
             <div class="detail-main">
-              <div class="meta-row">
-                <div class="meta-item"><div class="primary" id="af-value">—</div><div class="secondary">Värde</div></div>
-                <div class="meta-item"><div class="primary"><span class="badge" id="af-stage">—</span></div><div class="secondary">Steg</div></div>
-                <div class="meta-item"><div class="primary" id="af-owner">—</div><div class="secondary">Ansvarig</div></div>
-                <div class="meta-item"><div class="primary" id="af-close">—</div><div class="secondary">Förväntat avslut</div></div>
-              </div>
-
-              <div class="composer">
-                <textarea class="composer-input" placeholder="Lägg till kommentar, logga ett samtal, skriv en anteckning…"></textarea>
-                <div class="composer-foot">
-                  <button class="btn btn-primary" type="button" disabled>Lägg till</button>
-                </div>
-              </div>
-
               <div class="tabs" role="tablist">
                 <a class="tab is-active" role="tab" data-tab="oversikt">Översikt</a>
-                <a class="tab" role="tab" data-tab="aktiviteter">Aktiviteter <span class="count">4</span></a>
-                <a class="tab" role="tab" data-tab="offerter">Offerter <span class="count">2</span></a>
+                <a class="tab" role="tab" data-tab="aktiviteter">Aktiviteter <span class="count" id="af-akt-count">0</span></a>
+                <a class="tab" role="tab" data-tab="offerter">Offerter <span class="count" id="af-off-count">0</span></a>
+                <a class="tab" role="tab" data-tab="af-orderrader">Orderrader</a>
                 <a class="tab" role="tab" data-tab="dokument">Dokument</a>
-                <a class="tab" role="tab" data-tab="detaljer">Detaljer</a>
               </div>
 
-              <!-- Översikt -->
+              <!-- Översikt: avstämningsvarning (dold) + faktagrid + beskrivning + kommentarer -->
               <div class="tab-pane is-active" data-pane="oversikt">
-                <div class="kv-grid">
-                  <div class="kv-item"><div class="primary" id="af-ov-company">—</div><div class="secondary">Företag</div></div>
-                  <div class="kv-item"><div class="primary" id="af-ov-city">—</div><div class="secondary">Ort</div></div>
-                  <div class="kv-item"><div class="primary" id="af-ov-stage">—</div><div class="secondary">Steg</div></div>
-                  <div class="kv-item"><div class="primary" id="af-ov-value">—</div><div class="secondary">Värde</div></div>
-                  <div class="kv-item"><div class="primary" id="af-ov-owner">—</div><div class="secondary">Ansvarig</div></div>
-                  <div class="kv-item"><div class="primary">5 juli · E-post med prisunderlag för Q3</div><div class="secondary">Senaste händelse</div></div>
+                <p class="notice-inline" id="af-reconcile" data-tone="warning" role="status" hidden>
+                  <span class="notice-inline__icon" aria-hidden="true">
+                    <svg class="notice-inline__icon-warning" viewBox="0 0 16 16" fill="currentColor">
+                      <path d="M8,1C4.2,1,1,4.2,1,8s3.2,7,7,7s7-3.1,7-7S11.9,1,8,1z M7.5,4h1v5h-1C7.5,9,7.5,4,7.5,4z M8,12.2c-0.4,0-0.8-0.4-0.8-0.8s0.3-0.8,0.8-0.8c0.4,0,0.8,0.4,0.8,0.8S8.4,12.2,8,12.2z"></path>
+                    </svg>
+                  </span>
+                  <span class="notice-inline__text"></span>
+                </p>
+
+                <div class="detail-field" style="margin-top:0">
+                  <span class="field-label">Beskrivning</span>
+                  <div class="field-text" id="af-ov-desc">—</div>
+                </div>
+
+                <div class="detail-field">
+                  <span class="field-label">Kommentarer</span>
+                  <div class="composer">
+                    <textarea class="composer-input" placeholder="Lägg till en kommentar…"></textarea>
+                    <div class="composer-foot">
+                      <button class="btn btn-primary" type="button" disabled>Lägg till</button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <!-- Aktiviteter -->
+              <!-- Aktiviteter: logga/planera + flöde -->
               <div class="tab-pane" data-pane="aktiviteter">
-                <div class="list feed-list">
-                  <div class="row">
-                    <div class="cell"><div class="primary">11 juli, 16:00</div><div class="secondary">Möte</div></div>
-                    <div class="cell"><div class="primary">Följ upp möte inför Q3-avtal.</div></div>
-                    <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
-                  </div>
-                  <div class="row">
-                    <div class="cell"><div class="primary">8 juli</div><div class="secondary">Fråga</div></div>
-                    <div class="cell"><div class="primary">Undrar om vi klarar leverans inom 48h till Norrland.</div></div>
-                    <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
-                  </div>
-                  <div class="row">
-                    <div class="cell"><div class="primary">5 juli, 14:00</div><div class="secondary">E-post</div></div>
-                    <div class="cell"><div class="primary">Skickade prisunderlag för Q3.</div></div>
-                    <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
-                  </div>
-                  <div class="row">
-                    <div class="cell"><div class="primary">2 juli, 09:15</div><div class="secondary">Samtal</div></div>
-                    <div class="cell"><div class="primary">Samtal med Elin, positiv ton. Vill förankra internt.</div></div>
-                    <div class="cell col-owner"><div class="primary">W. Bernting</div><div class="secondary">Ansvarig</div></div>
-                  </div>
+                <div class="pane-head">
+                  <h2 class="pane-title">Aktiviteter</h2>
+                  <button class="btn btn-primary icon-l" type="button" data-open="modal-followup"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg>Logga aktivitet</button>
                 </div>
+                <div class="list feed-list" id="af-akt-feed"></div>
               </div>
 
-              <!-- Offerter -->
+              <!-- Offerter: skapa + lista härledd ur OFFERS -->
               <div class="tab-pane" data-pane="offerter">
-                <div class="mini-list">
-                  <div class="mini-row">
-                    <div><div class="mini-title">Ramavtal transport 2026</div><div class="mini-sub">OFF-3038 · utkast</div></div>
-                    <div style="display:flex;align-items:center;gap:16px"><span class="amount">480 000 kr</span><span class="badge badge--neutral">Utkast</span></div>
+                <div class="pane-head">
+                  <h2 class="pane-title">Offerter</h2>
+                  <button class="btn btn-primary icon-l" type="button" id="af-new-offer"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg>Skapa offert</button>
+                </div>
+                <div class="list" id="af-off-list"></div>
+              </div>
+
+              <!-- Orderrader: samma inline-radeditor som offertvyn (createLineEditor), bunden till affärens egna rader -->
+              <div class="tab-pane" data-pane="af-orderrader">
+                <div class="oqd-card">
+                  <div class="oqd-lines-head" id="afr-lines-head" hidden>
+                    <span>Produkt / beskrivning</span>
+                    <span class="num">Antal</span>
+                    <span class="num">À-pris (SEK)</span>
+                    <span class="num">Rabatt %</span>
+                    <span>Moms</span>
+                    <span class="num">Summa</span>
                   </div>
-                  <div class="mini-row">
-                    <div><div class="mini-title">Q3-leverans automation</div><div class="mini-sub">OFF-3041 · skickad 4 juli</div></div>
-                    <div style="display:flex;align-items:center;gap:16px"><span class="amount">1 250 000 kr</span><span class="badge badge--info">Skickad</span></div>
+                  <div id="afr-lines-body"></div>
+
+                  <div class="oqd-totals">
+                    <div class="oqd-tot-row"><span class="oqd-tot-key">Netto</span><span class="oqd-tot-val" id="afr-net">0 SEK</span></div>
+                    <div class="oqd-tot-row"><span class="oqd-tot-key">Moms</span><span class="oqd-tot-val" id="afr-vat">0 SEK</span></div>
+                    <div class="oqd-tot-row oqd-tot-total"><span class="oqd-tot-key">Totalt inkl. moms</span><span class="oqd-tot-val" id="afr-gross">0 SEK</span></div>
+                  </div>
+
+                  <div class="oqd-add-row" id="afr-add-row">
+                    <h3 class="oqd-add-title">Lägg till rad</h3>
+                    <div class="oqd-add-grid">
+                      <div class="field full">
+                        <label class="field-label" for="afr-add-product">Produkt</label>
+                        <div class="select-wrap">
+                          <select class="select" id="afr-add-product">
+                            <option value="">Välj produkt (valfritt)</option>
+                          </select>
+                          <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+                        </div>
+                      </div>
+                      <div class="field">
+                        <label class="field-label" for="afr-add-name">Produktnamn</label>
+                        <input class="input" id="afr-add-name" type="text" placeholder="t.ex. Konsulttimme">
+                      </div>
+                      <div class="field">
+                        <label class="field-label" for="afr-add-desc">Benämning</label>
+                        <input class="input" id="afr-add-desc" type="text" placeholder="Valfri beskrivning">
+                      </div>
+                      <div class="field">
+                        <label class="field-label" for="afr-add-qty">Antal</label>
+                        <input class="input" id="afr-add-qty" type="number" min="0" step="1" placeholder="0">
+                      </div>
+                      <div class="field">
+                        <label class="field-label" for="afr-add-price">À-pris (SEK)</label>
+                        <input class="input" id="afr-add-price" type="number" min="0" step="100" placeholder="0">
+                      </div>
+                      <div class="field">
+                        <label class="field-label" for="afr-add-disc">Rabatt %</label>
+                        <input class="input" id="afr-add-disc" type="number" min="0" max="100" step="1" placeholder="0">
+                      </div>
+                      <div class="field">
+                        <label class="field-label" for="afr-add-moms">Moms</label>
+                        <div class="select-wrap">
+                          <select class="select" id="afr-add-moms">
+                            <option value="25">25%</option><option value="12">12%</option><option value="6">6%</option><option value="0">0%</option>
+                          </select>
+                          <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+                        </div>
+                      </div>
+                      <div class="oqd-add-foot">
+                        <span class="oqd-add-total">Radsumma: <strong id="afr-add-total">0 SEK</strong></span>
+                        <button class="btn btn-primary" type="button" id="afr-add-btn" disabled>+ Lägg till</button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
               <!-- Dokument (tomt tillstånd) -->
               <div class="tab-pane" data-pane="dokument">
+                <div class="pane-head">
+                  <h2 class="pane-title">Dokument</h2>
+                  <button class="btn btn-primary icon-l" type="button"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg>Ladda upp</button>
+                </div>
                 <div class="empty">
                   <span class="empty-ic"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2.5h5l3 3V13a.5.5 0 0 1-.5.5h-7A.5.5 0 0 1 4 13z"/><path d="M9 2.5v3h3"/></svg></span>
-                  <div class="empty-title">Inga dokument än</div>
+                  <div class="empty-title">Inga dokument ännu</div>
                   <p>Ladda upp offert, avtal eller underlag så samlas de här på affären.</p>
-                  <button class="btn btn-primary" type="button">Ladda upp dokument</button>
                 </div>
               </div>
 
-              <!-- Detaljer -->
-              <div class="tab-pane" data-pane="detaljer">
-                <div class="kv-grid">
-                  <div class="kv-item"><div class="primary" id="af-de-id">—</div><div class="secondary">Affärs-ID</div></div>
-                  <div class="kv-item"><div class="primary" id="af-de-stage">—</div><div class="secondary">Steg</div></div>
-                  <div class="kv-item"><div class="primary" id="af-de-value">—</div><div class="secondary">Värde</div></div>
-                  <div class="kv-item"><div class="primary" id="af-de-owner">—</div><div class="secondary">Ansvarig</div></div>
-                  <div class="kv-item"><div class="primary" id="af-de-close">—</div><div class="secondary">Förväntat avslut</div></div>
-                  <div class="kv-item"><div class="primary">Inkommande förfrågan</div><div class="secondary">Källa</div></div>
-                </div>
-              </div>
             </div>
 
             <aside class="detail-side">
+              <div class="side-block">
+                <h3>Affär</h3>
+                <div class="oqd-snap-grid">
+                  <span class="oqd-snap-key">Affärsvärde</span><span class="oqd-snap-val" id="af-value">—</span>
+                  <span class="oqd-snap-key">Fas</span><span class="oqd-snap-val"><span class="badge" id="af-stage">—</span></span>
+                  <span class="oqd-snap-key">Sannolikhet</span><span class="oqd-snap-val" id="af-prob">—</span>
+                  <span class="oqd-snap-key">Förväntat avslut</span><span class="oqd-snap-val" id="af-close">—</span>
+                  <span class="oqd-snap-key">Ansvarig</span><span class="oqd-snap-val" id="af-owner">—</span>
+                  <span class="oqd-snap-key">Skapad</span><span class="oqd-snap-val" id="af-created">—</span>
+                </div>
+              </div>
+              <hr class="side-divider">
               <div class="side-block">
                 <h3>Företag</h3>
                 <div class="side-entity">
@@ -784,20 +986,6 @@
           <div class="detail">
 
             <div class="detail-main">
-              <div class="meta-row">
-                <div class="meta-item"><div class="primary"><span class="badge" id="fo-relation">—</span></div><div class="secondary">Relation</div></div>
-                <div class="meta-item"><div class="primary" id="fo-city">—</div><div class="secondary">Ort</div></div>
-                <div class="meta-item"><div class="primary" id="fo-owner">—</div><div class="secondary">Ansvarig</div></div>
-                <div class="meta-item"><div class="primary" id="fo-senaste">—</div><div class="secondary">Senaste kontakt</div></div>
-              </div>
-
-              <div class="composer">
-                <textarea class="composer-input" placeholder="Lägg till kommentar, logga ett samtal, skriv en anteckning…"></textarea>
-                <div class="composer-foot">
-                  <button class="btn btn-primary" type="button" disabled>Lägg till</button>
-                </div>
-              </div>
-
               <div class="tabs" role="tablist">
                 <a class="tab is-active" role="tab" data-tab="fo-oversikt">Översikt</a>
                 <a class="tab" role="tab" data-tab="fo-kontakter">Kontakter <span class="count" id="fo-kontakter-count">0</span></a>
@@ -805,15 +993,16 @@
                 <a class="tab" role="tab" data-tab="fo-detaljer">Detaljer</a>
               </div>
 
-              <!-- Översikt -->
+              <!-- Översikt: kommentarer/logg -->
               <div class="tab-pane is-active" data-pane="fo-oversikt">
-                <div class="kv-grid">
-                  <div class="kv-item"><div class="primary" id="fo-ov-city">—</div><div class="secondary">Ort</div></div>
-                  <div class="kv-item"><div class="primary" id="fo-ov-relation">—</div><div class="secondary">Relation</div></div>
-                  <div class="kv-item"><div class="primary" id="fo-ov-kategori">—</div><div class="secondary">Kategori</div></div>
-                  <div class="kv-item"><div class="primary" id="fo-ov-tel">—</div><div class="secondary">Telefon</div></div>
-                  <div class="kv-item"><div class="primary" id="fo-ov-owner">—</div><div class="secondary">Ansvarig</div></div>
-                  <div class="kv-item"><div class="primary" id="fo-ov-senaste">—</div><div class="secondary">Senaste kontakt</div></div>
+                <div class="detail-field" style="margin-top:0">
+                  <span class="field-label">Kommentarer</span>
+                  <div class="composer">
+                    <textarea class="composer-input" placeholder="Lägg till kommentar, logga ett samtal, skriv en anteckning…"></textarea>
+                    <div class="composer-foot">
+                      <button class="btn btn-primary" type="button" disabled>Lägg till</button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -841,6 +1030,18 @@
             </div>
 
             <aside class="detail-side">
+              <div class="side-block">
+                <h3>Företag</h3>
+                <div class="oqd-snap-grid">
+                  <span class="oqd-snap-key">Relation</span><span class="oqd-snap-val"><span class="badge" id="fo-relation">—</span></span>
+                  <span class="oqd-snap-key">Ort</span><span class="oqd-snap-val" id="fo-city">—</span>
+                  <span class="oqd-snap-key">Kategori</span><span class="oqd-snap-val" id="fo-kategori">—</span>
+                  <span class="oqd-snap-key">Telefon</span><span class="oqd-snap-val" id="fo-tel">—</span>
+                  <span class="oqd-snap-key">Ansvarig</span><span class="oqd-snap-val" id="fo-owner">—</span>
+                  <span class="oqd-snap-key">Senaste kontakt</span><span class="oqd-snap-val" id="fo-senaste">—</span>
+                </div>
+              </div>
+              <hr class="side-divider">
               <div class="side-block">
                 <h3>Primär kontakt</h3>
                 <div id="fo-side-primary"></div>
@@ -875,35 +1076,22 @@
           <div class="detail">
 
             <div class="detail-main">
-              <div class="meta-row">
-                <div class="meta-item"><div class="primary"><span class="badge" id="ko-status">—</span></div><div class="secondary">Status</div></div>
-                <div class="meta-item"><div class="primary" id="ko-company">—</div><div class="secondary">Företag</div></div>
-                <div class="meta-item"><div class="primary" id="ko-role">—</div><div class="secondary">Roll</div></div>
-                <div class="meta-item"><div class="primary" id="ko-owner">—</div><div class="secondary">Ansvarig</div></div>
-              </div>
-
-              <div class="composer">
-                <textarea class="composer-input" placeholder="Lägg till kommentar, logga ett samtal, skriv en anteckning…"></textarea>
-                <div class="composer-foot">
-                  <button class="btn btn-primary" type="button" disabled>Lägg till</button>
-                </div>
-              </div>
-
               <div class="tabs" role="tablist">
                 <a class="tab is-active" role="tab" data-tab="ko-oversikt">Översikt</a>
                 <a class="tab" role="tab" data-tab="ko-affarer">Affärer <span class="count" id="ko-affarer-count">0</span></a>
                 <a class="tab" role="tab" data-tab="ko-detaljer">Detaljer</a>
               </div>
 
-              <!-- Översikt -->
+              <!-- Översikt: kommentarer/logg -->
               <div class="tab-pane is-active" data-pane="ko-oversikt">
-                <div class="kv-grid">
-                  <div class="kv-item"><div class="primary" id="ko-ov-company">—</div><div class="secondary">Företag</div></div>
-                  <div class="kv-item"><div class="primary" id="ko-ov-role">—</div><div class="secondary">Roll</div></div>
-                  <div class="kv-item"><div class="primary" id="ko-ov-email">—</div><div class="secondary">E-post</div></div>
-                  <div class="kv-item"><div class="primary" id="ko-ov-tel">—</div><div class="secondary">Telefon</div></div>
-                  <div class="kv-item"><div class="primary" id="ko-ov-owner">—</div><div class="secondary">Ansvarig</div></div>
-                  <div class="kv-item"><div class="primary" id="ko-ov-status">—</div><div class="secondary">Status</div></div>
+                <div class="detail-field" style="margin-top:0">
+                  <span class="field-label">Kommentarer</span>
+                  <div class="composer">
+                    <textarea class="composer-input" placeholder="Lägg till kommentar, logga ett samtal, skriv en anteckning…"></textarea>
+                    <div class="composer-foot">
+                      <button class="btn btn-primary" type="button" disabled>Lägg till</button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -925,6 +1113,15 @@
             </div>
 
             <aside class="detail-side">
+              <div class="side-block">
+                <h3>Kontakt</h3>
+                <div class="oqd-snap-grid">
+                  <span class="oqd-snap-key">Status</span><span class="oqd-snap-val"><span class="badge" id="ko-status">—</span></span>
+                  <span class="oqd-snap-key">Roll</span><span class="oqd-snap-val" id="ko-role">—</span>
+                  <span class="oqd-snap-key">Ansvarig</span><span class="oqd-snap-val" id="ko-owner">—</span>
+                </div>
+              </div>
+              <hr class="side-divider">
               <div class="side-block">
                 <h3>Företag</h3>
                 <div class="side-entity">
@@ -968,23 +1165,23 @@
             <div class="detail-main">
               <p class="notice-inline oqd-status-msg" id="oqd-status-msg" data-tone="info" role="status" aria-live="polite" hidden>
                 <span class="notice-inline__icon" aria-hidden="true">
-                  <svg class="notice-inline__icon-success" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3.5 8.5l3 3 6-7"></path>
+                  <!-- Carbon: checkmark--filled/16 -->
+                  <svg class="notice-inline__icon-success" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8,1C4.1,1,1,4.1,1,8c0,3.9,3.1,7,7,7s7-3.1,7-7C15,4.1,11.9,1,8,1z M7,11L4.3,8.3l0.9-0.8L7,9.3l4-3.9l0.9,0.8L7,11z"></path>
                   </svg>
-                  <svg class="notice-inline__icon-info" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="8" cy="8" r="5.5"></circle>
-                    <path d="M8 7v3"></path>
-                    <path d="M8 4.75h.01"></path>
+                  <!-- Carbon: information/16 -->
+                  <svg class="notice-inline__icon-info" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8.5 11 8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11z"></path>
+                    <path d="M8,3.5c-0.4,0-0.8,0.3-0.8,0.8S7.6,5,8,5c0.4,0,0.8-0.3,0.8-0.8S8.4,3.5,8,3.5z"></path>
+                    <path d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"></path>
                   </svg>
-                  <svg class="notice-inline__icon-warning" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M8 2.5l5.5 10H2.5L8 2.5z"></path>
-                    <path d="M8 6v2.75"></path>
-                    <path d="M8 11h.01"></path>
+                  <!-- Carbon: warning--filled/16 -->
+                  <svg class="notice-inline__icon-warning" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8,1C4.2,1,1,4.2,1,8s3.2,7,7,7s7-3.1,7-7S11.9,1,8,1z M7.5,4h1v5h-1C7.5,9,7.5,4,7.5,4z M8,12.2c-0.4,0-0.8-0.4-0.8-0.8s0.3-0.8,0.8-0.8c0.4,0,0.8,0.4,0.8,0.8S8.4,12.2,8,12.2z"></path>
                   </svg>
-                  <svg class="notice-inline__icon-danger" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="8" cy="8" r="5.5"></circle>
-                    <path d="M5.75 5.75l4.5 4.5"></path>
-                    <path d="M10.25 5.75l-4.5 4.5"></path>
+                  <!-- Carbon: error--filled/16 -->
+                  <svg class="notice-inline__icon-danger" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8,1C4.1,1,1,4.1,1,8s3.1,7,7,7s7-3.1,7-7S11.9,1,8,1z M10.7,11.5L4.5,5.3l0.8-0.8l6.2,6.2L10.7,11.5z"></path>
                   </svg>
                 </span>
                 <span class="notice-inline__text"></span>

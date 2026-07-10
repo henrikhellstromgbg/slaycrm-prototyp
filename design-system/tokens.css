@@ -404,6 +404,11 @@ svg[stroke]:not([stroke="none"]) { stroke-width:var(--icon-stroke); }
   border-color: var(--color-brand);
   font-weight: 600;
 }
+.cal-day.sel:not([disabled]):hover {
+  background: var(--color-brand-hover);
+  color: var(--color-on-brand);
+  border-color: var(--color-brand-hover);
+}
 .cal-day.in-range {
   background: color-mix(in srgb, var(--color-brand) 12%, var(--color-surface));
   color: var(--color-brand);
