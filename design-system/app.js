@@ -542,12 +542,6 @@
     txt('fo-kategori', co.kategori);
     txt('fo-tel', co.tel);
 
-    txt('fo-de-relation', co.relation);
-    txt('fo-de-kategori', co.kategori);
-    txt('fo-de-tel', co.tel);
-    txt('fo-de-city', co.city);
-    txt('fo-de-owner', co.owner);
-
     /* Kontakter-fliken */
     var kWrap = document.getElementById('fo-kontakter');
     if (kWrap) {
@@ -640,13 +634,6 @@
 
     var st = document.getElementById('ko-status');
     if (st) { st.className = 'badge badge--' + c.tone; st.textContent = c.status; }
-
-    /* Detaljer */
-    txt('ko-de-role', c.role);
-    txt('ko-de-owner', c.owner);
-    txt('ko-de-status', c.status);
-    var deCompany = document.getElementById('ko-de-company');
-    if (deCompany) deCompany.innerHTML = companyLink(c.company);
 
     /* Affärer-fliken — företagets affärer */
     var deals = dealsForCompany(c.company);
