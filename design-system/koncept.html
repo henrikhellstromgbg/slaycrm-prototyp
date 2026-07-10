@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SlayCRM koncept — action vs admin</title>
+<link rel="stylesheet" href="tokens.css">
+<script src="theme.js"></script>
+<style>
+  /* page-only furniture, lånar mönstren från index.html (referensytan) */
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin:0; font-family:var(--p-font); font-size:14px; line-height:20px;
+    color:var(--color-text); background:var(--color-bg); -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1080px; margin:0 auto; padding:48px 24px 96px; }
+  .mono { font-family:var(--p-font-mono); font-variant-numeric:tabular-nums; }
+
+  header.top { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; flex-wrap:wrap; margin-bottom:36px; }
+  h1 { font-weight:600; font-size:28px; line-height:32px; margin:0 0 8px; letter-spacing:-.01em; }
+  .lede { color:var(--color-text-muted); max-width:64ch; margin:0; }
+  .lede a, .src a { color:var(--color-brand); text-decoration:none; }
+  .lede a:hover, .src a:hover { text-decoration:underline; }
+  .src { font-size:14px; color:var(--color-text-faint); margin-top:8px; }
+
+  .toggle { display:inline-flex; border:1px solid var(--color-border); border-radius:var(--radius-pill); overflow:hidden; }
+  .toggle button { font:inherit; font-weight:500; padding:8px 14px; border:0; cursor:pointer; background:var(--color-surface); color:var(--color-text-muted); }
+  .toggle button[aria-pressed="true"] { background:var(--color-brand); color:var(--color-on-brand); }
+  .toggle button:focus-visible { outline:2px solid var(--color-focus-ring); outline-offset:-2px; }
+
+  /* accentkant = skarpa hörn */
+  .callout { padding:18px 20px; border:1px solid var(--color-border);
+    border-left:3px solid var(--color-brand); background:var(--color-ground); margin:0 0 56px; }
+  .callout p { margin:0 0 6px; }
+  .callout p:last-child { margin-bottom:0; color:var(--color-text-muted); }
+  .callout .k { font-weight:600; }
+
+  section { margin-bottom:64px; }
+  h2.sec { font-weight:600; font-size:14px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--color-text-faint); margin:0 0 20px; }
+
+  /* regelkorten */
+  .rules { display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:16px; }
+  .rule { border:1px solid var(--color-border); border-radius:var(--radius-control);
+    background:var(--color-surface); padding:18px 20px; }
+  .rule .n { font-family:var(--p-font-mono); font-size:14px; color:var(--color-text-faint); }
+  .rule .t { font-weight:600; font-size:16px; line-height:21px; margin:6px 0 8px; }
+  .rule p { margin:0; color:var(--color-text-muted); }
+
+  /* typ-badge */
+  .badge { display:inline-flex; align-items:center; font-weight:500; font-size:14px; line-height:18px;
+    padding:1px 8px; border-radius:var(--radius-badge); white-space:nowrap; }
+  .badge-action { background:var(--tint-success-bg, var(--p-green-100)); color:var(--tint-success-fg, var(--p-green-600)); }
+  .badge-admin  { background:var(--tint-info-bg, var(--p-blue-100));  color:var(--tint-info-fg, var(--p-blue-600)); }
+
+  /* registret */
+  .reg-scroll { overflow-x:auto; border:1px solid var(--color-border); border-radius:var(--radius-control); background:var(--color-surface); }
+  table.reg { width:100%; border-collapse:collapse; min-width:720px; }
+  .reg th { text-align:left; font-weight:600; font-size:14px; color:var(--color-text-muted);
+    padding:12px 16px; border-bottom:1px solid var(--color-border); background:var(--color-surface-sunken); white-space:nowrap; }
+  .reg td { padding:12px 16px; border-bottom:1px solid var(--color-border); vertical-align:top; }
+  .reg tr:last-child td { border-bottom:0; }
+  .reg td.handling { font-weight:500; white-space:nowrap; }
+  .reg td.komponent { font-family:var(--p-font-mono); font-size:14px; color:var(--color-text-muted); white-space:nowrap; }
+  .reg td.ingangar { color:var(--color-text-muted); }
+  .reg .aldrig { color:var(--color-danger, var(--p-red-600)); font-weight:500; }
+
+  /* protokollet */
+  ol.proto { margin:0; padding:0 0 0 20px; display:flex; flex-direction:column; gap:12px; max-width:72ch; }
+  ol.proto li { padding-left:6px; }
+  ol.proto b { font-weight:600; }
+  ol.proto .m { color:var(--color-text-muted); }
+
+  /* fritt vs aldrig */
+  .split { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:16px; }
+  .split .col { border:1px solid var(--color-border); background:var(--color-surface); padding:18px 20px; }
+  .split .col.ok    { border-left:3px solid var(--tint-success-fg, var(--p-green-600)); }
+  .split .col.stopp { border-left:3px solid var(--color-danger, var(--p-red-600)); }
+  .split .h { font-weight:600; margin:0 0 10px; }
+  .split ul { margin:0; padding-left:18px; color:var(--color-text-muted); display:flex; flex-direction:column; gap:6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>Koncept: action vs admin</h1>
+      <p class="lede">Kontraktet för hur vi porterar gammal design. Vi porterar handlingar
+        och records, aldrig skärmar. Det som håller när vi flyttar eller tar bort saker är
+        registret nedan och klassificeringen, inte layouten.</p>
+      <p class="src">Fulltext: <a href="https://github.com/henrikhellstromgbg/slaycrm-prototyp/blob/master/KONCEPT.md">KONCEPT.md</a>
+        · detaljbeslut i <a href="https://github.com/henrikhellstromgbg/slaycrm-prototyp/blob/master/ia-analysis/08-reduktion-uppgifter-vs-admin.md">08-reduktion</a></p>
+    </div>
+    <div class="toggle" role="group" aria-label="Tema">
+      <button type="button" data-set="light" aria-pressed="false">Ljust</button>
+      <button type="button" data-set="dark" aria-pressed="false">Mörkt</button>
+    </div>
+  </header>
+
+  <div class="callout">
+    <p><span class="k">Lackmustestet.</span> Gör detta att något händer i verkligheten (ett samtal,
+      ett möte, en affär rör sig)? Då är det en <span class="badge badge-action">action</span>.
+      Ändrar det bara vad som står i registret? Då är det <span class="badge badge-admin">admin</span>.</p>
+    <p>Kan du inte svara är ytan feldesignad. Dela den: uppgiftsremsa på toppen, record-zon under.</p>
+  </div>
+
+  <section>
+    <h2 class="sec">Fyra regler</h2>
+    <div class="rules">
+      <div class="rule"><span class="n">1</span>
+        <div class="t">Gamla designen är ett vittne</div>
+        <p>Den bevisar vad användare behövt göra, inte hur. "Det såg ut så i gamla appen" är aldrig ett argument.</p>
+      </div>
+      <div class="rule"><span class="n">2</span>
+        <div class="t">Varje yta deklarerar sig</div>
+        <p>Action är verb: snabb, drawer, 3 till 5 fält. Admin är substantiv: komplett, på recordets hem. Blandat kräver synlig söm.</p>
+      </div>
+      <div class="rule"><span class="n">3</span>
+        <div class="t">Registret är kontraktet</div>
+        <p>En handling = en implementation. Flera triggers är fint, flera formulär är förbjudet. Ta bort en skärm = kolla registret först.</p>
+      </div>
+      <div class="rule"><span class="n">4</span>
+        <div class="t">En record har ett hem</div>
+        <p>Full redigering bara på kanoniska sidan. Allt annat länkar dit. Härledd data är aldrig ett redigerbart fält.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="sec">Handlingsregistret</h2>
+    <div class="reg-scroll">
+      <table class="reg">
+        <thead>
+          <tr><th>Handling</th><th>Typ</th><th>Kanonisk komponent</th><th>Tillåtna ingångar</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="handling">Logga/boka aktivitet</td>
+            <td><span class="badge badge-action">action</span></td>
+            <td class="komponent">aktivitets-drawern (en enda)</td>
+            <td class="ingangar">global "+ Ny", företag, kontakt, affär, aktivitetslistan</td>
+          </tr>
+          <tr>
+            <td class="handling">Markera aktivitet klar</td>
+            <td><span class="badge badge-action">action</span></td>
+            <td class="komponent">inline-toggle i lista/remsa</td>
+            <td class="ingangar">aktivitetslistan, topp-remsor</td>
+          </tr>
+          <tr>
+            <td class="handling">Redigera aktivitet</td>
+            <td><span class="badge badge-admin">admin</span></td>
+            <td class="komponent">en delad redigera-drawer</td>
+            <td class="ingangar">aktivitetsdetalj, listan</td>
+          </tr>
+          <tr>
+            <td class="handling">Flytta affär mellan faser</td>
+            <td><span class="badge badge-action">action</span></td>
+            <td class="komponent">Säljtavlan (drag) + fasväljare</td>
+            <td class="ingangar">tavlan, affärsdetaljens topp-remsa</td>
+          </tr>
+          <tr>
+            <td class="handling">Skapa företag / kontakt / affär</td>
+            <td><span class="badge badge-action">action</span></td>
+            <td class="komponent">quick-create per entitet, 3–5 fält</td>
+            <td class="ingangar">global "+ Ny", kontextuella "+" på record</td>
+          </tr>
+          <tr>
+            <td class="handling">Skapa offert</td>
+            <td><span class="badge badge-action">action</span></td>
+            <td class="komponent">"Offert från affär", enda vägen</td>
+            <td class="ingangar">affärsdetaljen. <span class="aldrig">Aldrig fristående</span></td>
+          </tr>
+          <tr>
+            <td class="handling">Redigera företag / kontakt / affär</td>
+            <td><span class="badge badge-admin">admin</span></td>
+            <td class="komponent">recordets hem</td>
+            <td class="ingangar">endast recordets hem</td>
+          </tr>
+          <tr>
+            <td class="handling">Offertens rader och villkor</td>
+            <td><span class="badge badge-admin">admin</span></td>
+            <td class="komponent">offertens hem</td>
+            <td class="ingangar">endast offertens hem</td>
+          </tr>
+          <tr>
+            <td class="handling">Projektmedlemskap</td>
+            <td><span class="badge badge-admin">admin</span></td>
+            <td class="komponent">projektets hem</td>
+            <td class="ingangar">endast projektets hem</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="sec">Porteringsprotokollet, per gammal vy</h2>
+    <ol class="proto">
+      <li><b>Inventera.</b> <span class="m">Vilka handlingar påstår vyn att den erbjuder? Knappar, menyer, implicita.</span></li>
+      <li><b>Klassa.</b> <span class="m">Varje handling: action eller admin. Varje yta: uppgiftsremsa, record-zon eller ren lista.</span></li>
+      <li><b>Slå upp.</b> <span class="m">Finns handlingen i registret? Använd den kanoniska komponenten. Finns den inte: beslut (in eller medvetet nej), logga det.</span></li>
+      <li><b>Portera aldrig fel.</b> <span class="m">Buggar, döda menyval och dubblerade formulär är evidens på skuld, inte krav.</span></li>
+      <li><b>Klart är:</b> <span class="m">inga formulär utanför registret, varje admin-fält nås via recordets hem, inga tomma fasader, sömmen synlig där sidan blandar.</span></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2 class="sec">Vad som får ändras, och vad som inte får det</h2>
+    <div class="split">
+      <div class="col ok">
+        <p class="h">Fritt att ändra</p>
+        <ul>
+          <li>layout och navplacering</li>
+          <li>flikordning och gruppering</li>
+          <li>namn på skärmar</li>
+          <li>vilka ingångar en handling har</li>
+        </ul>
+      </div>
+      <div class="col stopp">
+        <p class="h">Aldrig tyst</p>
+        <ul>
+          <li>en handlings kanoniska komponent</li>
+          <li>en records hem</li>
+          <li>härledd relation som blir redigerbar</li>
+          <li>handling vars sista ingång tas bort</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

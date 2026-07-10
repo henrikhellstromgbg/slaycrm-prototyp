@@ -8,6 +8,7 @@ Det här repot innehåller två spår:
 Direktlänkar:
 
 - **DS-prototyp:** `https://henrikhellstromgbg.github.io/slaycrm-prototyp/design-system/app.html`
+- **Koncept (action vs admin + handlingsregistret):** `https://henrikhellstromgbg.github.io/slaycrm-prototyp/design-system/koncept.html`
 - **Designsystem / referensyta:** `https://henrikhellstromgbg.github.io/slaycrm-prototyp/design-system/`
 - **Äldre wireframe:** `https://henrikhellstromgbg.github.io/slaycrm-prototyp/`
 
