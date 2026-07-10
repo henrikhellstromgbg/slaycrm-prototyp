@@ -1595,6 +1595,41 @@
     });
   })();
 
+  /* Generiska Åtgärder-menyer på aktivitet/företag/kontakt-detalj. Affär och offert har
+     egna toggles (initDealDetail/oqd); dessa wraps bär data-actions och sköts här.
+     Alla poster stänger menyn; data-open (Ny kontakt) öppnar drawern via screens.js. */
+  (function () {
+    var wraps = Array.prototype.slice.call(document.querySelectorAll('.oqd-menu-wrap[data-actions]'));
+    if (!wraps.length) return;
+    function closeAll(except) {
+      wraps.forEach(function (w) {
+        if (w === except) return;
+        var menu = w.querySelector('.oqd-menu');
+        var btn = w.querySelector('.oqd-menu-btn');
+        if (menu) menu.classList.remove('is-open');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+      });
+    }
+    wraps.forEach(function (w) {
+      var btn = w.querySelector('.oqd-menu-btn');
+      var menu = w.querySelector('.oqd-menu');
+      if (!btn || !menu) return;
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var willOpen = !menu.classList.contains('is-open');
+        closeAll(w);
+        menu.classList.toggle('is-open', willOpen);
+        btn.setAttribute('aria-expanded', String(willOpen));
+      });
+      menu.addEventListener('click', function () {
+        menu.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+      });
+    });
+    document.addEventListener('click', function () { closeAll(null); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(null); });
+  })();
+
   /* ── init ──────────────────────────────────────────────────────── */
 
   initTabs();
