@@ -99,4 +99,4 @@ Dessa finns i `screens.css` och funkar, men de är inte formaliserade i `tokens.
 
 - `tokens.css` / `tokens.json` semantiska värden — oförändrade, bara dogfoodade.
 - Skarpa SlayCRM-repot och dess Vercel-deploy — aldrig vidrört (läsrätt).
-- Inga commits eller push. Allt ligger lokalt i `slaycrm-prototyp/design-system/` och väntar på dig.
+- Historik: detta pass gjordes före första commit. Allt bor nu i repo-roten av `slaycrm-design-system`.

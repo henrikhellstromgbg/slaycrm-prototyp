@@ -1,25 +1,33 @@
-# SlayCRM prototyper
+# SlayCRM design system
 
-Det här repot innehåller två spår:
+Designsystemet för SlayCRM: tokens, komponenter, teman och en navigerbar prototyp som dogfoodar systemet. Ren HTML/CSS/vanilla-JS, inget byggsteg. Push till `master` bygger om GitHub Pages automatiskt.
 
-- **Aktuell DS-implementerad prototyp:** `design-system/app.html`
-- **Äldre wireframe i repo-roten:** `index.html`
+## Direktlänkar
 
-Direktlänkar:
+- **Referensyta (tokens + komponenter):** https://henrikhellstromgbg.github.io/slaycrm-design-system/
+- **Navigerbar prototyp:** https://henrikhellstromgbg.github.io/slaycrm-design-system/app.html
+- **Koncept (action vs admin + handlingsregistret):** https://henrikhellstromgbg.github.io/slaycrm-design-system/koncept.html
 
-- **DS-prototyp:** `https://henrikhellstromgbg.github.io/slaycrm-prototyp/design-system/app.html`
-- **Koncept (action vs admin + handlingsregistret):** `https://henrikhellstromgbg.github.io/slaycrm-prototyp/design-system/koncept.html`
-- **Designsystem / referensyta:** `https://henrikhellstromgbg.github.io/slaycrm-prototyp/design-system/`
-- **Äldre wireframe:** `https://henrikhellstromgbg.github.io/slaycrm-prototyp/`
+## Struktur
 
-Om du vill se den version där designsystemet faktiskt är implementerat, börja i `design-system/app.html`.
+- `tokens.css` / `tokens.json` — designtokens (primitiver, semantik, teman, komponentmått)
+- `screens.css` / `screens.js` / `theme.js` — delat app-skal och patterns
+- `index.html` — levande referensyta för systemet
+- `app.html` / `app.js` — navigerbar prototyp byggd rakt på systemet
+- `screens-*.html` — statiska vyer (aktiviteter, affärer, offerter, företag, kontakter, säljtavla, detalj)
+- `DESIGN.md` — systemkontraktet (personlighet, foundations, states, tillgänglighet)
+- `GAPS.md` — prioriterad lista över luckor och öppna beslut
+- `KONCEPT.md` + `ia-analysis/` — IA-analys och porteringskoncept
+- `archive/` — äldre wireframe, kvar som historik
+
+## Snabbfakta
+
+- Typsnitt: Geist (self-hostad i `fonts/`)
+- Brand: orange `#e26a00`, skilt från danger `#dc2626`
+- Font-golv 14 px, knappar är pills, H1 20 px
+- Ljust/mörkt tema via `[data-theme]`, växlare i kontomenyn
+- Statusvokabulär speglar skarpa appens `crm.ts`
 
 ## Syfte
 
-Rikta in intressenter kring flöde, struktur och visuell riktning innan något byggs skarpt. Den äldre wireframen i roten finns kvar som historik, men den aktuella prototypen ligger under `design-system/`.
-
-## Anteckningar
-
-- Designtokens och färgsemantik ligger inline i `<style>`.
-- Orange = CTA, grönt = skapande som lyckas, rött = destruktiv radering.
-- Rollväxlaren (Säljare/Superadmin) uppe till höger är bara för demo: bara superadmin får radera data, säljare arkiverar.
+Rikta in intressenter kring flöde, struktur och visuell riktning innan något byggs skarpt. Systemet är källan; prototypen är underordnad och finns för att visa systemet i bruk.

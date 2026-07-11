@@ -1,0 +1,1790 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SlayCRM — Aktivitetsflöde (wireframe)</title>
+<!--
+  SlayCRM — prototyp av det aktivitetscentrerade flödet (WIREFRAME)
+  ────────────────────────────────────────────────────────────────
+  Nivå: nästan wireframe. Gråskala, platt, tydliga knappar, bra kontrast.
+  16px default, inget under 14px. Fokus på FLÖDE, inte färg.
+
+  Vyer:
+    A. Lista (startsida) — dagens aktiviteter, närmast först
+    B. Arbetsyta — logg/kommentar + kontext-rail + "Markera klar" → uppföljning
+    C. Skapa — typ primär + fullt inline företagsskapande (ingen modal)
+
+  Iterationsspakar:
+    ACTIVITIES  = rader i listan
+    TABS        = flikar i arbetsytan
+    .row grid-template-columns = kolumner i listan
+-->
+<style>
+  :root {
+    /* gråskala — wireframe */
+    --ink:        #1a1a1a;   /* primärtext, aktiv, primärknapp */
+    --muted:      #4d4d4d;   /* sekundärtext */
+    --faint:      #6e6e6e;   /* tertiär (fortf. >4.5:1 på vitt) */
+    --line:       #c4c4c9;   /* borders */
+    --line-strong:#9a9aa0;   /* knapp-border, betoning */
+    --panel:      #f3f3f4;   /* fyllda ytor */
+    --panel-2:    #ebebed;   /* djupare fyllning */
+    --white:      #fff;
+    --accent:      #ec5a13;  /* orange — huvud-CTA */
+    --accent-hover:#d24d0c;
+    --r: 6px;                /* enhetlig radie */
+    --filt-w: 264px;         /* basbredd för filter-dropdowns och Datum-knappen */
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    color: var(--ink);
+    background: var(--panel);
+    font-size: 16px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font-family: inherit; cursor: pointer; font-size: 16px; }
+  a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  ::placeholder { color: var(--faint); }
+
+  .app { max-width: 1280px; margin: 0 auto; min-height: 100vh; background: var(--white);
+         border-inline: 1px solid var(--line); display: flex; flex-direction: column; }
+
+  /* ── Topbar ─────────────────────────────────────────────────────── */
+  .topbar { display: flex; align-items: center; gap: 20px; padding: 12px 20px;
+            border-bottom: 1px solid var(--line); background: var(--white);
+            position: sticky; top: 0; z-index: 20; }
+  .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px; }
+  .logo-mark { width: 24px; height: 24px; border-radius: var(--r); border: 1px solid var(--ink);
+               display: grid; place-items: center; font-size: 14px; }
+  .nav { display: flex; gap: 2px; }
+  .nav a { padding: 8px 12px; border-radius: var(--r); color: var(--muted);
+           font-weight: 500; font-size: 16px; text-decoration: none; border: 1px solid transparent; }
+  .nav a:hover { background: var(--panel); color: var(--ink); }
+  .nav a.active { color: var(--ink); font-weight: 700; border-bottom: 2px solid var(--ink); border-radius: var(--r) var(--r) 0 0; }
+  .nav-group { position: relative; }
+  .nav-group > a { display: inline-flex; align-items: center; gap: 4px; }
+  .nav-caret { display: inline-flex; color: var(--faint); }
+  .nav-drop { position: absolute; top: calc(100% + 2px); left: 0; min-width: 172px; background: var(--white);
+              border: 1px solid var(--line); border-radius: var(--r); padding: 4px; display: none;
+              flex-direction: column; gap: 2px; z-index: 30; }
+  .nav-group:hover .nav-drop { display: flex; }
+  .nav-drop a { font-weight: 500; }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+
+  .search { display: flex; align-items: center; gap: 8px; background: var(--white);
+            border: 1px solid var(--line-strong); border-radius: var(--r);
+            padding: 9px 12px; width: 340px; }
+  .search:focus-within { border-color: var(--ink); box-shadow: 0 0 0 2px var(--ink); }
+  .search input { border: 0; outline: 0; background: transparent; width: 100%; font-size: 16px; color: var(--ink); }
+  .search svg { color: var(--muted); flex-shrink: 0; }
+
+  .avatar { width: 32px; height: 32px; border-radius: 999px; border: 1px solid var(--line-strong);
+            background: var(--panel); color: var(--ink); display: grid; place-items: center; font-size: 14px; font-weight: 600; }
+
+  /* Rollväxlare: bara för demo, så man ser skillnaden mellan säljare och superadmin. */
+  .role-switch { border: 1px solid var(--line-strong); background: var(--panel); color: var(--muted);
+                 border-radius: 999px; padding: 6px 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .role-switch:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* ── Knappar (tydliga, hög kontrast) ────────────────────────────── */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+         border: 1px solid var(--line-strong); background: var(--white); color: var(--ink);
+         padding: 9px 15px; border-radius: var(--r); font-weight: 600; font-size: 16px; }
+  .btn:hover { background: var(--panel); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn-ghost { background: transparent; border-color: transparent; color: var(--muted); }
+  .btn-ghost:hover { background: var(--panel); color: var(--ink); }
+  .btn-newco { margin-top: 10px; width: 100%; justify-content: center; }
+  .btn-sm { padding: 7px 11px; font-size: 14px; }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn svg { flex-shrink: 0; }
+
+  /* ── Vyer ───────────────────────────────────────────────────────── */
+  .view { display: none; flex: 1; }
+  .view.active { display: block; }
+
+  .page-head { display: flex; align-items: center; gap: 16px; padding: 20px 24px 6px; }
+  .page-head h1 { font-size: 22px; margin: 0; font-weight: 700; }
+  .page-head .sub { color: var(--muted); font-size: 14px; margin-top: 2px; }
+  .page-head .spacer { margin-left: auto; }
+
+  .note { margin: 10px 24px 4px; background: var(--panel); border: 1px solid var(--line);
+          border-radius: var(--r); padding: 10px 14px; font-size: 14px; color: var(--muted); }
+  .note b { color: var(--ink); }
+
+  /* ── Segment / filter ───────────────────────────────────────────── */
+  .filters { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 14px 24px 12px; }
+  /* Lokalt aktivitetssök, hör till listan (skilt från globalsöket i headern) */
+  .act-search { width: 240px; border: 1px solid var(--line-strong); border-radius: var(--r);
+    padding: 8px 12px; font: inherit; font-size: 14px; font-weight: 400; color: var(--ink);
+    background: var(--white); outline: 0; }
+  .act-search::placeholder { color: var(--faint); }
+  .act-search:focus { border-color: var(--ink); }
+  .segment { display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--r); overflow: hidden; }
+  .segment button { border: 0; border-right: 1px solid var(--line); background: var(--white);
+                    padding: 8px 14px; font-size: 14px; font-weight: 600; color: var(--muted); }
+  .segment button:last-child { border-right: 0; }
+  .segment button.on { background: var(--ink); color: #fff; }
+  /* Filter: tre popovers (Datum, Ansvarig, Typ). Speglar skarpa Att göra + Aktiviteter. */
+  .filt { position: relative; }
+  .filt-btn { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line-strong);
+    border-radius: var(--r); background: var(--white); color: var(--ink);
+    padding: 8px 12px; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .filt-btn:hover { border-color: var(--ink); }
+  .filt.open .filt-btn { border-color: var(--ink); background: var(--panel); }
+  .filt-btn .fv { color: var(--accent-hover); font-weight: 700; }
+  .filt-btn .cv { color: var(--faint); font-size: 14px; line-height: 1; }
+  .filt-btn .fc { min-width: 20px; text-align: center; padding: 1px 7px; border-radius: 999px;
+    background: var(--panel-2); color: var(--muted); font-size: 14px; font-weight: 600; line-height: 1.5; }
+  .filt-pop { position: absolute; top: calc(100% + 6px); left: 0; z-index: 50; display: none;
+    min-width: var(--filt-w); background: var(--white); border: 1px solid var(--line);
+    border-radius: var(--r); padding: 6px; box-shadow: 0 8px 28px rgba(0,0,0,.12); }
+  /* Datum-knappen minst lika bred som sin dropdown, växer med innehållet; popovern följer knappens bredd */
+  #filt-date .filt-btn { min-width: var(--filt-w); }
+  #filt-date .filt-pop { width: 100%; min-width: 0; }
+  #filt-date .filt-btn .fc { margin-left: auto; }
+  .filt.open .filt-pop { display: block; }
+  .filt-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%;
+    text-align: left; background: transparent; border: 0; border-radius: 5px; padding: 9px 10px;
+    font: inherit; font-size: 15px; color: var(--ink); cursor: pointer; }
+  .filt-row:hover { background: var(--panel); }
+  .filt-row.on { background: var(--panel-2); font-weight: 700; }
+  .filt-row .fr-label { flex-shrink: 0; }
+  .fr-hint { font-size: 14px; font-weight: 400; color: var(--faint); }
+  .filt-row .fr-hint { margin-left: auto; text-align: right; } /* datumen högerjusteras, före antalet */
+  .filt-row .fr-n { flex-shrink: 0; min-width: 20px; text-align: right; color: var(--faint); font-size: 14px; font-weight: 600; }
+  .filt-row .fr-chev { flex-shrink: 0; }
+  .filt-sep { height: 1px; background: var(--line); margin: 6px 4px; }
+  .filt-quick { display: flex; gap: 6px; padding: 4px 4px 8px; }
+  .filt-quick button { flex: 1; border: 1px solid var(--line-strong); border-radius: 5px; background: var(--white);
+    padding: 7px 8px; font: inherit; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .filt-quick button:hover { border-color: var(--ink); color: var(--ink); }
+  .filt-search { width: 100%; box-sizing: border-box; border: 1px solid var(--line-strong); border-radius: 5px;
+    padding: 8px 10px; font: inherit; font-size: 14px; color: var(--ink); margin-bottom: 4px; }
+  .filt-list { max-height: 240px; overflow-y: auto; }
+  .filt-check { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 5px;
+    font-size: 15px; color: var(--ink); cursor: pointer; }
+  .filt-check:hover { background: var(--panel); }
+  .filt-check input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+  .filt-check .ft-ic { display: inline-flex; color: var(--muted); }
+  .filt-check .fr-n { margin-left: auto; color: var(--faint); font-size: 14px; font-weight: 600; }
+  .filt-actions { display: flex; gap: 6px; border-top: 1px solid var(--line); margin-top: 4px; padding-top: 6px; }
+  .filt-actions button { flex: 1; background: transparent; border: 0; border-radius: 5px; padding: 8px;
+    font: inherit; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .filt-actions button:hover { background: var(--panel); color: var(--ink); }
+  .filt-empty { padding: 12px 10px; font-size: 14px; color: var(--faint); }
+  /* Eget intervall: rad som öppnar en egen kalendervy (håller popovern kort) */
+  .filt-row .fr-chev { color: var(--faint); font-size: 16px; line-height: 1; }
+  .rp-head { display: flex; align-items: center; gap: 8px; padding: 2px 4px 8px; }
+  .rp-back { background: transparent; border: 0; padding: 4px 6px; border-radius: 5px; cursor: pointer;
+    font: inherit; font-size: 14px; font-weight: 600; color: var(--muted); }
+  .rp-back:hover { background: var(--panel); color: var(--ink); }
+  .rp-title { font-size: 15px; font-weight: 700; color: var(--ink); }
+  .rp-cal { padding: 0 4px; }
+  .cal-day.in-range { background: var(--panel-2); border-radius: 0; }
+  .cal-day.sel.range-start { border-top-left-radius: var(--r); border-bottom-left-radius: var(--r); }
+  .cal-day.sel.range-end { border-top-right-radius: var(--r); border-bottom-right-radius: var(--r); }
+  .rp-foot { border-top: 1px solid var(--line); margin-top: 8px; padding: 10px 6px 4px; }
+  .rp-range { display: block; font-size: 14px; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
+  .rp-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .rp-clear { background: transparent; border: 0; padding: 6px 8px; border-radius: 5px; cursor: pointer;
+    font: inherit; font-size: 14px; font-weight: 600; color: var(--faint); }
+  .rp-clear:hover { background: var(--panel); color: var(--ink); }
+
+  /* ── Lista ──────────────────────────────────────────────────────── */
+  .list { padding: 0 24px 32px; }
+  .list-head, .row { display: grid;
+    grid-template-columns: 40px 112px minmax(320px,2.9fr) minmax(210px,1.5fr) 112px 122px 104px 84px;
+    align-items: center; gap: 12px; }
+  .list-head { padding: 8px 14px; font-size: 14px; color: var(--faint); font-weight: 600; }
+  .list-head div:last-child { text-align: right; }   /* Händelser-rubriken linjerar med den högerställda pillen */
+  .row { padding: 14px; border: 1px solid var(--line); border-radius: var(--r);
+         margin-bottom: 8px; background: var(--white); cursor: pointer; text-align: left; width: 100%; font: inherit; }
+  .row:hover { border-color: var(--ink); }
+
+  .type-ic { position: relative; width: 34px; height: 34px; border-radius: var(--r); border: 1px solid var(--line-strong);
+             display: grid; place-items: center; color: var(--ink); background: var(--white); }
+  /* Händelser: egen kolumn som visar hur mycket historik som ligger bakom raden. Neutral tills den blir tung. */
+  .cell-events { display: flex; align-items: center; justify-content: flex-end; }
+  .ev-count { min-width: 24px; height: 22px; padding: 0 8px; border-radius: 999px;
+              background: var(--white); border: 1px solid var(--line-strong);
+              color: var(--muted); font-size: 14px; font-weight: 700; line-height: 20px; text-align: center; }
+  .ev-count.hot { background: #fbe9df; border-color: var(--accent); color: var(--accent-hover); }
+  .ev-none { color: var(--line-strong); font-size: 14px; padding-left: 8px; }
+
+  .cell-subject .s1 { font-weight: 600; font-size: 16px; line-height: 1.3;
+     display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  .cell-subject .s2 { color: var(--faint); font-size: 14px; line-height: 1.35;
+     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .cell-company { font-size: 15px; color: var(--ink); font-weight: 500; overflow: hidden; text-overflow: ellipsis; }
+  .cell-city { color: var(--muted); font-size: 14px; display: flex; align-items: center; gap: 5px; }
+  .cell-owner { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+  .cell-owner .avatar { width: 26px; height: 26px; font-size: 13px; }
+  .cell-date { font-size: 15px; font-weight: 600; }
+  .cell-date .rel { display: block; font-weight: 400; font-size: 14px; color: var(--faint); }
+  .cell-date.overdue .rel { color: #c02617; font-weight: 600; }   /* försenat: relativtiden i rött, ingen squiggle */
+
+  .badge { display: inline-flex; align-items: center; font-size: 14px; font-weight: 600;
+           padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--muted); }
+  .badge.klar { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .cell-status { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+  .no-fu { font-size: 14px; color: var(--faint); white-space: nowrap; }
+
+  .list-empty { text-align: center; color: var(--faint); padding: 48px; font-size: 16px; }
+  .done-label { font-size: 14px; font-weight: 700; color: var(--faint); margin: 22px 0 10px; }
+  .row.done { opacity: .55; }
+  .row.done:hover { opacity: .85; }
+  @keyframes rowflash { 0% { background: var(--panel-2); } 100% { background: transparent; } }
+  .row.flash { animation: rowflash 1.9s ease-out; }
+
+  /* ── Arbetsyta ──────────────────────────────────────────────────── */
+  .ws-head { display: flex; align-items: flex-start; gap: 14px; padding: 16px 24px;
+             border-bottom: 1px solid var(--line); position: sticky; top: 57px; background: #fff; z-index: 10; }
+  .ws-back { border: 0; background: transparent; color: var(--muted); font-size: 15px; display: flex; align-items: center; gap: 6px; padding: 6px; }
+  .ws-back:hover { color: var(--ink); }
+  .ws-title-wrap { flex: 1; min-width: 0; }
+  .ws-type-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--muted); margin-bottom: 3px; }
+  .ws-title { font-size: 22px; font-weight: 700; line-height: 1.25;
+              display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .ws-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .icon-btn { width: 38px; height: 38px; border: 1px solid var(--line-strong); background: #fff; border-radius: var(--r);
+              display: grid; place-items: center; color: var(--muted); }
+  .icon-btn:hover { background: var(--panel); color: var(--ink); }
+
+  .ws-body { display: grid; grid-template-columns: 1fr 340px; align-items: start; }
+  .ws-main { padding: 20px 24px 40px; border-right: 1px solid var(--line); min-height: 60vh; }
+  .ws-rail { padding: 20px; position: sticky; top: 130px; }
+
+  /* uppföljningspanel som modal (efter Markera klar) */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(26,26,26,.5); z-index: 50;
+                   display: none; align-items: flex-start; justify-content: center; padding: 48px 20px; overflow-y: auto; }
+  .modal-overlay.on { display: flex; }
+  .followup { width: 100%; max-width: 580px; margin: auto 0; background: var(--white);
+              border: 1px solid var(--ink); border-radius: 10px; padding: 24px; }
+  .fu-head { font-size: 17px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+  .fu-sub { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
+  .fu-row { margin-bottom: 14px; }
+  .fu-row > .lbl { font-size: 14px; font-weight: 600; margin-bottom: 7px; display: block; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pick { border: 1px solid var(--line-strong); background: #fff; border-radius: 999px; padding: 7px 13px; font-size: 14px; font-weight: 600; color: var(--muted); }
+  .pick.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .fu-actions { display: flex; gap: 10px; margin-top: 18px; }
+
+  /* affärssteg i completion-panelen */
+  .deal-toggle { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+                 border: 1px dashed var(--line-strong); background: #fff; border-radius: var(--r);
+                 padding: 12px; font: inherit; font-size: 15px; font-weight: 600; color: var(--muted); }
+  .deal-toggle:hover { border-color: var(--ink); color: var(--ink); }
+  .deal-toggle .dt-ic { font-size: 18px; line-height: 1; }
+  .deal-toggle.on { display: none; }
+  .deal-box { display: none; border: 1px dashed var(--ink); background: #fff; border-radius: var(--r); padding: 16px; }
+  .deal-box.on { display: block; }
+  .deal-box-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; font-weight: 700; font-size: 15px; }
+  .deal-remove { border: 0; background: transparent; font: inherit; font-size: 14px; font-weight: 600; color: var(--faint); text-decoration: underline; }
+  .deal-remove:hover { color: var(--ink); }
+  .deal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .deal-box .field { margin-bottom: 0; }
+  /* reservera samma höjd för båda lägena så boxen inte hoppar vid växling */
+  #deal-new, #deal-existing { min-height: 164px; }
+  #deal-mode button:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* composer */
+  .composer { border: 1px solid var(--line-strong); border-radius: var(--r); overflow: hidden; margin-bottom: 10px; }
+  .composer textarea { width: 100%; border: 0; outline: 0; resize: none; padding: 14px; font: inherit; font-size: 16px; min-height: 58px; }
+  .composer-bar { display: flex; align-items: center; gap: 4px; padding: 8px 10px; border-top: 1px solid var(--line); background: var(--panel); }
+  .composer-bar .tool { min-width: 34px; height: 34px; border: 0; background: transparent; border-radius: var(--r); display: grid; place-items: center; color: var(--muted); font-size: 15px; }
+  .composer-bar .tool:hover { background: #fff; color: var(--ink); }
+  .composer-bar .sep { width: 1px; height: 20px; background: var(--line); margin: 0 4px; }
+  .composer-bar .send { margin-left: auto; }
+
+  /* tabs */
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 20px; flex-wrap: wrap; }
+  .tabs button { border: 0; background: transparent; padding: 11px 14px; font-size: 16px; font-weight: 500;
+                 color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -1px; }
+  .tabs button:hover { color: var(--ink); }
+  .tabs button.on { color: var(--ink); border-bottom-color: var(--ink); font-weight: 700; }
+  .tab-pane { display: none; }
+  .tab-pane.on { display: block; }
+
+  /* timeline */
+  .tl-group-label { font-size: 14px; font-weight: 700; color: var(--faint); margin: 18px 0 10px; }
+  .tl-item { position: relative; border: 1px solid var(--line); border-radius: var(--r); padding: 14px; margin-bottom: 10px; }
+  .tl-kind { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600;
+             color: var(--muted); margin-bottom: 7px; }
+  .tl-text { font-size: 15px; color: var(--ink); margin-bottom: 8px; }
+  .tl-byline { font-size: 14px; color: var(--faint); }
+  .tl-actions { position: absolute; top: 11px; right: 11px; display: flex; gap: 2px; opacity: 0; transition: opacity .12s; }
+  .tl-item:hover .tl-actions { opacity: 1; }
+  .tl-actions button { display: inline-grid; place-items: center; width: 30px; height: 30px; padding: 0;
+                       background: transparent; border: 0; border-radius: 5px; color: var(--faint); cursor: pointer; }
+  .tl-actions button:hover { background: var(--panel); color: var(--ink); }
+  .tl-actions button.danger:hover { background: #fdece9; color: #c02617; }
+
+  /* Åtgärder-meny i headern */
+  .menu { position: relative; }
+  .menu > .btn { display: inline-flex; align-items: center; gap: 4px; }
+  .menu-drop { position: absolute; top: calc(100% + 4px); right: 0; min-width: 190px; background: var(--white);
+               border: 1px solid var(--line); border-radius: var(--r); padding: 4px; display: none;
+               flex-direction: column; gap: 2px; z-index: 40; }
+  .menu.open .menu-drop { display: flex; }
+  .menu-drop button { text-align: left; background: transparent; border: 0; padding: 9px 12px; border-radius: 5px;
+                      font: inherit; font-size: 15px; color: var(--ink); cursor: pointer; }
+  .menu-drop button:hover { background: var(--panel); }
+  .menu-drop button.danger { color: #c02617; }
+  .menu-drop button.danger:hover { background: #fdece9; }
+  .menu-sep { height: 1px; background: var(--line); margin: 4px 0; }
+
+  .doc-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .doc-search { flex: 1; max-width: 280px; padding: 9px 12px; border: 1px solid var(--line-strong);
+                border-radius: var(--r); font: inherit; font-size: 15px; background: var(--white); }
+  .doc-table { border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+  .doc-row { display: grid; grid-template-columns: 1fr 100px 170px; align-items: center; gap: 12px; padding: 12px 16px; }
+  .doc-row + .doc-row { border-top: 1px solid var(--line); }
+  .doc-head { background: var(--panel); font-size: 14px; font-weight: 600; color: var(--faint); }
+  .doc-name { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--ink); min-width: 0; }
+  .doc-name .fic { color: var(--faint); flex-shrink: 0; display: inline-grid; place-items: center; }
+  .doc-name .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .doc-meta { font-size: 14px; color: var(--faint); }
+  .doc-empty { padding: 28px 16px; color: var(--faint); font-size: 15px; }
+
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 28px; }
+  .detail-grid .fld .lbl { font-size: 14px; color: var(--faint); }
+  .detail-grid .fld .val { font-size: 16px; font-weight: 600; }
+
+  /* ── Rail ───────────────────────────────────────────────────────── */
+  .card { border: 1px solid var(--line); border-radius: var(--r); padding: 16px; margin-bottom: 14px; }
+  .co-head { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+  .co-logo { width: 42px; height: 42px; border-radius: var(--r); background: var(--panel);
+             border: 1px solid var(--line-strong); display: grid; place-items: center; color: var(--muted); flex-shrink: 0; }
+  .co-name { font-weight: 700; font-size: 16px; line-height: 1.2; }
+  .co-status { font-size: 14px; color: var(--muted); margin-top: 2px; }
+  .co-addr { display: flex; gap: 7px; color: var(--muted); font-size: 14px; align-items: flex-start; }
+  .co-addr svg { flex-shrink: 0; margin-top: 2px; }
+
+  .rail-field { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-top: 1px solid var(--line); }
+  .rail-field:first-of-type { border-top: 0; }
+  .rail-field .ic { width: 34px; height: 34px; border-radius: var(--r); border: 1px solid var(--line);
+                    display: grid; place-items: center; color: var(--muted); flex-shrink: 0; }
+  .rail-field .lbl { font-size: 14px; color: var(--faint); }
+  .rail-field .val { font-size: 15px; font-weight: 600; }
+  .rail-field .chev { margin-left: auto; color: var(--faint); }
+
+  /* kontakt inuti samma kontextkort som företaget */
+  .cc-divider { border-top: 1px solid var(--line); margin: 16px 0; }
+  .contact-card .cc-top { display: flex; align-items: center; gap: 10px; }
+  .contact-card .cc-role { font-size: 14px; color: var(--muted); }
+  .rail-btns { display: flex; gap: 8px; margin: 14px 0; }
+  .rail-btns .btn { flex: 1; }
+  .rail-contact-line { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 15px; }
+  .rail-contact-line svg { color: var(--faint); }
+
+  /* ── Metarad (ansvarig/datum/åtgärd) ovanför kommentaren ─────────── */
+  .ws-meta { display: flex; gap: 10px; margin-bottom: 14px; }
+  .ws-meta .m { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0;
+                padding: 4px 2px; background: transparent; border: 0; cursor: pointer; text-align: left; }
+  .ws-meta .m + .m { border-left: 1px solid var(--line); padding-left: 16px; }
+  .ws-meta .m .ic { width: 32px; height: 32px; border-radius: var(--r); border: 1px solid var(--line);
+                    display: grid; place-items: center; color: var(--muted); flex-shrink: 0; }
+  .ws-meta .m .lbl { font-size: 14px; color: var(--faint); }
+  .ws-meta .m .val { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ws-meta .m .edit { margin-left: auto; color: var(--faint); flex-shrink: 0; opacity: 0; transition: opacity .12s; }
+  .ws-meta .m:hover .edit { opacity: 1; }
+
+  /* ── Skapa ──────────────────────────────────────────────────────── */
+  .create-wrap { max-width: 640px; margin: 0 auto; padding: 24px; }
+  .create-title { font-size: 22px; font-weight: 700; line-height: 1.25; margin-bottom: 22px; }
+  .field { margin-bottom: 18px; }
+  .field > label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 7px; }
+  .field .opt { color: var(--faint); font-weight: 400; }
+  .field input, .field select, .field textarea {
+    width: 100%; border: 1px solid var(--line-strong); border-radius: var(--r); padding: 11px 12px;
+    font: inherit; font-size: 16px; outline: 0; background: #fff; color: var(--ink); }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--ink); box-shadow: 0 0 0 2px var(--ink); }
+
+  .type-picker { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+  .type-picker button { border: 1px solid var(--line-strong); background: #fff; border-radius: var(--r);
+                        padding: 16px 8px; display: flex; flex-direction: column; align-items: center; gap: 9px;
+                        font-size: 14px; font-weight: 600; color: var(--muted); }
+  .type-picker button .tpi { width: 38px; height: 38px; border-radius: var(--r); border: 1px solid var(--line);
+                             display: grid; place-items: center; color: var(--ink); }
+  .type-picker button.on { border-color: var(--ink); color: var(--ink); box-shadow: 0 0 0 2px var(--ink); }
+  .type-picker button.on .tpi { border-color: var(--ink); }
+
+  .row-inline { display: flex; gap: 8px; }
+  .row-inline input { flex: 1; }
+
+  /* inline företagsskapande */
+  .inline-create { border: 1px dashed var(--ink); background: var(--panel); border-radius: var(--r);
+                   padding: 18px; margin-top: 10px; display: none; }
+  .inline-create.on { display: block; }
+  .ic-head { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+  .ic-hint { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
+  .ic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .ic-full { grid-column: 1 / -1; }
+  .ic-grid .field { margin: 0; }
+  .prov-hint { font-size: 14px; color: var(--ink); font-weight: 600; margin-top: 6px; display: none; align-items: center; gap: 5px; }
+  .prov-hint.on { display: flex; }
+  .prov-hint svg { flex-shrink: 0; }
+
+  .status-seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--r); overflow: hidden; }
+  .status-seg button { border: 0; border-right: 1px solid var(--line); background: #fff; padding: 9px 14px; font-size: 14px; font-weight: 600; color: var(--muted); }
+  .status-seg button:last-child { border-right: 0; }
+  .status-seg button.on { background: var(--ink); color: #fff; }
+
+  .btn-add { margin-top: 16px; border-style: dashed; width: 100%; }
+  .contact-create { display: none; border-top: 1px solid var(--line); margin-top: 16px; padding-top: 16px; }
+  .contact-create.on { display: block; }
+
+  .create-actions { display: flex; gap: 10px; margin-top: 24px; }
+
+  /* datumknapp + inline-kalender (fake calendar) */
+  .date-btn { width:100%; text-align:left; display:flex; align-items:center; gap:10px;
+              border:1px solid var(--line-strong); border-radius:var(--r); padding:11px 12px;
+              background:#fff; font:inherit; font-size:16px; color:var(--ink); }
+  .date-btn:hover { background:var(--panel); }
+  .date-btn svg { color:var(--muted); flex-shrink:0; }
+  .cal { border:1px solid var(--line-strong); border-radius:var(--r); padding:12px; margin-top:10px; max-width:308px; background:#fff; }
+  .cal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+  .cal-head .mlbl { font-weight:700; font-size:15px; }
+  .cal-nav { width:30px; height:30px; border:1px solid var(--line-strong); border-radius:var(--r);
+             background:#fff; display:grid; place-items:center; font-size:18px; line-height:1; color:var(--ink); }
+  .cal-nav:hover { background:var(--panel); }
+  .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+  .cal-dow { font-size:14px; color:var(--faint); text-align:center; padding:4px 0; font-weight:600; }
+  .cal-day { aspect-ratio:1; border:1px solid transparent; border-radius:var(--r);
+             background:transparent; font-size:14px; color:var(--ink); }
+  .cal-day:not([disabled]):hover { background:var(--panel); }
+  .cal-day[disabled] { color:var(--faint); opacity:.4; cursor:default; }
+  .cal-day.today { border-color:var(--line-strong); font-weight:700; }
+  .cal-day.sel { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .cal-day.sel:not([disabled]):hover { background:var(--accent-hover); color:#fff; border-color:var(--accent-hover); }
+  .cal-time { margin-top:10px; display:flex; align-items:center; gap:10px; border-top:1px solid var(--line); padding-top:10px; }
+  .cal-time label { font-size:14px; font-weight:600; }
+  .cal-time input { width:130px; border:1px solid var(--line-strong); border-radius:var(--r); padding:8px 10px; font:inherit; font-size:16px; }
+
+  /* skapa ny kontakt (befintligt företag) */
+  .new-contact { display:none; border:1px dashed var(--ink); background:var(--panel); border-radius:var(--r); padding:16px; margin-top:10px; }
+  .new-contact.on { display:block; }
+
+  /* toast */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+           background: var(--ink); color: #fff; padding: 13px 20px; border-radius: var(--r); font-size: 15px;
+           opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 100; }
+  .toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast-ok.toast-neutral { background: var(--ink); }
+  .toast-ok { background: #1a7f37; padding: 16px 22px; font-size: 16px; max-width: 560px;
+              display: flex; align-items: center; gap: 13px; text-align: left; }
+  .toast-ok .toast-ic { flex-shrink: 0; display: inline-grid; place-items: center; width: 28px; height: 28px;
+                        border-radius: 50%; background: rgba(255,255,255,.22); }
+  .toast-ok .toast-sub { display: block; margin-top: 2px; font-size: 14px; font-weight: 400; opacity: .88; }
+  /* Undo-toast vid radering: neutral, inte grön — radering är ingen framgång att fira. */
+  .toast-undo { background: var(--ink); padding: 12px 14px 12px 20px; display: flex; align-items: center; gap: 16px;
+                pointer-events: auto; }
+  .toast-undo .undo-btn { background: transparent; border: 0; color: #fff; font: inherit; font-size: 15px;
+                          font-weight: 700; text-decoration: underline; cursor: pointer; padding: 4px 6px; }
+
+  @media (max-width: 900px) {
+    .ws-body { grid-template-columns: 1fr; }
+    .ws-main { border-right: 0; border-bottom: 1px solid var(--line); }
+    .ws-rail { position: static; }
+    .ws-meta { flex-direction: column; gap: 0; }
+    .ws-meta .m + .m { border-left: 0; padding-left: 2px; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 6px; }
+    .ws-meta .m .edit { opacity: 1; }
+    .list-head { display: none; }
+    .row { grid-template-columns: 40px 1fr auto; }
+    .row .type-ic { order: 1; }
+    .row .cell-subject { order: 2; }
+    .row .cell-date { order: 3; text-align: right; }
+    .row .cell-company, .row .cell-city, .row .cell-owner, .row .cell-status, .row .cell-events { display: none; }
+    .search { width: 160px; }
+    .nav { display: none; }
+    .ic-grid, .detail-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="app">
+  <div class="topbar">
+    <div class="logo"><span class="logo-mark">S</span> SlayCRM</div>
+    <nav class="nav">
+      <a class="active" href="#" onclick="showList();return false">Aktiviteter</a>
+      <div class="nav-group">
+        <a href="#" onclick="return false">Företag <span class="nav-caret"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span></a>
+        <div class="nav-drop">
+          <a href="#" onclick="return false">Alla företag</a>
+          <a href="#" onclick="return false">Kontaktpersoner</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <a href="#" onclick="return false">Affärer <span class="nav-caret"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span></a>
+        <div class="nav-drop">
+          <a href="#" onclick="return false">Alla affärer</a>
+          <a href="#" onclick="return false">Offerter</a>
+        </div>
+      </div>
+      <a href="#" onclick="return false">Säljtavlan</a>
+    </nav>
+    <div class="topbar-right">
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="search" placeholder="" autocomplete="off" aria-label="Sök">
+      </div>
+      <button class="role-switch" id="role-switch" onclick="toggleRole()" title="Växla roll (endast för demo)">Säljare</button>
+      <div class="avatar">WB</div>
+    </div>
+  </div>
+
+  <!-- ══ VY A: LISTA ═══════════════════════════════════════════════ -->
+  <section class="view active" id="view-list">
+    <div class="note"><b>Obs:</b> den aktuella prototypen där designsystemet är implementerat finns i <a href="../app.html">app.html</a>. Den här sidan är den äldre wireframe-versionen. Referensytan för designsystemet finns <a href="../">här</a>.</div>
+    <div class="page-head">
+      <div>
+        <h1>Aktiviteter</h1>
+        <div class="sub">Att göra och aktiviteter, samma vy. Sorterat närmast först.</div>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn btn-primary" onclick="openCreate()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Ny aktivitet
+      </button>
+    </div>
+
+    <div class="filters">
+      <div class="filt" id="filt-date">
+        <button class="filt-btn" onclick="toggleFilt('date')">Datum <span class="fv" id="fv-date">Alla</span> <span class="fc" id="fc-date"></span> <span class="cv">▾</span></button>
+        <div class="filt-pop" id="pop-date"></div>
+      </div>
+      <div class="filt" id="filt-owner">
+        <button class="filt-btn" onclick="toggleFilt('owner')">Ansvarig <span class="fv" id="fv-owner">Mina</span> <span class="cv">▾</span></button>
+        <div class="filt-pop" id="pop-owner"></div>
+      </div>
+      <div class="filt" id="filt-type">
+        <button class="filt-btn" onclick="toggleFilt('type')">Typ <span class="fv" id="fv-type">Alla typer</span> <span class="cv">▾</span></button>
+        <div class="filt-pop" id="pop-type"></div>
+      </div>
+      <input class="act-search" id="act-search" placeholder="Sök aktiviteter" autocomplete="off" aria-label="Sök aktiviteter">
+    </div>
+
+    <div class="list">
+      <div class="list-head">
+        <div></div><div>Datum</div><div>Aktivitet</div><div>Företag</div><div>Ort</div><div>Ansvarig</div><div>Status</div><div>Händelser</div>
+      </div>
+      <div id="rows"></div>
+      <div class="list-empty" id="list-empty" style="display:none">Inga aktiviteter matchar det här urvalet.</div>
+    </div>
+  </section>
+
+  <!-- ══ VY B: ARBETSYTA ═══════════════════════════════════════════ -->
+  <section class="view" id="view-ws">
+    <div class="ws-head">
+      <div class="ws-title-wrap">
+        <div class="ws-title" id="ws-title"></div>
+      </div>
+      <div class="ws-actions">
+        <button class="btn btn-ghost" onclick="showList()">Tillbaka</button>
+        <div class="menu" id="act-menu">
+          <button class="btn btn-ghost" onclick="toggleMenu('act-menu',event)">
+            Åtgärder
+            <svg class="nav-caret" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="menu-drop">
+            <button onclick="toast('Redigera aktivitet')">Redigera</button>
+            <button onclick="toast('Byt ansvarig')">Byt ansvarig</button>
+            <div class="menu-sep"></div>
+            <button onclick="rescheduleActivity(1)">Skjut fram till imorgon</button>
+            <button onclick="rescheduleActivity(7)">Skjut fram en vecka</button>
+            <div class="menu-sep"></div>
+            <button id="act-remove" onclick="removeActivity()">Arkivera aktivitet</button>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="markDone()">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+          Markera klar
+        </button>
+      </div>
+    </div>
+
+    <div class="ws-body">
+      <div class="ws-main">
+        <!-- uppföljningspanel: modal efter Markera klar -->
+        <div class="modal-overlay" id="fu-overlay" onclick="if(event.target===this)skipFollowup()">
+        <div class="followup" id="followup">
+          <div class="fu-head">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+            Aktivitet klar. Vad händer härnäst?
+          </div>
+          <div class="fu-sub" id="fu-sub">Skapa en uppföljning så du inte tappar kunden.</div>
+          <div class="fu-row">
+            <span class="lbl">Typ av uppföljning</span>
+            <div class="chip-row" id="fu-types">
+              <button class="pick on" data-type="phone">Telefon</button>
+              <button class="pick" data-type="email">E-post</button>
+              <button class="pick" data-type="meeting">Möte</button>
+              <button class="pick" data-type="task">Uppgift</button>
+            </div>
+          </div>
+          <div class="fu-row">
+            <span class="lbl">När</span>
+            <div class="chip-row" id="fu-when">
+              <button class="pick" data-days="1">Imorgon</button>
+              <button class="pick on" data-days="3">Om 3 dagar</button>
+              <button class="pick" data-days="7">Nästa vecka</button>
+              <button class="pick" data-days="30">Om 1 månad</button>
+              <button class="pick" data-cal="1" id="fu-custom-chip">Annat datum…</button>
+            </div>
+            <div id="fu-cal"></div>
+          </div>
+          <div class="fu-row">
+            <span class="lbl">Rubrik</span>
+            <input id="fu-subject" style="width:100%;border:1px solid var(--line-strong);border-radius:var(--r);padding:11px 12px;font:inherit;font-size:16px">
+          </div>
+          <div class="fu-row">
+            <button class="deal-toggle" id="deal-toggle" onclick="toggleDeal()">
+              <span class="dt-ic">+</span> Skapade det här en affär?
+            </button>
+            <div class="deal-box" id="deal-box">
+              <div class="deal-box-head">
+                <span>Affär</span>
+                <button class="deal-remove" onclick="toggleDeal()">Ta bort</button>
+              </div>
+              <div class="status-seg" id="deal-mode" style="margin-bottom:16px">
+                <button class="on" data-mode="new">Ny affär</button>
+                <button data-mode="existing">Koppla till befintlig</button>
+              </div>
+
+              <div id="deal-new">
+                <div class="field" style="margin-bottom:14px"><label>Affärsnamn</label><input id="deal-name"></div>
+                <div class="deal-grid">
+                  <div class="field"><label>Värde (kr)</label><input id="deal-value" inputmode="numeric" placeholder="t.ex. 120 000"></div>
+                  <div class="field"><label>Steg</label>
+                    <div class="chip-row" id="deal-stage">
+                      <button class="pick on" data-stage="Förslag">Förslag</button>
+                      <button class="pick" data-stage="Förhandling">Förhandling</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="deal-existing" style="display:none">
+                <div class="field" style="margin-bottom:14px"><label>Välj affär</label><select id="deal-pick"></select></div>
+                <div class="field"><label>Flytta till steg</label>
+                  <div class="chip-row" id="deal-move">
+                    <button class="pick" data-stage="Förslag">Förslag</button>
+                    <button class="pick on" data-stage="Förhandling">Förhandling</button>
+                    <button class="pick" data-stage="Vunnen">Vunnen</button>
+                    <button class="pick" data-stage="Förlorad">Förlorad</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="fu-actions">
+            <button class="btn btn-primary" onclick="createFollowup()">Skapa uppföljning</button>
+            <button class="btn btn-ghost" onclick="skipFollowup()">Inte nu</button>
+          </div>
+        </div>
+        </div>
+
+        <div class="ws-meta" id="ws-meta"></div>
+
+        <div class="composer">
+          <textarea placeholder="Lägg till kommentar, logga ett samtal, skriv en anteckning…"></textarea>
+          <div class="composer-bar">
+            <button class="btn btn-primary btn-sm send" onclick="toast('Kommentar tillagd')">Lägg till</button>
+          </div>
+        </div>
+
+        <div class="tabs" id="ws-tabs"></div>
+
+        <div class="tab-pane on" data-pane="logg"><div id="ws-timeline"></div></div>
+        <div class="tab-pane" data-pane="foretag">
+          <div class="tl-group-label">Företagets historik</div>
+          <div id="ws-cotimeline"></div>
+        </div>
+        <div class="tab-pane" data-pane="dokument">
+          <div class="doc-bar">
+            <input class="doc-search" placeholder="Sök dokument…">
+            <button class="btn btn-sm" onclick="toast('Lägg till fil')">Lägg till fil</button>
+          </div>
+          <div class="doc-table">
+            <div class="doc-row doc-head"><span>Namn</span><span>Storlek</span><span>Uppladdad</span></div>
+            <div id="ws-docs"></div>
+          </div>
+        </div>
+        <div class="tab-pane" data-pane="detaljer"><div class="detail-grid" id="ws-details"></div></div>
+      </div>
+
+      <aside class="ws-rail" id="ws-rail"></aside>
+    </div>
+  </section>
+
+  <!-- ══ VY C: SKAPA ═══════════════════════════════════════════════ -->
+  <section class="view" id="view-create">
+    <div class="create-wrap">
+      <div class="create-title">Ny aktivitet</div>
+      <div class="field">
+        <label>Typ av aktivitet</label>
+        <div class="type-picker" id="type-picker">
+          <button data-type="phone" class="on"><span class="tpi"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.5 2.8.6a2 2 0 0 1 1.7 2z"/></svg></span>Telefon</button>
+          <button data-type="email"><span class="tpi"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>E-post</button>
+          <button data-type="meeting"><span class="tpi"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>Möte</button>
+          <button data-type="task"><span class="tpi"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m9 12 2 2 4-4"/></svg></span>Uppgift</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Rubrik <span class="opt">(valfri)</span></label>
+        <input id="c-subject" placeholder="t.ex. Följ upp offert efter semestern">
+      </div>
+
+      <div class="field">
+        <label>Företag</label>
+        <select id="c-company" onchange="onCompanySelect()">
+          <option value="">Välj företag…</option>
+          <option>Nordvik Logistik AB</option>
+          <option>Op &amp; Partners AB</option>
+          <option>Bergström Automation AB</option>
+          <option>Sundqvist Redovisning AB</option>
+        </select>
+        <button class="btn btn-newco" type="button" id="new-co-btn" onclick="toggleInlineCreate()">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Skapa nytt företag
+        </button>
+
+        <!-- fullt inline företagsskapande, ingen staplad modal -->
+        <div class="inline-create" id="inline-create">
+          <div class="ic-head">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg>
+            Nytt företag
+          </div>
+          <div class="ic-hint">Ange org.nr och hämta uppgifter från Bolagsverket, eller fyll i manuellt. Du stannar kvar i flödet.</div>
+
+          <div class="field ic-full" style="margin-bottom:14px">
+            <label>Organisationsnummer</label>
+            <div class="row-inline">
+              <input id="c-orgnr" placeholder="556677-8899">
+              <button class="btn" onclick="fetchBolag()">Hämta</button>
+            </div>
+            <div class="prov-hint" id="prov-orgnr"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Hämtat från Bolagsverket</div>
+          </div>
+
+          <div class="ic-grid">
+            <div class="field ic-full"><label>Företagsnamn</label><input id="c-name" placeholder="Fylls i vid hämtning"></div>
+            <div class="field"><label>Besöksadress</label><input id="c-addr" placeholder="Gata + nummer"></div>
+            <div class="field"><label>Postnr</label><input id="c-zip" placeholder="000 00"></div>
+            <div class="field"><label>Ort</label><input id="c-city" placeholder="Ort"></div>
+            <div class="field"><label>Bransch (SNI)</label><input id="c-sni" placeholder="SNI-kod"></div>
+            <div class="field ic-full">
+              <label>Status</label>
+              <div class="status-seg" id="c-status">
+                <button class="on" type="button">Prospekt</button>
+                <button type="button">Kund</button>
+                <button type="button">Vilande</button>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-add" onclick="toggleContactCreate()" id="add-contact-btn">+ Lägg till kontaktperson</button>
+          <div class="contact-create" id="contact-create">
+            <div class="ic-grid">
+              <div class="field"><label>Namn</label><input id="c-newco-name" placeholder="För- och efternamn"></div>
+              <div class="field"><label>Roll</label><input id="c-newco-role" placeholder="t.ex. Inköpschef"></div>
+              <div class="field"><label>E-post</label><input placeholder="namn@företag.se"></div>
+              <div class="field"><label>Telefon</label><input placeholder="0700-00 00 00"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Kontaktperson</label>
+        <select id="c-contact" onchange="onContactSelect()">
+          <option value="">Välj företag först…</option>
+        </select>
+        <div class="new-contact" id="new-contact">
+          <div class="ic-grid">
+            <div class="field"><label>Namn</label><input placeholder="För- och efternamn"></div>
+            <div class="field"><label>Roll</label><input placeholder="t.ex. Inköpschef"></div>
+            <div class="field"><label>E-post</label><input placeholder="namn@företag.se"></div>
+            <div class="field"><label>Telefon</label><input placeholder="0700-00 00 00"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Datum<span id="c-time-lbl"></span></label>
+        <button type="button" class="date-btn" id="c-date-btn" onclick="toggleCreateCal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <span id="c-date-label">—</span>
+        </button>
+        <div id="c-cal"></div>
+      </div>
+      <div class="field">
+        <label>Syfte</label>
+        <select id="c-action"><option>Följ upp</option><option>Ring igen</option><option>Skicka offert</option><option>Boka möte</option><option>Ingen</option></select>
+      </div>
+
+      <div class="field">
+        <label>Kommentar</label>
+        <textarea rows="3" placeholder="Vad hände / vad ska hända?"></textarea>
+      </div>
+
+      <div class="create-actions">
+        <button class="btn btn-primary" onclick="saveCreate()">Spara och öppna</button>
+        <button class="btn" onclick="showList()">Avbryt</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── DATA (byt/lägg till rader) ───────────────────────────────────
+  const TODAY = new Date('2026-07-08');
+  const DEALS = [];
+  // pågående affärer per företag (att kunna koppla en avslutad aktivitet till)
+  const EXISTING_DEALS_BY_CO = {
+    'Nordvik Logistik AB': [{ name:'Transportavtal 2026', stage:'Förhandling', value:'240 000' }],
+    'Op & Partners AB': [{ name:'Ramavtal konsulttjänster', stage:'Förslag', value:'150 000' }],
+    'Sundqvist Redovisning AB': [{ name:'Bokslutsuppdrag 2026', stage:'Förslag', value:'60 000' }],
+  };
+  const ACTIVITIES = [
+    { id:1, type:'phone', subject:'Följ upp offert på transportavtal', company:'Nordvik Logistik AB',
+      coStatus:'Prospekt', city:'Göteborg', contact:'Elin Åkerlund', role:'Inköpschef',
+      phone:'031-12 45 67', email:'elin@nordviklogistik.se', owner:'William Bernting', ownerInit:'WB',
+      date:'2026-07-07', action:'Följ upp', actStatus:'folj', mine:true, events:6,
+      lastComment:'Väntar på styrelsebeslut, hör av dig efter v.28.',
+      addr:'Exportgatan 12', zip:'422 46', orgnr:'556734-1093', sni:'52.291 Spedition och transportförmedling' },
+    { id:2, type:'meeting', subject:'Uppföljningsmöte inför Q3-avtal', company:'Op & Partners AB',
+      coStatus:'Prospekt', city:'Hässleholm', contact:'Ola Persson', role:'VD',
+      phone:'0451-77 88 05', email:'ola@opochpartners.se', owner:'William Bernting', ownerInit:'WB',
+      date:'2026-07-08', action:'Boka möte', actStatus:'pag', mine:true, events:3,
+      lastComment:'Ola vill ha med båda delägarna. Föreslå tisdag fm.',
+      addr:'Lövgatan 3', zip:'281 31', orgnr:'556812-4471', sni:'70.220 Konsultverksamhet' },
+    { id:3, type:'task', subject:'Skicka reviderat prisförslag', company:'Bergström Automation AB',
+      coStatus:'Kund', city:'Västerås', contact:'Karin Bergström', role:'Teknikchef',
+      phone:'021-45 12 30', email:'karin@bergstromautomation.se', owner:'William Bernting', ownerInit:'WB',
+      date:'2026-07-09', action:'Skicka offert', actStatus:'pag', mine:true, events:12,
+      lastComment:'Ville ha 5% rabatt vid 3-årsavtal. Kolla med chef.',
+      addr:'Stora Gatan 18', zip:'722 12', orgnr:'556455-2210', sni:'33.200 Installation av industrimaskiner' },
+    { id:4, type:'phone', subject:'Ring om årsavtalet för bokföring', company:'Sundqvist Redovisning AB',
+      coStatus:'Kund', city:'Sundsvall', contact:'Per Sundqvist', role:'Delägare',
+      phone:'060-34 56 78', email:'per@sundqvistredovisning.se', owner:'Anna Lund', ownerInit:'AL',
+      date:'2026-07-10', action:'Ring igen', actStatus:'pag', mine:false, events:8,
+      lastComment:'Nöjd kund. Perfekt tillfälle att föreslå uppgradering.',
+      addr:'Storgatan 24', zip:'852 30', orgnr:'556190-3345', sni:'69.201 Redovisning och bokföring' },
+    { id:5, type:'email', subject:'Svara på frågor om leveranstider', company:'Nordvik Logistik AB',
+      coStatus:'Prospekt', city:'Göteborg', contact:'Elin Åkerlund', role:'Inköpschef',
+      phone:'031-12 45 67', email:'elin@nordviklogistik.se', owner:'William Bernting', ownerInit:'WB',
+      date:'2026-07-11', action:'Följ upp', actStatus:'folj', mine:true, events:4,
+      lastComment:'Undrar om vi klarar leverans inom 48h till Norrland.',
+      addr:'Exportgatan 12', zip:'422 46', orgnr:'556734-1093', sni:'52.291 Spedition och transportförmedling' },
+    { id:6, type:'meeting', subject:'Demo av nya systemet', company:'Bergström Automation AB',
+      coStatus:'Kund', city:'Västerås', contact:'Karin Bergström', role:'Teknikchef',
+      phone:'021-45 12 30', email:'karin@bergstromautomation.se', owner:'Anna Lund', ownerInit:'AL',
+      date:'2026-07-14', action:'Boka möte', actStatus:'klar', mine:false, noFollowup:true, events:14,
+      lastComment:'Demo genomförd. Positiva. Skickar underlag.',
+      addr:'Stora Gatan 18', zip:'722 12', orgnr:'556455-2210', sni:'33.200 Installation av industrimaskiner' },
+  ];
+
+  const TYPE_META = {
+    phone:   { label:'Telefon', ic:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.5 2.8.6a2 2 0 0 1 1.7 2z"/>' },
+    email:   { label:'E-post', ic:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>' },
+    meeting: { label:'Möte', ic:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>' },
+    task:    { label:'Uppgift', ic:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="m9 12 2 2 4-4"/>' },
+  };
+  const STATUS_META = { pag:'Pågående', folj:'Följ upp', klar:'Klar' };
+
+  const TABS = [
+    { key:'logg',     label:'Aktivitet händelselogg' },
+    { key:'foretag',  label:'Företag händelselogg' },
+    { key:'dokument', label:'Dokument' },
+    { key:'detaljer', label:'Detaljer' },
+  ];
+
+  // kontaktpersoner hör till ett företag (B2B) — filtreras per valt bolag
+  const CONTACTS_BY_CO = {
+    'Nordvik Logistik AB':      [['Elin Åkerlund','Inköpschef'], ['Johan Ek','Logistikchef']],
+    'Op & Partners AB':         [['Ola Persson','VD'], ['Mia Berg','Ekonomichef']],
+    'Bergström Automation AB':  [['Karin Bergström','Teknikchef'], ['Sven Ohlin','Inköp']],
+    'Sundqvist Redovisning AB': [['Per Sundqvist','Delägare'], ['Lena Vik','Redovisningsekonom']],
+  };
+
+  // ── Hjälpare ─────────────────────────────────────────────────────
+  const svg = (inner, s=18) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${inner}</svg>`;
+  const pinIc = '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>';
+  const initials = n => n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  // exakt klockslag per aktivitet (t.ex. när samtalet ska ringas)
+  const TIMES = { 1:'09:00', 2:'13:30', 3:'11:00', 4:'15:15', 5:'10:00', 6:'14:00' };
+  const timeOf = a => a.time || TIMES[a.id] || '08:00';
+  // tid är bara relevant för telefon och möte (bokat klockslag)
+  const hasTime = a => a.type === 'phone' || a.type === 'meeting';
+
+  function relDate(iso) {
+    const d = new Date(iso), diff = Math.round((d - TODAY) / 864e5);
+    if (diff === 0) return 'Idag';
+    if (diff === 1) return 'Imorgon';
+    if (diff < 0) return `${-diff} d sedan`;
+    return `Om ${diff} d`;
+  }
+  function fmtDate(iso) {
+    const m = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+    const d = new Date(iso); return `${d.getDate()} ${m[d.getMonth()]}`;
+  }
+  function addDaysISO(days) {
+    const d = new Date(TODAY); d.setDate(d.getDate() + days);
+    return d.toISOString().slice(0,10);
+  }
+  const MONTHS_LONG = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
+  const DOW = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
+  const MON_SHORT = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  function fmtLong(iso) { const d = new Date(iso); return `${d.getDate()} ${MON_SHORT[d.getMonth()]} ${d.getFullYear()}`; }
+  // Intervalltext: årtal visas bara när start och slut ligger i olika år (t.ex. 28 dec 2026–3 jan 2027)
+  function fmtRange(from, to) {
+    if (!from) return to ? fmtDate(to) : '';
+    if (!to || to === from) return fmtDate(from);
+    const fmt = from.slice(0, 4) !== to.slice(0, 4) ? fmtLong : fmtDate;
+    return `${fmt(from)}–${fmt(to)}`;
+  }
+
+  // återanvändbar inline-kalender (fake calendar). Renderar i host, håller egen
+  // månadsstat i closure, rapporterar val via onChange({sel, time}).
+  function mountCalendar(host, { selISO, withTime, timeVal, onChange }) {
+    const state = { sel: selISO || null, time: timeVal || '09:00' };
+    const start = selISO ? new Date(selISO) : new Date(TODAY);
+    let vy = start.getFullYear(), vm = start.getMonth();
+    const todayISO = TODAY.toISOString().slice(0,10);
+    const iso = (y,m,d) => `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    function render() {
+      const startDow = (new Date(vy, vm, 1).getDay() + 6) % 7; // Mån = 0
+      const daysIn = new Date(vy, vm+1, 0).getDate();
+      let cells = '';
+      for (let i=0;i<startDow;i++) cells += `<button class="cal-day" disabled></button>`;
+      for (let d=1; d<=daysIn; d++) {
+        const ci = iso(vy,vm,d);
+        const cls = ['cal-day']; if (ci===state.sel) cls.push('sel'); if (ci===todayISO) cls.push('today');
+        cells += `<button class="${cls.join(' ')}" data-iso="${ci}">${d}</button>`;
+      }
+      host.innerHTML = `
+        <div class="cal">
+          <div class="cal-head">
+            <button class="cal-nav" type="button" data-nav="-1" aria-label="Föregående månad">‹</button>
+            <span class="mlbl">${MONTHS_LONG[vm]} ${vy}</span>
+            <button class="cal-nav" type="button" data-nav="1" aria-label="Nästa månad">›</button>
+          </div>
+          <div class="cal-grid">${DOW.map(d=>`<span class="cal-dow">${d}</span>`).join('')}${cells}</div>
+          ${withTime ? `<div class="cal-time"><label>Tid</label><input type="time" step="900" value="${state.time}"></div>` : ''}
+        </div>`;
+      host.querySelectorAll('.cal-nav').forEach(b => b.onclick = () => {
+        vm += +b.dataset.nav; if (vm<0){vm=11;vy--;} if (vm>11){vm=0;vy++;} render();
+      });
+      host.querySelectorAll('.cal-day[data-iso]').forEach(b => b.onclick = () => {
+        state.sel = b.dataset.iso; render(); onChange && onChange(state);
+      });
+      if (withTime) host.querySelector('.cal-time input').onchange = e => {
+        state.time = e.target.value; onChange && onChange(state);
+      };
+    }
+    render();
+    return state;
+  }
+
+  // ── VY A: lista ─────────────────────────────────────────────────
+  let bucket = 'alla', flashId = null;
+  let customFrom = '', customTo = '';
+  // Behörighet: bara superadmin får radera data permanent. Säljare arkiverar.
+  let ROLE = 'seller'; // 'seller' | 'superadmin'
+
+  // ── Filter: speglar skarpa "Att göra + Aktiviteter" (William + Lulas feedback) ──
+  // Tre popovers: Datum (bucket + eget intervall), Ansvarig (flerval per person),
+  // Typ (flerval per aktivitetstyp). Sök i topbaren filtrerar fritext.
+  const CURRENT_USER = 'William Bernting';
+  const ALL_OWNERS = [...new Set(ACTIVITIES.map(a => a.owner))];
+  let ownerSel = new Set([CURRENT_USER]);   // startar på "Mina"
+  let typeSel = new Set();                   // tom = alla typer
+  let ownerSearch = '', typeSearch = '';
+  // Datum-popovern har två vyer: bucket-lista och egen kalendervy (range).
+  let dateView = 'buckets';                  // 'buckets' | 'range'
+  let rFrom = '', rTo = '', rvY = 0, rvM = 0; // utkast-range + visad månad i kalendern
+
+  const DATE_BUCKETS = [
+    { id: 'alla', label: 'Alla' },
+    { id: 'idag', label: 'Idag' },
+    { id: 'imorgon', label: 'Imorgon' },
+    { id: 'denna-vecka', label: 'Denna vecka' },
+    { id: 'nasta-vecka', label: 'Nästa vecka' },
+    { id: 'kommande', label: 'Kommande' },
+    { id: 'forsenat', label: 'Försenat' },
+    { id: 'utan-datum', label: 'Utan datum' },
+    { id: 'klart', label: 'Klart' },
+    { id: 'anpassat', label: 'Eget intervall' },
+  ];
+  const isoAdd = (iso, n) => { const d = new Date(iso); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+  const TODAY_ISO = TODAY.toISOString().slice(0, 10);
+  const TOM_ISO = isoAdd(TODAY_ISO, 1);
+  const REST_START = isoAdd(TODAY_ISO, 2);                                          // "denna vecka" börjar efter imorgon
+  const WEEK_START = isoAdd(TODAY_ISO, -((new Date(TODAY_ISO).getDay() + 6) % 7));  // måndag denna vecka
+  const WEEK_END = isoAdd(WEEK_START, 6);
+  const NEXT_START = isoAdd(WEEK_START, 7);
+  const NEXT_END = isoAdd(NEXT_START, 6);
+  function inBucket(a, b) {
+    const done = a.actStatus === 'klar';
+    if (b === 'klart') return done;
+    if (done) return false;                 // klara syns bara under Klart
+    const d = a.date;
+    switch (b) {
+      case 'alla': return true;
+      case 'forsenat': return !!d && d < TODAY_ISO;
+      case 'idag': return d === TODAY_ISO;
+      case 'imorgon': return d === TOM_ISO;
+      case 'denna-vecka': return !!d && d >= REST_START && d <= WEEK_END;
+      case 'nasta-vecka': return !!d && d >= NEXT_START && d <= NEXT_END;
+      case 'kommande': return !!d && d > NEXT_END;
+      case 'utan-datum': return !d;
+      case 'anpassat': return !!d && (!customFrom || d >= customFrom) && (!customTo || d <= customTo);
+      default: return true;
+    }
+  }
+  function bucketHint(id) {
+    switch (id) {
+      case 'idag': return fmtDate(TODAY_ISO);
+      case 'imorgon': return fmtDate(TOM_ISO);
+      case 'denna-vecka': return fmtRange(REST_START, WEEK_END);
+      case 'nasta-vecka': return fmtRange(NEXT_START, NEXT_END);
+      case 'kommande': return `efter ${fmtDate(NEXT_END)}`;
+      case 'forsenat': return `före ${fmtDate(TODAY_ISO)}`;
+      default: return '';
+    }
+  }
+  const ownerMatch = a => ownerSel.has(a.owner);
+  const typeMatch = a => typeSel.size === 0 || typeSel.has(a.type);
+  const bucketCount = b => ACTIVITIES.filter(a => ownerMatch(a) && typeMatch(a) && inBucket(a, b)).length;
+
+  // ── Filter-popovers ─────────────────────────────────────────────
+  // Inline-handlers når bara globala funktioner (script-scope-let syns inte),
+  // så all tillståndsändring går via setter-funktioner här.
+  function closeFilts() { document.querySelectorAll('.filt.open').forEach(f => f.classList.remove('open')); }
+  function toggleFilt(which) {
+    const el = document.getElementById('filt-' + which);
+    const open = el.classList.contains('open');
+    closeFilts();
+    if (!open) {
+      if (which === 'date') dateView = 'buckets';   // öppna alltid i listvyn
+      el.classList.add('open');
+      ({ date: renderDatePop, owner: renderOwnerPop, type: renderTypePop }[which])();
+    }
+  }
+
+  // Datum — vy 1: bucket-lista (+ rad som öppnar egen kalendervy)
+  function setBucket(id) { bucket = id; renderList(); closeFilts(); }
+  function renderDatePop() {
+    if (dateView === 'range') return renderRangePop();
+    const rows = DATE_BUCKETS.filter(b => b.id !== 'anpassat').map(b => {
+      const hint = bucketHint(b.id);
+      return `<button class="filt-row ${b.id === bucket ? 'on' : ''}" onclick="setBucket('${b.id}')">
+        <span class="fr-label">${b.label}</span>
+        <span class="fr-hint">${hint}</span>
+        <span class="fr-n">${bucketCount(b.id)}</span></button>`;
+    }).join('');
+    const hasCustom = !!(customFrom || customTo);
+    const custHint = fmtRange(customFrom, customTo);
+    const custRow = hasCustom
+      ? `<button class="filt-row ${bucket === 'anpassat' ? 'on' : ''}" onclick="openRange()">
+          <span class="fr-label">Eget intervall</span>
+          <span class="fr-hint">${custHint}</span>
+          <span class="fr-n">${bucketCount('anpassat')}</span></button>`
+      : `<button class="filt-row" onclick="openRange()">
+          <span class="fr-label">Välj datumintervall</span>
+          <span class="fr-chev">›</span></button>`;
+    document.getElementById('pop-date').innerHTML = `
+      ${custRow}
+      <div class="filt-sep"></div>
+      ${rows}`;
+  }
+
+  // Datum — vy 2: kalender för att välja intervall (utan att stapla i listan)
+  function openRange() {
+    rFrom = customFrom; rTo = customTo;
+    const base = customFrom ? new Date(customFrom) : new Date(TODAY);
+    rvY = base.getFullYear(); rvM = base.getMonth();
+    dateView = 'range'; renderDatePop();
+  }
+  function backToBuckets() { dateView = 'buckets'; renderDatePop(); }
+  function rangeNav(n) { rvM += n; if (rvM < 0) { rvM = 11; rvY--; } if (rvM > 11) { rvM = 0; rvY++; } renderRangePop(); }
+  function pickRange(iso) {
+    if (!rFrom || (rFrom && rTo)) { rFrom = iso; rTo = ''; }        // ny start, nollställ slut
+    else if (iso < rFrom) { rTo = rFrom; rFrom = iso; }             // bakåtval → byt håll
+    else { rTo = iso; }
+    renderRangePop();
+  }
+  function clearRange() {
+    rFrom = ''; rTo = ''; customFrom = ''; customTo = '';   // nollställ både pågående val och tillämpat intervall
+    if (bucket === 'anpassat') bucket = 'alla';             // släpp datumfiltret om det var ett eget intervall
+    dateView = 'buckets';
+    renderList();                                           // uppdaterar lista, trigger och den öppna popovern (bucket-vyn)
+  }
+  function applyRange() {
+    if (!rFrom) return;
+    customFrom = rFrom; customTo = rTo || rFrom;                    // enkelt datum = en dag
+    bucket = 'anpassat'; dateView = 'buckets';
+    renderList(); closeFilts();
+  }
+  function renderRangePop() {
+    const startDow = (new Date(rvY, rvM, 1).getDay() + 6) % 7;      // Mån = 0
+    const daysIn = new Date(rvY, rvM + 1, 0).getDate();
+    const iso = d => `${rvY}-${String(rvM + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    let cells = '';
+    for (let i = 0; i < startDow; i++) cells += `<button class="cal-day" disabled></button>`;
+    for (let d = 1; d <= daysIn; d++) {
+      const ci = iso(d), cls = ['cal-day'];
+      if (ci === TODAY_ISO) cls.push('today');
+      if (rFrom && rTo && ci > rFrom && ci < rTo) cls.push('in-range');
+      if (ci === rFrom || ci === rTo) { cls.push('sel'); cls.push(ci === rFrom ? 'range-start' : 'range-end'); }
+      cells += `<button class="${cls.join(' ')}" onclick="pickRange('${ci}')">${d}</button>`;
+    }
+    const rangeTxt = fmtRange(rFrom, rTo);
+    document.getElementById('pop-date').innerHTML = `
+      <div class="rp-head">
+        <button class="rp-back" onclick="backToBuckets()">‹ Tillbaka</button>
+      </div>
+      <div class="rp-cal">
+        <div class="cal-head">
+          <button class="cal-nav" type="button" onclick="rangeNav(-1)" aria-label="Föregående månad">‹</button>
+          <span class="mlbl">${MONTHS_LONG[rvM]} ${rvY}</span>
+          <button class="cal-nav" type="button" onclick="rangeNav(1)" aria-label="Nästa månad">›</button>
+        </div>
+        <div class="cal-grid">${DOW.map(d => `<span class="cal-dow">${d}</span>`).join('')}${cells}</div>
+      </div>
+      <div class="rp-foot">
+        ${rangeTxt ? `<span class="rp-range">${rangeTxt}</span>` : ''}
+        <div class="rp-actions">
+          <button class="rp-clear" onclick="clearRange()">Rensa</button>
+          <button class="btn btn-primary btn-sm" ${rFrom ? '' : 'disabled'} onclick="applyRange()">Använd</button>
+        </div>
+      </div>`;
+  }
+
+  // Ansvarig
+  function ownerQuick(which) { ownerSel = which === 'mina' ? new Set([CURRENT_USER]) : new Set(ALL_OWNERS); renderList(); renderOwnerList(); }
+  function ownerAll() { ownerSel = new Set(ALL_OWNERS); renderList(); renderOwnerList(); }
+  function ownerClear() { ownerSel = new Set(); renderList(); renderOwnerList(); }
+  function toggleOwner(o, on) { if (on) ownerSel.add(o); else ownerSel.delete(o); renderList(); }
+  function setOwnerSearch(v) { ownerSearch = v; renderOwnerList(); }
+  function renderOwnerPop() {
+    document.getElementById('pop-owner').innerHTML = `
+      <div class="filt-quick">
+        <button onclick="ownerQuick('mina')">Mina</button>
+        <button onclick="ownerQuick('alla')">Hela teamet</button>
+      </div>
+      <input class="filt-search" placeholder="Sök person…" value="${ownerSearch}" oninput="setOwnerSearch(this.value)" aria-label="Sök ansvarig">
+      <div class="filt-list" id="owner-list"></div>
+      <div class="filt-actions">
+        <button onclick="ownerAll()">Markera alla</button>
+        <button onclick="ownerClear()">Rensa</button>
+      </div>`;
+    renderOwnerList();
+  }
+  function renderOwnerList() {
+    const q = ownerSearch.trim().toLowerCase();
+    const list = ALL_OWNERS.filter(o => o.toLowerCase().includes(q));
+    document.getElementById('owner-list').innerHTML = list.map(o => {
+      const me = o === CURRENT_USER ? ' <span class="fr-hint">jag</span>' : '';
+      return `<label class="filt-check"><input type="checkbox" ${ownerSel.has(o) ? 'checked' : ''} onchange="toggleOwner('${o}', this.checked)"><span>${o}${me}</span></label>`;
+    }).join('') || `<div class="filt-empty">Ingen matchar</div>`;
+  }
+
+  // Typ
+  function toggleType(k, on) { if (on) typeSel.add(k); else typeSel.delete(k); renderList(); }
+  function typeClear() { typeSel = new Set(); renderList(); renderTypeList(); }
+  function setTypeSearch(v) { typeSearch = v; renderTypeList(); }
+  function renderTypePop() {
+    document.getElementById('pop-type').innerHTML = `
+      <input class="filt-search" placeholder="Sök typ…" value="${typeSearch}" oninput="setTypeSearch(this.value)" aria-label="Sök typ">
+      <div class="filt-list" id="type-list"></div>
+      <div class="filt-actions">
+        <button onclick="typeClear()">Rensa (visa alla)</button>
+      </div>`;
+    renderTypeList();
+  }
+  function renderTypeList() {
+    const q = typeSearch.trim().toLowerCase();
+    const keys = Object.keys(TYPE_META).filter(k => TYPE_META[k].label.toLowerCase().includes(q));
+    document.getElementById('type-list').innerHTML = keys.map(k => {
+      const n = ACTIVITIES.filter(a => ownerMatch(a) && a.type === k && a.actStatus !== 'klar').length;
+      return `<label class="filt-check"><input type="checkbox" ${typeSel.has(k) ? 'checked' : ''} onchange="toggleType('${k}', this.checked)"><span class="ft-ic">${svg(TYPE_META[k].ic, 15)}</span><span>${TYPE_META[k].label}</span><span class="fr-n">${n}</span></label>`;
+    }).join('') || `<div class="filt-empty">Ingen matchar</div>`;
+  }
+
+  function syncFilterLabels() {
+    const b = DATE_BUCKETS.find(x => x.id === bucket);
+    document.getElementById('fv-date').textContent = bucket === 'anpassat'
+      ? ((customFrom || customTo) ? fmtRange(customFrom, customTo) : 'Eget intervall')
+      : (b ? b.label : 'Alla');
+    document.getElementById('fc-date').textContent = bucketCount(bucket);
+    const oc = ownerSel.size;
+    document.getElementById('fv-owner').textContent =
+      oc === 0 ? 'Ingen' :
+      oc === ALL_OWNERS.length ? 'Hela teamet' :
+      (oc === 1 && ownerSel.has(CURRENT_USER)) ? 'Mina' :
+      oc === 1 ? [...ownerSel][0].split(' ')[0] : `${oc} personer`;
+    document.getElementById('fv-type').textContent =
+      typeSel.size === 0 ? 'Alla typer' :
+      typeSel.size === 1 ? TYPE_META[[...typeSel][0]].label : `${typeSel.size} typer`;
+  }
+  function rowHtml(a, done) {
+    return `
+      <button class="row ${done ? 'done' : ''} ${a.id === flashId ? 'flash' : ''}" onclick="openWorkspace(${a.id})">
+        <span class="type-ic">${svg(TYPE_META[a.type].ic, 17)}</span>
+        <span class="cell-date ${!done && new Date(a.date) < TODAY ? 'overdue' : ''}">${fmtDate(a.date)}${hasTime(a) ? ' ' + timeOf(a) : ''}<span class="rel">${relDate(a.date)}</span></span>
+        <span class="cell-subject">
+          <span class="s1">${a.subject}</span>
+          <span class="s2">${a.lastComment}</span>
+        </span>
+        <span class="cell-company">${a.company}</span>
+        <span class="cell-city">${svg(pinIc,14)} ${a.city}</span>
+        <span class="cell-owner"><span class="avatar">${a.ownerInit}</span>${a.owner.split(' ')[0]}</span>
+        <span class="cell-status"><span class="badge ${a.actStatus}">${STATUS_META[a.actStatus]}</span>${done && a.noFollowup ? '<span class="no-fu">ingen uppföljning</span>' : ''}</span>
+        <span class="cell-events">${a.events ? `<span class="ev-count ${a.events >= 10 ? 'hot' : ''}" title="Händelser i historiken">${a.events}</span>` : '<span class="ev-none">–</span>'}</span>
+      </button>`;
+  }
+  function renderList() {
+    const q = document.getElementById('act-search').value.trim().toLowerCase();
+    const matched = ACTIVITIES.filter(a => {
+      if (!ownerMatch(a)) return false;
+      if (!typeMatch(a)) return false;
+      if (!inBucket(a, bucket)) return false;
+      if (!q) return true;
+      return [a.company, a.city, a.phone, a.contact, a.subject].join(' ').toLowerCase().includes(q);
+    });
+    matched.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    document.getElementById('rows').innerHTML =
+      matched.map(a => rowHtml(a, a.actStatus === 'klar')).join('');
+
+    syncFilterLabels();
+    // håll en öppen datum-popover uppdaterad (antalen följer ansvarig/typ)
+    if (document.getElementById('filt-date').classList.contains('open')) renderDatePop();
+    document.getElementById('list-empty').style.display = matched.length ? 'none' : 'block';
+    flashId = null; // engångsblink, nollställ efter render
+  }
+
+  // ── VY B: arbetsyta ─────────────────────────────────────────────
+  let current = null;
+  function openWorkspace(id) {
+    const a = ACTIVITIES.find(x => x.id === id);
+    current = a;
+    document.getElementById('followup').classList.remove('on');
+    document.getElementById('ws-title').textContent = a.subject;
+
+    document.getElementById('ws-tabs').innerHTML = TABS.map((t,i) =>
+      `<button class="${i===0?'on':''}" data-tab="${t.key}" onclick="switchTab('${t.key}',this)">${t.label}</button>`).join('');
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('on', p.dataset.pane === 'logg'));
+
+    document.getElementById('ws-timeline').innerHTML = `
+      <div class="tl-group-label">Senaste uppdatering</div>
+      ${tlItem(a.owner, '14 okt 2025, 15:20', a.lastComment, 'samtal')}
+      <div class="tl-group-label">Tidigare</div>
+      ${tlItem(a.owner, '2 okt 2025, 09:12', 'Första kontakt. Skickade introduktion och prislista.', 'epost')}
+      ${tlItem(a.owner, '28 sep 2025, 11:47', `${a.contact.split(' ')[0]} bad om referenser från liknande kunder.`, 'anteckning')}`;
+
+    document.getElementById('ws-cotimeline').innerHTML = `
+      ${tlItem('Anna Lund','12 sep 2025, 16:05','Order lagd: serviceavtal 24 mån, 148 000 kr.', 'order')}
+      ${tlItem(a.owner,'3 aug 2025, 13:30','Möte på plats. Genomgång av behov.', 'mote')}
+      ${tlItem('Anna Lund','20 maj 2025, 10:18','Uppgraderade från bas- till premiumpaket.', 'order')}`;
+
+    document.getElementById('ws-docs').innerHTML = docsHtml(a);
+
+    document.getElementById('ws-details').innerHTML = [
+      ['Organisationsnummer', a.orgnr], ['Bransch (SNI)', a.sni],
+      ['Besöksadress', `${a.addr}, ${a.zip} ${a.city}`], ['Ort', a.city],
+      ['Ansvarig säljare', a.owner], ['Status', a.coStatus],
+      ['Syfte', a.action], ['Nästa datum', `${fmtDate(a.date)} 2026`],
+    ].map(([l,v]) => `<div class="fld"><div class="lbl">${l}</div><div class="val">${v}</div></div>`).join('');
+
+    document.getElementById('ws-meta').innerHTML = metaHtml(a);
+    document.getElementById('ws-rail').innerHTML = railHtml(a);
+    setView('view-ws');
+  }
+
+  const TL_KINDS = {
+    samtal:     ['<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/>', 'Samtal'],
+    epost:      ['<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/>', 'E-post'],
+    anteckning: ['<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>', 'Anteckning'],
+    mote:       ['<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>', 'Möte'],
+    order:      ['<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>', 'Order'],
+  };
+  // En logg-post: händelsen i fokus. Typ-markör (det som varierar mellan rader),
+  // texten som rubrik, personen som byline. Ingen upprepad metadata från aktiviteten.
+  function tlItem(who, when, text, kind) {
+    const [ic, label] = TL_KINDS[kind] || TL_KINDS.anteckning;
+    const pen = svg('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>', 15);
+    const trash = svg('<path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>', 15);
+    return `<div class="tl-item">
+      <div class="tl-actions">
+        <button title="Redigera" onclick="toast('Redigera anteckning')">${pen}</button>
+        ${ROLE === 'superadmin' ? `<button class="danger" title="Radera" onclick="deletePost(this)">${trash}</button>` : ''}
+      </div>
+      <div class="tl-kind">${svg(ic,14)} ${label}</div>
+      <div class="tl-text">${text}</div>
+      <div class="tl-byline">${who} · ${when}</div>
+    </div>`;
+  }
+
+  // Dokument som hör till aktiviteten/företaget. Prislistan bifogades i e-posten 2 okt.
+  function docsHtml(a) {
+    const docs = [
+      ['Prislista 2025.pdf', '240 kB', '2 okt 2025', a.owner],
+      ['Företagspresentation.pdf', '1,2 MB', '2 okt 2025', a.owner],
+    ];
+    if (!docs.length) return `<div class="doc-empty">Inga dokument ännu.</div>`;
+    const fic = svg('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>', 16);
+    return docs.map(([n, sz, d, by]) => `
+      <div class="doc-row">
+        <div class="doc-name"><span class="fic">${fic}</span><span class="t">${n}</span></div>
+        <div class="doc-meta">${sz}</div>
+        <div class="doc-meta">${d} · ${initials(by)}</div>
+      </div>`).join('');
+  }
+
+  // Metarad ovanför kommentaren: egenskaper hos AKTIVITETEN (ansvarig/datum/åtgärd)
+  function metaHtml(a) {
+    return `
+      <button class="m" onclick="toast('Byt typ')">
+        <div class="ic">${svg(TYPE_META[a.type].ic,15)}</div>
+        <div style="min-width:0"><div class="lbl">Typ</div><div class="val">${TYPE_META[a.type].label}</div></div>
+        <span class="edit">${svg('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',14)}</span>
+      </button>
+      <button class="m" onclick="toast('Byt ansvarig')">
+        <div class="ic">${svg('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',15)}</div>
+        <div style="min-width:0"><div class="lbl">Ansvarig</div><div class="val">${a.owner}</div></div>
+        <span class="edit">${svg('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',14)}</span>
+      </button>
+      <button class="m" onclick="toast('Ändra datum')">
+        <div class="ic">${svg('<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',15)}</div>
+        <div style="min-width:0"><div class="lbl">Datum</div><div class="val">${fmtDate(a.date)} 2026${hasTime(a) ? ', ' + timeOf(a) : ''}</div></div>
+        <span class="edit">${svg('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',14)}</span>
+      </button>
+      <button class="m" onclick="toast('Byt åtgärd')">
+        <div class="ic">${svg('<rect x="4" y="4" width="16" height="16" rx="3"/><path d="m9 12 2 2 4-4"/>',15)}</div>
+        <div style="min-width:0"><div class="lbl">Syfte</div><div class="val">${a.action}</div></div>
+        <span class="edit">${svg('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',14)}</span>
+      </button>`;
+  }
+
+  // Högerspalt: EN kontextruta. Företag + adress överst, kontakt under. De hör ihop.
+  function railHtml(a) {
+    return `
+      <div class="card contact-card">
+        <div class="co-head">
+          <div class="co-logo">${svg('<path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/>',20)}</div>
+          <div style="min-width:0"><div class="co-name">${a.company}</div><div class="co-status">${a.coStatus}</div></div>
+          <button class="icon-btn" style="margin-left:auto;width:32px;height:32px" title="Redigera företag" onclick="toast('Redigera företag')">${svg('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',15)}</button>
+        </div>
+        <div class="co-addr">${svg(pinIc,15)} <span>${a.addr}, ${a.zip} ${a.city}</span></div>
+
+        <div class="cc-divider"></div>
+
+        <div class="cc-top">
+          <span class="avatar">${initials(a.contact)}</span>
+          <div><div class="co-name" style="font-size:15px">${a.contact}</div><div class="cc-role">${a.role}</div></div>
+          <button class="icon-btn" style="margin-left:auto;width:32px;height:32px" title="Redigera kontakt" onclick="toast('Redigera kontakt')">${svg('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',15)}</button>
+        </div>
+        <div class="rail-btns">
+          <button class="btn btn-primary btn-sm" onclick="toast('Öppnar e-post')">${svg('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',15)} E-post</button>
+          <button class="btn btn-sm" onclick="toast('Bokar möte')">${svg('<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',15)} Möte</button>
+        </div>
+        <div class="rail-contact-line">${svg('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',16)} <a href="#" onclick="return false">${a.email}</a></div>
+        <div class="rail-contact-line">${svg('<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.5 2.8.6a2 2 0 0 1 1.7 2z"/>',16)} <a href="#" onclick="return false">${a.phone}</a></div>
+      </div>`;
+  }
+
+  function switchTab(key, btn) {
+    document.querySelectorAll('#ws-tabs button').forEach(b => b.classList.toggle('on', b === btn));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('on', p.dataset.pane === key));
+  }
+
+  // ── Markera klar → uppföljning ──────────────────────────────────
+  let fuCustom = null, fuTime = '09:00';
+  function fuTypeIsTime() {
+    return ['phone','meeting'].includes(document.querySelector('#fu-types .pick.on').dataset.type);
+  }
+  function resetFuCustom() {
+    fuCustom = null;
+    document.getElementById('fu-cal').innerHTML = '';
+    document.getElementById('fu-custom-chip').textContent = 'Annat datum…';
+  }
+  function markDone() {
+    if (!current) return;
+    current.actStatus = 'klar';
+    document.getElementById('fu-subject').value = `Följ upp ${current.company}`;
+    // förvälj typ = samma som aktiviteten, när = om 3 dagar
+    selectPick('fu-types', current.type, 'type');
+    selectPick('fu-when', '3', 'days');
+    resetFuCustom();
+    resetDeal();
+    document.getElementById('fu-overlay').classList.add('on');
+  }
+  // ── Affärssteg ──────────────────────────────────────────────────
+  let dealOn = false;
+  function setDealMode(mode) {
+    document.querySelectorAll('#deal-mode button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
+    document.getElementById('deal-new').style.display = mode === 'new' ? '' : 'none';
+    document.getElementById('deal-existing').style.display = mode === 'existing' ? '' : 'none';
+  }
+  function populateDealPick(co) {
+    const deals = EXISTING_DEALS_BY_CO[co] || [];
+    document.getElementById('deal-pick').innerHTML =
+      deals.map((d,i) => `<option value="${i}">${d.name} · ${d.stage} · ${d.value} kr</option>`).join('');
+    const eb = document.querySelector('#deal-mode [data-mode="existing"]');
+    eb.disabled = deals.length === 0;
+    eb.textContent = deals.length ? `Koppla till befintlig (${deals.length})` : 'Koppla till befintlig';
+    return deals;
+  }
+  function resetDeal() {
+    dealOn = false;
+    document.getElementById('deal-toggle').classList.remove('on');
+    document.getElementById('deal-box').classList.remove('on');
+    document.getElementById('deal-name').value = current ? current.company : '';
+    document.getElementById('deal-value').value = '';
+    selectPick('deal-stage', 'Förslag', 'stage');
+    populateDealPick(current ? current.company : '');
+    setDealMode('new');
+  }
+  function toggleDeal() {
+    dealOn = !dealOn;
+    document.getElementById('deal-toggle').classList.toggle('on', dealOn);
+    document.getElementById('deal-box').classList.toggle('on', dealOn);
+  }
+  document.getElementById('deal-mode').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b || b.disabled) return;
+    setDealMode(b.dataset.mode);
+  });
+  // enkel enval-logik för båda steg-chip-raderna i affärsboxen
+  ['deal-stage','deal-move'].forEach(id => document.getElementById(id).addEventListener('click', e => {
+    const b = e.target.closest('.pick'); if (!b) return;
+    b.parentElement.querySelectorAll('.pick').forEach(x => x.classList.toggle('on', x === b));
+  }));
+  function maybeCreateDeal() {
+    if (!dealOn) return null;
+    const mode = document.querySelector('#deal-mode .on').dataset.mode;
+    if (mode === 'existing') {
+      const deals = EXISTING_DEALS_BY_CO[current.company] || [];
+      const d = deals[+document.getElementById('deal-pick').value || 0];
+      if (!d) return null;
+      const to = document.querySelector('#deal-move .pick.on').dataset.stage;
+      const from = d.stage;
+      d.stage = to;
+      return `Affär flyttad: ${d.name} ${from} → ${to}`;
+    }
+    const name = document.getElementById('deal-name').value.trim() || current.company;
+    const value = document.getElementById('deal-value').value.trim();
+    const stage = document.querySelector('#deal-stage .pick.on').dataset.stage;
+    DEALS.push({ id: DEALS.length + 1, name, value, stage, company: current.company, contact: current.contact });
+    return `Affär skapad: ${name}${value ? ', ' + value + ' kr' : ''}`;
+  }
+  function selectPick(containerId, value, attr) {
+    document.querySelectorAll(`#${containerId} .pick`).forEach(b =>
+      b.classList.toggle('on', b.dataset[attr] === value));
+  }
+  function mountFuCal() {
+    mountCalendar(document.getElementById('fu-cal'), {
+      selISO: fuCustom || addDaysISO(3), withTime: fuTypeIsTime(), timeVal: fuTime,
+      onChange: s => {
+        fuCustom = s.sel; fuTime = s.time;
+        document.getElementById('fu-custom-chip').textContent = fmtLong(s.sel) + (fuTypeIsTime() ? ' · ' + s.time : '');
+      },
+    });
+  }
+  // typ-chips: byt val, och spegla tid i ev. öppen kalender
+  document.getElementById('fu-types').addEventListener('click', e => {
+    const b = e.target.closest('.pick'); if (!b) return;
+    b.parentElement.querySelectorAll('.pick').forEach(x => x.classList.toggle('on', x === b));
+    if (document.getElementById('fu-cal').innerHTML) mountFuCal();
+  });
+  // när-chips: presets eller "Annat datum…" som öppnar kalendern
+  document.getElementById('fu-when').addEventListener('click', e => {
+    const b = e.target.closest('.pick'); if (!b) return;
+    b.parentElement.querySelectorAll('.pick').forEach(x => x.classList.toggle('on', x === b));
+    if (b.dataset.cal) mountFuCal();
+    else resetFuCustom();
+  });
+  function createFollowup() {
+    const type = document.querySelector('#fu-types .pick.on').dataset.type;
+    const useCustom = document.getElementById('fu-custom-chip').classList.contains('on') && fuCustom;
+    let dateISO, timeStr;
+    if (useCustom) { dateISO = fuCustom; timeStr = fuTime; }
+    else { const days = +document.querySelector('#fu-when .pick.on').dataset.days || 3; dateISO = addDaysISO(days); timeStr = '09:00'; }
+    const subject = document.getElementById('fu-subject').value.trim() || `Följ upp ${current.company}`;
+    const id = Math.max(...ACTIVITIES.map(a=>a.id)) + 1;
+    ACTIVITIES.push({
+      ...current, id, type, subject, actStatus:'pag', action:'Följ upp',
+      date: dateISO, time: ['phone','meeting'].includes(type) ? timeStr : undefined,
+      lastComment:'Uppföljning skapad från föregående aktivitet.',
+    });
+    current.noFollowup = false; // den klarmarkerade raden har nu en uppföljning
+    const dealMsg = maybeCreateDeal();
+    toastDone(`Klarmarkerad: ${current.subject}`,
+      `Uppföljning skapad ${relDate(dateISO).toLowerCase()}${dealMsg ? ' · ' + dealMsg : ''}`);
+    // landa i "Mina · Alla" och blinka till den nya uppföljningen så man ser vad som hände
+    flashId = id;
+    ownerSel = new Set([CURRENT_USER]); bucket = 'alla';
+    showList();
+  }
+  function skipFollowup() {
+    current.noFollowup = true; // flagga den lösa tråden i listan
+    const dealMsg = maybeCreateDeal();
+    // "Inte nu" gäller uppföljningen — aktiviteten är redan klarmarkerad i markDone().
+    // Så toasten bekräftar uppföljningsbeslutet, den återupprepar inte "Klarmarkerad".
+    // Neutral bekräftelse, inte grön success. (Skapades ändå en affär är det ett
+    // framåtsteg → behåll grönt och visa affärsmeddelandet i det fallet.)
+    if (dealMsg) toastDone(dealMsg, null, 'success');
+    else toastDone('Ingen uppföljning planerad', 'Du kan planera en uppföljning när som helst.', 'neutral');
+    flashId = current.id; // blinka den klarmarkerade raden så man ser vilken
+    showList();
+  }
+
+  // ── VY C: skapa ─────────────────────────────────────────────────
+  let createSel = addDaysISO(1), createTime = '09:00', createCalOpen = false;
+  function openCreate() { setView('view-create'); }
+
+  function isTimeType() {
+    return ['phone','meeting'].includes(document.querySelector('#type-picker button.on').dataset.type);
+  }
+  function updateCreateDateLabel() {
+    const t = isTimeType();
+    document.getElementById('c-time-lbl').textContent = t ? ' och tid' : '';
+    document.getElementById('c-date-label').textContent = fmtLong(createSel) + (t ? ' · ' + createTime : '');
+  }
+  function mountCreateCal() {
+    mountCalendar(document.getElementById('c-cal'), {
+      selISO: createSel, withTime: isTimeType(), timeVal: createTime,
+      onChange: s => { createSel = s.sel; createTime = s.time; updateCreateDateLabel(); },
+    });
+  }
+  function toggleCreateCal() {
+    createCalOpen = !createCalOpen;
+    if (!createCalOpen) { document.getElementById('c-cal').innerHTML = ''; return; }
+    mountCreateCal();
+  }
+
+  // kontaktperson filtreras per valt företag
+  function populateContacts(co) {
+    const sel = document.getElementById('c-contact');
+    document.getElementById('new-contact').classList.remove('on');
+    if (!co) { sel.innerHTML = '<option value="">Välj företag först…</option>'; sel.disabled = true; return; }
+    const list = CONTACTS_BY_CO[co] || [];
+    sel.disabled = false;
+    sel.innerHTML = '<option value="">Välj kontakt…</option>'
+      + list.map(([n,r]) => `<option>${n} — ${r}</option>`).join('')
+      + '<option value="__newc">+ Skapa ny kontakt</option>';
+  }
+  function onCompanySelect() {
+    const co = document.getElementById('c-company').value;
+    // väljer man ett befintligt företag stängs nytt-företag-rutan
+    if (co) { const ic = document.getElementById('inline-create'); if (ic.classList.contains('on')) toggleInlineCreate(); }
+    populateContacts(co);
+  }
+  function onContactSelect() {
+    document.getElementById('new-contact').classList.toggle('on', document.getElementById('c-contact').value === '__newc');
+  }
+
+  function toggleInlineCreate() {
+    const el = document.getElementById('inline-create');
+    const open = el.classList.toggle('on');
+    document.getElementById('new-co-btn').innerHTML = open
+      ? '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg> Dölj nytt företag'
+      : '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Skapa nytt företag';
+    const sel = document.getElementById('c-contact');
+    if (open) {
+      // nytt bolag: kontakten anges inne i företagsrutan, inte i det separata fältet
+      document.getElementById('c-company').value = '';
+      document.getElementById('new-contact').classList.remove('on');
+      sel.disabled = true;
+      sel.innerHTML = '<option>Kontakt anges i företagsrutan ovan</option>';
+    } else {
+      populateContacts('');
+    }
+  }
+  function fetchBolag() {
+    const v = document.getElementById('c-orgnr').value.replace(/\D/g,'');
+    if (v.length !== 10) { toast('Ange 10 siffror'); return; }
+    // fejkad Bolagsverket-hämtning
+    document.getElementById('c-name').value = 'Exempel Handelsbolag AB';
+    document.getElementById('c-addr').value = 'Kungsgatan 14';
+    document.getElementById('c-zip').value  = '411 19';
+    document.getElementById('c-city').value = 'Göteborg';
+    document.getElementById('c-sni').value  = '46.900 Övrig partihandel';
+    document.getElementById('prov-orgnr').classList.add('on');
+    toast('Uppgifter hämtade från Bolagsverket');
+  }
+  function toggleContactCreate() {
+    const el = document.getElementById('contact-create');
+    const open = el.classList.toggle('on');
+    document.getElementById('add-contact-btn').textContent = open ? '– Dölj kontaktperson' : '+ Lägg till kontaktperson';
+  }
+  document.getElementById('c-status').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    document.querySelectorAll('#c-status button').forEach(x => x.classList.toggle('on', x === b));
+  });
+  document.getElementById('type-picker').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    document.querySelectorAll('#type-picker button').forEach(x => x.classList.toggle('on', x === b));
+    updateCreateDateLabel();
+    if (createCalOpen) mountCreateCal(); // spegla att tid nu visas/döljs
+  });
+  function saveCreate() {
+    const type = document.querySelector('#type-picker button.on').dataset.type;
+    const subj = document.getElementById('c-subject').value.trim() || TYPE_META[type].label + ' – ny aktivitet';
+    const creatingNew = document.getElementById('inline-create').classList.contains('on');
+    let company = creatingNew
+      ? (document.getElementById('c-name').value.trim() || 'Nytt företag AB')
+      : document.getElementById('c-company').value;
+    if (!company) company = 'Nordvik Logistik AB';
+
+    // kontakt: från inline-företaget, annars från det företagskopplade fältet
+    let contact = 'Elin Åkerlund', role = 'Inköpschef';
+    if (creatingNew) {
+      contact = document.getElementById('c-newco-name').value.trim() || 'Ny kontakt';
+      role = document.getElementById('c-newco-role').value.trim() || '—';
+    } else {
+      const cv = document.getElementById('c-contact').value;
+      if (cv && cv !== '__newc') { const parts = cv.split(' — '); contact = parts[0]; role = parts[1] || '—'; }
+    }
+
+    const withTime = ['phone','meeting'].includes(type);
+    const id = Math.max(...ACTIVITIES.map(a=>a.id)) + 1;
+    ACTIVITIES.unshift({
+      id, type, subject:subj, company, coStatus:'Prospekt',
+      city:document.getElementById('c-city').value.trim() || 'Göteborg',
+      contact, role, phone:'031-12 45 67', email:'elin@nordviklogistik.se',
+      owner:'William Bernting', ownerInit:'WB', date:createSel,
+      time: withTime ? createTime : undefined,
+      action:document.getElementById('c-action').value, actStatus:'pag', mine:true,
+      lastComment:'Ny aktivitet skapad.', addr:document.getElementById('c-addr').value.trim() || 'Exportgatan 12',
+      zip:document.getElementById('c-zip').value.trim() || '422 46',
+      orgnr:document.getElementById('c-orgnr').value || '556734-1093',
+      sni:document.getElementById('c-sni').value.trim() || '52.291 Spedition och transportförmedling',
+    });
+    toast('Aktivitet skapad');
+    openWorkspace(id);
+  }
+
+  // ── Vy-hantering ────────────────────────────────────────────────
+  function setView(id) {
+    document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === id));
+    window.scrollTo(0,0);
+  }
+  function showList() { document.getElementById('fu-overlay').classList.remove('on'); setView('view-list'); renderList(); }
+
+  document.getElementById('act-search').addEventListener('input', renderList);
+  // mousedown (inte click): läser target innan en popover-omrendering kopplar bort noden
+  document.addEventListener('mousedown', e => { if (!e.target.closest('.filt')) closeFilts(); });
+
+  let toastT;
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.className = 'toast'; t.textContent = msg; t.classList.add('on');
+    clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 1900);
+  }
+  // Större bekräftelse som namnger aktiviteten. Grön när något skapades framåt
+  // (success), neutralt mörk när man bara bekräftar/hoppar över (tone='neutral').
+  function toastDone(title, detail, tone) {
+    const t = document.getElementById('toast');
+    t.className = 'toast toast-ok' + (tone === 'neutral' ? ' toast-neutral' : '');
+    t.innerHTML = `<span class="toast-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></span>`
+      + `<span><strong>${title}</strong>${detail ? `<span class="toast-sub">${detail}</span>` : ''}</span>`;
+    t.classList.add('on');
+    clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 3200);
+  }
+
+  // Undo-toast: namnger vad som togs bort och erbjuder Ångra (mjuk radering).
+  function toastUndo(msg, onUndo) {
+    const t = document.getElementById('toast');
+    t.className = 'toast toast-undo';
+    t.innerHTML = `<span>${msg}</span>`;
+    const b = document.createElement('button');
+    b.className = 'undo-btn'; b.textContent = 'Ångra';
+    b.onclick = () => { clearTimeout(toastT); t.classList.remove('on'); onUndo(); };
+    t.appendChild(b);
+    t.classList.add('on');
+    clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 6000);
+  }
+
+  // Åtgärder-meny (klick-styrd, stängs vid klick utanför)
+  function toggleMenu(id, e) {
+    e.stopPropagation();
+    const m = document.getElementById(id);
+    const open = m.classList.contains('open');
+    document.querySelectorAll('.menu.open').forEach(x => x.classList.remove('open'));
+    if (!open) m.classList.add('open');
+  }
+  document.addEventListener('click', () => document.querySelectorAll('.menu.open').forEach(m => m.classList.remove('open')));
+
+  // Rollväxlare (demo): visar att raderingsrätt sitter på superadmin, inte på säljaren.
+  function toggleRole() {
+    ROLE = ROLE === 'seller' ? 'superadmin' : 'seller';
+    applyRole();
+    toast(ROLE === 'superadmin' ? 'Roll: Superadmin, kan radera' : 'Roll: Säljare, arkiverar');
+  }
+  function applyRole() {
+    document.getElementById('role-switch').textContent = ROLE === 'seller' ? 'Säljare' : 'Superadmin';
+    const rm = document.getElementById('act-remove');
+    if (ROLE === 'superadmin') { rm.textContent = 'Radera aktivitet'; rm.classList.add('danger'); }
+    else { rm.textContent = 'Arkivera aktivitet'; rm.classList.remove('danger'); }
+    // Om arbetsytan är öppen: rendera om så att papperskorgen på loggposter följer rollen.
+    if (document.getElementById('view-ws').classList.contains('active') && current) openWorkspace(current.id);
+  }
+
+  // Skjut fram: snabb omplanering av en pågående aktivitet. Bumpar datumet, inget klarmarkeras.
+  function rescheduleActivity(days) {
+    const d = new Date(current.date);
+    d.setDate(d.getDate() + days);
+    current.date = d.toISOString().slice(0, 10);
+    const id = current.id;
+    openWorkspace(id);
+    flashId = id;
+    toast(`Framflyttad till ${fmtDate(current.date)} ${relDate(current.date)}`.trim());
+  }
+
+  // Ta bort-knappen i Åtgärder grenar på roll: säljare arkiverar, superadmin raderar.
+  function removeActivity() { ROLE === 'superadmin' ? deleteActivity() : archiveActivity(); }
+
+  // Arkivera (säljare): döljer aktiviteten men raderar inte data. Ångra i toasten.
+  function archiveActivity() {
+    const a = current;
+    const idx = ACTIVITIES.findIndex(x => x.id === a.id);
+    if (idx < 0) return;
+    const removed = ACTIVITIES.splice(idx, 1)[0];
+    showList();
+    toastUndo(`Aktiviteten arkiverad: ${a.subject}`, () => { ACTIVITIES.splice(idx, 0, removed); renderList(); });
+  }
+
+  // Radera aktivitet (superadmin): permanent borttagning, tillbaka till listan, Ångra i toasten.
+  function deleteActivity() {
+    const a = current;
+    const idx = ACTIVITIES.findIndex(x => x.id === a.id);
+    if (idx < 0) return;
+    const removed = ACTIVITIES.splice(idx, 1)[0];
+    showList();
+    toastUndo(`Aktiviteten raderad: ${a.subject}`, () => { ACTIVITIES.splice(idx, 0, removed); renderList(); });
+  }
+
+  // Radera en enskild logg-post: ta bort noden, Ångra återinsätter den.
+  function deletePost(btn) {
+    const item = btn.closest('.tl-item');
+    const parent = item.parentNode, next = item.nextSibling;
+    item.remove();
+    toastUndo('Anteckning raderad', () => parent.insertBefore(item, next));
+  }
+
+  populateContacts('');
+  updateCreateDateLabel();
+  applyRole();
+  renderList();
+</script>

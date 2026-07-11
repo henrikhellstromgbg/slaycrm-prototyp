@@ -173,7 +173,7 @@ mobilens "Mer". Dubbelfliken är redan kollapsad i prototypen. Kommentar-polymor
 
 ---
 
-## 5. Vad det gör med prototypen (`design-system/app.html`)
+## 5. Vad det gör med prototypen (`app.html`)
 
 Prototypen har idag 6 jämbördiga nav-dörrar (Aktiviteter, Företag, Kontakter, Affärer,
 Offerter, Säljtavlan). Det speglar det gamla "sex register". Den reducerade modellen ritar
